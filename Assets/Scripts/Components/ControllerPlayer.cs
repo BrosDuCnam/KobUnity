@@ -6,38 +6,25 @@ using UnityEngine.InputSystem;
 
 public class ControllerPlayer : NetworkBehaviour
 {
-    /// <summary>
-    /// The character controller component.
-    /// </summary>
     [Header("Components")]
     [SerializeField] private CharacterController controller;
-
-    /// <summary>
-    /// The player's camera.
-    /// </summary>
     [SerializeField] private Camera playerCamera;
 
-    /// <summary>
-    /// The movement speed of the player.
-    /// </summary>
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float jumpHeight = 3f;
+    
 
-    /// <summary>
-    /// The mouse sensitivity for camera movement.
-    /// </summary>
     [Header("Camera")]
     [SerializeField] private float mouseSensitivity = 100f;
-
-    /// <summary>
-    /// The minimum and maximum pitch values for camera movement.
-    /// </summary>
     [SerializeField] private Vector2 pitchMinMax = new Vector2(-45f, 45f);
 
-    /// <summary>
-    /// The direction that the player is moving in.
-    /// </summary>
+    public Vector3 velocity = Vector3.zero;
+    
     private Vector2 _direction;
+    private Vector2 _lookDelta;
+    private bool _isJumping;
     
     private void Update()
     {
@@ -45,32 +32,44 @@ public class ControllerPlayer : NetworkBehaviour
         Move();
     }
     
-    
-    private void Move() 
-    { 
-        // Convert the 2D direction to a 3D vector with zero Y component and normalize it.
-        Vector3 moveDirection = new Vector3(_direction.x, 0f, _direction.y).normalized; // Transform the move direction relative to the game object's rotation.
-        moveDirection = transform.TransformDirection(moveDirection); // Calculate the move velocity by multiplying the move direction with the move speed.
-        Vector3 moveVelocity = moveDirection * moveSpeed; // Move the game object using a character controller and delta time.
-        controller.SimpleMove(moveVelocity);
-        
-        // Uncomment the following line to update the "Speed" parameter of an animator.
-        // animator.SetFloat("Speed", moveVelocity.magnitude);
+    private void Start()
+    {
+        if (!IsLocalPlayer) return;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
-   
     
+    private void Move()
+    {
+        if (controller.isGrounded)
+        {
+            // Set the velocity to the direction, take into account the move speed, delta time, and the player's rotation.
+            Vector3 move = transform.right * _direction.x + transform.forward * _direction.y;
+            velocity.x = move.x;
+            velocity.z = move.z;
+            
+            velocity.y = 0f;
+        }
+
+        velocity.y += gravity * Time.deltaTime;
+
+        if (_isJumping)
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            _isJumping = false;
+        }
+
+        // Move the player
+        controller.Move(velocity * (moveSpeed * Time.deltaTime));
+    }
+
+
     /// <summary>
     /// Callback function for the Move input action.
     /// </summary>
     /// <param name="context">The context of the input action callback.</param>
     public void Call_Move(InputAction.CallbackContext context)
     {
-        if (NetworkManager.IsClient && !IsOwner)
-        {
-            Debug.LogWarning("Client is not the local player.");
-            return;
-        }
-        
         if (!IsOwner) return;
 
         if (context.phase == InputActionPhase.Performed)
@@ -98,6 +97,18 @@ public class ControllerPlayer : NetworkBehaviour
             transform.Rotate(Vector3.up * yaw);
             playerCamera.transform.Rotate(Vector3.left * pitch);
             playerCamera.transform.localRotation = ClampRotationAroundXAxis(playerCamera.transform.localRotation);
+        }
+    }
+    
+    public void Call_Jump(InputAction.CallbackContext context)
+    {
+        if (!IsOwner) return;
+        if (!controller.isGrounded) return;
+        
+        if (context.phase == InputActionPhase.Performed)
+        {
+            Debug.Log("Jumping");
+            _isJumping = true;
         }
     }
     

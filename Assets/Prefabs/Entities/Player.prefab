@@ -291,8 +291,11 @@ MonoBehaviour:
   controller: {fileID: 5681411191232542052}
   playerCamera: {fileID: 8479459336922277748}
   moveSpeed: 5
-  mouseSensitivity: 100
+  gravity: -9.81
+  jumpHeight: 1
+  mouseSensitivity: 25
   pitchMinMax: {x: -45, y: 45}
+  velocity: {x: 0, y: 0, z: 0}
 --- !u!143 &5681411191232542052
 CharacterController:
   m_ObjectHideFlags: 0
@@ -377,6 +380,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 84af60ff-cd57-404f-a394-a5594d21d606
     m_ActionName: Game/Direction[/XInputControllerWindows/rightStick,/Mouse/delta]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2280218863150637478}
+        m_TargetAssemblyTypeName: ControllerPlayer, Assembly-CSharp
+        m_MethodName: Call_Jump
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 8fc8973c-7819-4bfc-9d7e-61fd1ba2b795
+    m_ActionName: Game/Jump[/XInputControllerWindows/buttonSouth,/Keyboard/space]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Game
