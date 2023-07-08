@@ -34,7 +34,7 @@ public class ControllerPlayer : NetworkBehaviour
     
     private void Start()
     {
-        if (!IsLocalPlayer) return;
+        if (!IsOwner) return;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
