@@ -294,8 +294,12 @@ MonoBehaviour:
   gravity: -9.81
   jumpHeight: 0.3
   mouseSensitivity: 25
-  pitchMinMax: {x: -30, y: 30}
+  pitchMinMax: {x: -60, y: 60}
+  onTouchGround:
+    m_PersistentCalls:
+      m_Calls: []
   velocity: {x: 0, y: 0, z: 0}
+  parentVelocity: {x: 0, y: 0, z: 0}
 --- !u!143 &5681411191232542052
 CharacterController:
   m_ObjectHideFlags: 0

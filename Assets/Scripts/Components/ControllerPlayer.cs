@@ -1,7 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Interfaces;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 public class ControllerPlayer : NetworkBehaviour
@@ -19,15 +22,31 @@ public class ControllerPlayer : NetworkBehaviour
     [Header("Camera")]
     [SerializeField] private float mouseSensitivity = 100f;
     [SerializeField] private Vector2 pitchMinMax = new Vector2(-45f, 45f);
-
+    
+    [Header("Events")]
+    [SerializeField] private UnityEvent onTouchGround;
+    
     public Vector3 velocity = Vector3.zero;
+    public Vector3 parentVelocity = Vector3.zero;
     
     private Vector2 _direction;
     private Vector2 _lookDelta;
     private bool _isJumping;
     
+    private bool _lastFrameGrounded;
+    private IMovingObject _currentMovingParent;
+    
     private void Update()
     {
+        if (controller.isGrounded)
+        {
+            if (!_lastFrameGrounded)
+            {
+                onTouchGround.Invoke();
+            }
+        }
+        _lastFrameGrounded = controller.isGrounded;
+
         if (!IsOwner) return;
         
         UpdatePosition();
@@ -62,7 +81,7 @@ public class ControllerPlayer : NetworkBehaviour
         }
 
         // Move the player
-        controller.Move(velocity * (moveSpeed * Time.deltaTime));
+        controller.Move(velocity * (Time.deltaTime * moveSpeed) + parentVelocity);
     }
 
     private void UpdateLook()
@@ -82,6 +101,19 @@ public class ControllerPlayer : NetworkBehaviour
     }
 
 
+    public void OnParentMove(Vector3 delta)
+    {
+        if (!IsOwner) return;
+        
+        if (controller.isGrounded)
+        {
+            parentVelocity = delta;
+        }
+        else // We are in the air, we don't want to move y-axis
+        {
+            parentVelocity = new Vector3(delta.x, 0f, delta.z);
+        }
+    }
 
     /// <summary>
     /// Callback function for the Move input action.
@@ -148,5 +180,46 @@ public class ControllerPlayer : NetworkBehaviour
         q.x = Mathf.Tan(0.5f * Mathf.Deg2Rad * angleX);
 
         return q;
+    }
+
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (!IsOwner) return;
+        
+        // Check if hit is IMovingObject or has IMovingObject in parents hierarchy
+        GameObject toTest = hit.gameObject;
+        
+        while (toTest != null)
+        {
+            IMovingObject movingObject = toTest.GetComponent<IMovingObject>();
+            if (movingObject != null)
+            { 
+                SetMovingParent(movingObject);
+                return;
+            }
+
+            if (toTest.transform.parent == null) break;
+            toTest = toTest.transform.parent.gameObject;
+        }
+        
+        SetMovingParent(null);
+    }
+
+    public void SetMovingParent(IMovingObject parent)
+    {
+        if (!IsOwner) return;
+		if (parent == _currentMovingParent) return;
+        
+        _currentMovingParent?.OnMove.RemoveListener(OnParentMove);
+
+        if (parent == null)
+        {
+            _currentMovingParent = null;
+            parentVelocity = Vector3.zero;
+            return;
+        }
+        
+        _currentMovingParent = parent;
+        _currentMovingParent.OnMove.AddListener(OnParentMove);
     }
 }
