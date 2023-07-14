@@ -291,6 +291,7 @@ MonoBehaviour:
   controller: {fileID: 5681411191232542052}
   playerCamera: {fileID: 8479459336922277748}
   moveSpeed: 5
+  sprintSpeed: 7.5
   gravity: -9.81
   jumpHeight: 0.3
   mouseSensitivity: 25
@@ -400,6 +401,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 8fc8973c-7819-4bfc-9d7e-61fd1ba2b795
     m_ActionName: Game/Jump[/XInputControllerWindows/buttonSouth,/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2280218863150637478}
+        m_TargetAssemblyTypeName: ControllerPlayer, Assembly-CSharp
+        m_MethodName: Call_Sprint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: aaf2f906-7e3b-4ab9-b58f-eb6779a1cde4
+    m_ActionName: Game/Sprint[/XInputControllerWindows/leftStickPress,/Keyboard/leftShift]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Game

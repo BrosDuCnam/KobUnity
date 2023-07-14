@@ -15,9 +15,9 @@ public class ControllerPlayer : NetworkBehaviour
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float sprintSpeed = 7.5f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float jumpHeight = 3f;
-    
 
     [Header("Camera")]
     [SerializeField] private float mouseSensitivity = 100f;
@@ -32,6 +32,7 @@ public class ControllerPlayer : NetworkBehaviour
     private Vector2 _direction;
     private Vector2 _lookDelta;
     private bool _isJumping;
+    private bool _isSprinting;
     
     private bool _lastFrameGrounded;
     private IMovingObject _currentMovingParent;
@@ -81,7 +82,8 @@ public class ControllerPlayer : NetworkBehaviour
         }
 
         // Move the player
-        controller.Move(velocity * (Time.deltaTime * moveSpeed) + parentVelocity);
+        float speed = _isSprinting ? sprintSpeed : moveSpeed;
+        controller.Move(velocity * (Time.deltaTime * speed) + parentVelocity);
     }
 
     private void UpdateLook()
@@ -143,6 +145,11 @@ public class ControllerPlayer : NetworkBehaviour
         if (context.phase == InputActionPhase.Performed)
         {
             _lookDelta = context.ReadValue<Vector2>();
+            
+            if (context.control.device is Gamepad)
+            {
+                _lookDelta *= 7; // Gamepad is too slow compared to mouse
+            }
         }
         else if (context.phase == InputActionPhase.Canceled)
         {
@@ -158,6 +165,21 @@ public class ControllerPlayer : NetworkBehaviour
         if (context.phase == InputActionPhase.Performed)
         {
             _isJumping = true;
+        }
+    }
+    
+    public void Call_Sprint(InputAction.CallbackContext context)
+    {
+        if (!IsOwner) return;
+
+        switch (context.phase)
+        {
+            case InputActionPhase.Performed:
+                _isSprinting = true;
+                break;
+            case InputActionPhase.Canceled:
+                _isSprinting = false;
+                break;
         }
     }
 
