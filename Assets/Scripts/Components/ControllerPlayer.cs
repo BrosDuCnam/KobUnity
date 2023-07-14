@@ -107,14 +107,7 @@ public class ControllerPlayer : NetworkBehaviour
     {
         if (!IsOwner) return;
         
-        if (controller.isGrounded)
-        {
-            parentVelocity = delta;
-        }
-        else // We are in the air, we don't want to move y-axis
-        {
-            parentVelocity = new Vector3(delta.x, 0f, delta.z);
-        }
+        parentVelocity = delta;
     }
 
     /// <summary>
@@ -243,5 +236,34 @@ public class ControllerPlayer : NetworkBehaviour
         
         _currentMovingParent = parent;
         _currentMovingParent.OnMove.AddListener(OnParentMove);
+    }
+    
+    void OnGUI()
+    {
+        if (Application.isEditor)  // or check the app debug flag
+        {
+            GUIStyle style = new GUIStyle
+            {
+                fontSize = 34,
+            };
+
+            GUI.Label(new Rect(10, 10, 1000, 20), GetDebugString(), style);
+        }
+    }
+
+    public string GetDebugString()
+    {
+        string value = "";
+        value += $"IsOwner: {IsOwner}\n";
+        value += $"Velocity: {velocity.ToString("F8")}\n";
+        value += $"Is grounded: {controller.isGrounded}\n";
+        
+        value += $"Is on platform: {(_currentMovingParent != null)}\n";
+        if (_currentMovingParent != null)
+        {
+            value += $"Platform velocity: {parentVelocity.ToString("F8")}\n";
+        }
+        
+        return value;
     }
 }
