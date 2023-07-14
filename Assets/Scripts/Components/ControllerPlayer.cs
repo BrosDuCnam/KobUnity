@@ -28,8 +28,10 @@ public class ControllerPlayer : NetworkBehaviour
     
     private void Update()
     {
-        if (!IsLocalPlayer) return;
-        Move();
+        if (!IsOwner) return;
+        
+        UpdatePosition();
+        UpdateLook();
     }
     
     private void Start()
@@ -39,15 +41,15 @@ public class ControllerPlayer : NetworkBehaviour
         Cursor.visible = false;
     }
     
-    private void Move()
+    private void UpdatePosition()
     {
+        // Set the velocity to the direction, take into account the move speed, delta time, and the player's rotation.
+        Vector3 move = transform.right * _direction.x + transform.forward * _direction.y;
+        velocity.x = move.x;
+        velocity.z = move.z;
+        
         if (controller.isGrounded)
         {
-            // Set the velocity to the direction, take into account the move speed, delta time, and the player's rotation.
-            Vector3 move = transform.right * _direction.x + transform.forward * _direction.y;
-            velocity.x = move.x;
-            velocity.z = move.z;
-            
             velocity.y = 0f;
         }
 
@@ -62,6 +64,23 @@ public class ControllerPlayer : NetworkBehaviour
         // Move the player
         controller.Move(velocity * (moveSpeed * Time.deltaTime));
     }
+
+    private void UpdateLook()
+    {
+        // Calculate the change in mouse position
+        float yaw = _lookDelta.x * mouseSensitivity * Time.deltaTime;
+        float pitch = _lookDelta.y * mouseSensitivity * Time.deltaTime;
+
+        // Rotate the player object around the up axis
+        transform.Rotate(Vector3.up * yaw);
+
+        // Rotate the camera object around the left axis
+        playerCamera.transform.Rotate(Vector3.left * pitch);
+
+        // Clamp the camera rotation around the x-axis to prevent it from flipping
+        playerCamera.transform.localRotation = ClampRotationAroundXAxis(playerCamera.transform.localRotation);
+    }
+
 
 
     /// <summary>
@@ -91,12 +110,11 @@ public class ControllerPlayer : NetworkBehaviour
         if (!IsOwner) return;
         if (context.phase == InputActionPhase.Performed)
         {
-            Vector2 lookDirection = context.ReadValue<Vector2>();
-            float yaw = lookDirection.x * mouseSensitivity * Time.deltaTime;
-            float pitch = lookDirection.y * mouseSensitivity * Time.deltaTime;
-            transform.Rotate(Vector3.up * yaw);
-            playerCamera.transform.Rotate(Vector3.left * pitch);
-            playerCamera.transform.localRotation = ClampRotationAroundXAxis(playerCamera.transform.localRotation);
+            _lookDelta = context.ReadValue<Vector2>();
+        }
+        else if (context.phase == InputActionPhase.Canceled)
+        {
+            _lookDelta = Vector2.zero;
         }
     }
     
@@ -107,22 +125,9 @@ public class ControllerPlayer : NetworkBehaviour
         
         if (context.phase == InputActionPhase.Performed)
         {
-            Debug.Log("Jumping");
             _isJumping = true;
         }
     }
-    
-    /// <summary>
-    /// Gets the direction that the player is looking in.
-    /// </summary>
-    /// <returns>The direction that the player is looking in.</returns>
-    /// <remarks>
-    /// This function returns the forward direction of the player's camera.
-    /// </remarks>
-    public Vector3 GetLookDirection()
-    {
-        return playerCamera.transform.forward;
-    }    
 
     /// <summary>
     /// Clamps the rotation around the x-axis of a quaternion.

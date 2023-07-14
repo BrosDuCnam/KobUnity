@@ -292,9 +292,9 @@ MonoBehaviour:
   playerCamera: {fileID: 8479459336922277748}
   moveSpeed: 5
   gravity: -9.81
-  jumpHeight: 1
+  jumpHeight: 0.3
   mouseSensitivity: 25
-  pitchMinMax: {x: -45, y: 45}
+  pitchMinMax: {x: -30, y: 30}
   velocity: {x: 0, y: 0, z: 0}
 --- !u!143 &5681411191232542052
 CharacterController:
