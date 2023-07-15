@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using Managers;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -37,36 +38,35 @@ namespace Components.UI.Lobby
                 eventTrigger.triggers[^1].callback.AddListener((data) => OnHoverButton(button));
             }
         }
-
-        private void Update()
+        
+        private void Start()
         {
-            GameObject selected = EventSystem.current.currentSelectedGameObject;
-            if (selected != _lastSelected)
+            MLobby.Instance.onHoverButton.AddListener(OnSelectionChanged);
+        }
+
+        private void OnSelectionChanged(GameObject selected)
+        {
+            if (selected != null && selected.TryGetComponent(out LeftButton button))
             {
-                _lastSelected = selected;
-                if (selected != null && selected.TryGetComponent(out LeftButton button))
+                OnHoverButton(button);
+
+                // Set hover to false for all other buttons.
+                foreach (var otherButton in _buttons)
                 {
-                    OnHoverButton(button);
-                    
-                    // Set hover to false for all other buttons.
-                    foreach (var otherButton in _buttons)
-                    {
-                        if (otherButton == button) continue;
-                        otherButton.SetHover(false);
-                    }
-                }
-                else
-                {
-                    selector.SetActive(false);
-                    
-                    // Set hover to false for all buttons.
-                    foreach (var otherButton in _buttons)
-                    {
-                        otherButton.SetHover(false);
-                    }
+                    if (otherButton == button) continue;
+                    otherButton.SetHover(false);
                 }
             }
-            
+            else
+            {
+                selector.SetActive(false);
+
+                // Set hover to false for all buttons.
+                foreach (var otherButton in _buttons)
+                {
+                    otherButton.SetHover(false);
+                }
+            }
         }
 
         private void OnHoverButton(LeftButton leftButton)
