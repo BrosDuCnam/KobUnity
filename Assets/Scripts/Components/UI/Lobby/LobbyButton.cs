@@ -8,7 +8,7 @@ using Utils;
 
 namespace Components.UI.Lobby
 {
-    public class LobbyButton : UIBehaviour<LobbyButton.LobbyButtonData>
+    public class LobbyButton : UIBehaviour<LobbyButton.LobbyButtonData>, IDisplayable
     {
         public struct LobbyButtonData
         {
@@ -24,6 +24,8 @@ namespace Components.UI.Lobby
         private Sequence _symbolSequence;
         private UnityAction _onPressed;
         
+        CanvasGroup IDisplayable.CanvasGroup => _canvasGroup;
+
         private new void Awake()
         {
             base.Awake();
@@ -81,20 +83,6 @@ namespace Components.UI.Lobby
             _symbolSequence.AppendCallback(() => _symbol.gameObject.SetActive(false));
 
             _symbolSequence.Play();
-        }
-
-        public Tween Display(bool display, bool instant = false)
-        {
-            Debug.Log("[DEBUG/Button]: display: " + display + ", instant: " + instant);
-            
-            if (instant)
-            {
-                _canvasGroup.alpha = display ? 1f : 0f;
-                return null;
-            }
-            
-
-            return _canvasGroup.DOFade(display ? 1f : 0f, instant ? 0f : 0.3f);
         }
     }
 }

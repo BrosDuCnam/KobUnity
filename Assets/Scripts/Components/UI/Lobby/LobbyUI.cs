@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 using Utils;
@@ -11,6 +13,7 @@ namespace Components.UI.Lobby
         [Header("References")]
         [SerializeField] public GameObject lobbyButtonPrefab;
         [SerializeField] public Transform lobbyButtonParent;
+        [SerializeField] public LobbyInputField lobbyInputField;
 
         [Header("Settings")]
         [SerializeField] private float _buttonDisplayDelay = 0.1f;
@@ -21,6 +24,7 @@ namespace Components.UI.Lobby
         {
             Main,
             Play,
+            Join,
         }
 
         private void Start()
@@ -37,6 +41,9 @@ namespace Components.UI.Lobby
                     break;
                 case Panel.Play:
                     LoadPlay();
+                    break;
+                case Panel.Join:
+                    LoadJoin();
                     break;
             }
         }
@@ -77,7 +84,7 @@ namespace Components.UI.Lobby
                 new LobbyButton.LobbyButtonData()
                 {
                     text = "Load Game",
-                    onPressed = () => Debug.Log("Load Game"),
+                    onPressed = () => LoadPanel(Panel.Join),
                 },
                 new LobbyButton.LobbyButtonData()
                 {
@@ -89,31 +96,48 @@ namespace Components.UI.Lobby
             StartCoroutine(LoadPanelCoroutine(data));
         }
         
-        private IEnumerator LoadPanelCoroutine(List<LobbyButton.LobbyButtonData> data)
+        private void LoadJoin()
         {
-            yield return DisplayButtons(false).Play().WaitForCompletion();
+            List<LobbyButton.LobbyButtonData> data = new List<LobbyButton.LobbyButtonData>()
+            {
+                new LobbyButton.LobbyButtonData()
+                {
+                    text = "Back",
+                    onPressed = () => LoadPanel(Panel.Main),
+                }
+            };
             
+            StartCoroutine(LoadPanelCoroutine(data, () =>
+            {
+                lobbyInputField.gameObject.SetActive(true);
+            }));
+        }
+        
+        private IEnumerator LoadPanelCoroutine(List<LobbyButton.LobbyButtonData> data, Action afterHide = null)
+        {
+            yield return DisplayObjects(false, true).Play().WaitForCompletion();
+            
+            afterHide?.Invoke();
 
             _lobbyButtonPool.Refresh(data, lobbyButtonPrefab, lobbyButtonParent, (button) =>
             {
-                button.Display(false, true);
+                ((IDisplayable)button).Display(false, false, true);
+                button.gameObject.SetActive(true);
             });
             
-            yield return DisplayButtons(true).Play().WaitForCompletion();
+            yield return DisplayObjects(true).Play().WaitForCompletion();
         }
         
-        public Sequence DisplayButtons(bool display)
+        public Sequence DisplayObjects(bool display, bool changeActive = false)
         {
             Sequence sequence = DOTween.Sequence();
 
             if (_lobbyButtonPool.items == null) return sequence;
             
             int j = 0;
-            foreach (LobbyButton button in _lobbyButtonPool.items)
+            foreach (IDisplayable obj in lobbyButtonParent.GetComponentsInChildren<MonoBehaviour>().OfType<IDisplayable>().ToArray())
             {
-                if (!button.gameObject.activeSelf) continue;
-                
-                sequence.Insert(j * _buttonDisplayDelay, button.Display(display));
+                sequence.Insert(j * _buttonDisplayDelay, obj.Display(display, changeActive));
                 j++;
             }
             

@@ -25,22 +25,25 @@ namespace Utils
                 // If there is data for this index, update the item in the pool.
                 if (i < data.Count)
                 {
+                    TV tv = null;
+                    
                     // If there is an item in the pool for this index, update it.
                     if (i < items.Count)
                     {
+                        tv = items[i];
                         items[i].Refresh(data[i]);
                     }
                     // If there is no item in the pool for this index, create a new item.
                     else
                     {
                         GameObject item = Object.Instantiate(prefab, container);
-                        TV tv = item.GetComponent<TV>();
+                        tv = item.GetComponent<TV>();
                         tv.Refresh(data[i]);
-                        
-                        onActive?.Invoke(tv);
                         
                         items.Add(item.GetComponent<TV>());
                     }
+                    
+                    onActive?.Invoke(tv);
                 }
                 // If there is no data for this index, hide the item in the pool.
                 else
