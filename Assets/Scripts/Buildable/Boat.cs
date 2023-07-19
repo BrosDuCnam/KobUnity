@@ -11,7 +11,7 @@ public class Boat : MonoBehaviour
     private List<List<Buildable>> grid = new ();
     private int negativeX = 0;
     private int negativeY = 0;
-    
+
     [System.Serializable]
     public struct GridPos
     {
@@ -24,9 +24,8 @@ public class Boat : MonoBehaviour
         grid.Add(new List<Buildable>());
         GameObject platform = Instantiate(basePlatform, transform);
         Buildable buildable = platform.GetComponent<Buildable>();
-        buildable.meshRenderer.enabled = true;
         buildable.collider.enabled = true;
-        buildable.collider.isTrigger = false;
+        buildable.SetAsPlatform();
         platform.transform.position = transform.position;
         buildable.SetGridPos(0, 0);
         grid[0].Add(buildable);
@@ -44,25 +43,80 @@ public class Boat : MonoBehaviour
     public void AddPlatform(Buildable platform)
     {
         GridPos pos = platform.gridPos;
-        platform.collider.isTrigger = false;
-        platform.meshRenderer.enabled = true;
+        platform.SetAsPlatform();
         ExtendGrid(pos);
         AddEdges(pos);
+    }
+    
+    /// <summary>
+    /// Use this function to remove a platform from the boat
+    /// </summary>
+    /// <param name="platform"></param>
+    public void RemovePlatform(Buildable platform)
+    {
+        platform.RemovePlatform();
+        RecalculateEdges(platform.gridPos);
+    }
+
+    // Remove edges that don't have any platform around them
+    private void RecalculateEdges(GridPos _pos)
+    {
+        foreach (GridPos edgePos in GetEdgesPos(_pos))
+        {
+            bool isPlatform = false;
+            foreach (GridPos frac in GetEdgesPos(edgePos))
+            {
+                // Check if the platform is at the edge of the boat (prevent out of range exception)
+                int x = frac.x + negativeX;
+                int y = frac.y + negativeY;
+                if (x >= grid.Count || x < 0) break;
+                if (y >= grid[0].Count || y < 0) break;
+                
+                if (grid[x][y].isPlatform)
+                {
+                    isPlatform = true;
+                    break;
+                }
+            }
+            
+            // If there are no platform around the current edge, remove it, and if current is not a platform, remove the edge
+            if (!isPlatform && grid[edgePos.x + negativeX][edgePos.y + negativeY].isPlatform == false)
+            {
+                grid[edgePos.x + negativeX][edgePos.y + negativeY].RemoveEdge();
+            }
+        }
     }
 
     // Handle the activation of the trigger where a platform can be built
     private void AddEdges(GridPos _pos)
     {
-        grid[_pos.x+1 + negativeX][_pos.y + negativeY].collider.enabled = true;
-        grid[_pos.x-1 + negativeX][_pos.y + negativeY].collider.enabled = true;
-        grid[_pos.x + negativeX][_pos.y+1 + negativeY].collider.enabled = true;
-        grid[_pos.x + negativeX][_pos.y-1 + negativeY].collider.enabled = true;
+        foreach (GridPos edgePos in GetEdgesPos(_pos))
+        {
+            grid[edgePos.x + negativeX][edgePos.y + negativeY].SetAsEdge();
+        }
+    }
+    
+    private List<GridPos> GetEdgesPos(GridPos _pos)
+    {
+        List<GridPos> edgeLocations = new List<GridPos>();
+        GridPos firstPos = new GridPos();
+        firstPos.x = _pos.x + 1;
+        firstPos.y = _pos.y;
+        edgeLocations.Add(firstPos);
+        GridPos secondPos = new GridPos();
+        secondPos.x = _pos.x - 1;
+        secondPos.y = _pos.y;
+        edgeLocations.Add(secondPos);
+        GridPos thirdPos = new GridPos();
+        thirdPos.x = _pos.x;
+        thirdPos.y = _pos.y + 1;
+        edgeLocations.Add(thirdPos);
+        GridPos fourthPos = new GridPos();
+        fourthPos.x = _pos.x;
+        fourthPos.y = _pos.y - 1;
+        edgeLocations.Add(fourthPos);
         
-        grid[_pos.x+1 + negativeX][_pos.y + negativeY].edgeObject.SetActive(true);
-        grid[_pos.x-1 + negativeX][_pos.y + negativeY].edgeObject.SetActive(true);
-        grid[_pos.x + negativeX][_pos.y+1 + negativeY].edgeObject.SetActive(true);
-        grid[_pos.x + negativeX][_pos.y-1 + negativeY].edgeObject.SetActive(true);
-        
+        return edgeLocations;
     }
     
     //Extend the grid if the platform is at the edge
@@ -77,7 +131,6 @@ public class Boat : MonoBehaviour
                 platform.transform.position = transform.position + new Vector3(_pos.x + 1, 0, i - negativeY) * scale;
                 Buildable buildable = platform.GetComponent<Buildable>();
                 buildable.SetGridPos(_pos.x + 1, i - negativeY);
-                // print("pos at : " + (_pos.x + 1 ) + " " + (i - negativeY) + " positive");
                 list.Add(buildable);
             }
             grid.Add(list);
@@ -90,7 +143,6 @@ public class Boat : MonoBehaviour
                 platform.transform.position = transform.position + new Vector3(i - negativeX, 0, _pos.y + 1) * scale;
                 Buildable buildable = platform.GetComponent<Buildable>();
                 buildable.SetGridPos(i - negativeX, _pos.y + 1);
-                // print("pos at : " + (i - negativeX) + " " + (_pos.y + 1) + " positive");
                 grid[i].Add(buildable);
             }
         }
@@ -103,7 +155,6 @@ public class Boat : MonoBehaviour
                 platform.transform.position = transform.position + new Vector3(_pos.x - 1, 0, i - negativeY) * scale;
                 Buildable buildable = platform.GetComponent<Buildable>();
                 buildable.SetGridPos(_pos.x - 1, i - negativeY);
-                // print("pos at : " + (_pos.x - 1) + " " + (i - negativeY) + " negative");
                 list.Add(buildable);
             }
             grid.Insert(0, list);
@@ -117,7 +168,6 @@ public class Boat : MonoBehaviour
                 platform.transform.position = transform.position + new Vector3(i - negativeX, 0, _pos.y - 1) * scale;
                 Buildable buildable = platform.GetComponent<Buildable>();
                 buildable.SetGridPos(i - negativeX, _pos.y - 1);
-                // print("pos at : " + (i - negativeX) + " " + (_pos.y - 1) + " negative");
                 grid[i].Insert(0, buildable);
             }
             negativeY++;

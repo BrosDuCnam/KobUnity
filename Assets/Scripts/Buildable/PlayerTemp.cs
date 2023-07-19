@@ -24,7 +24,7 @@ public class PlayerTemp : MonoBehaviour
     
     void ProcessClick()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1))
         {
             Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward * 3, out RaycastHit hit);
             if (hit.collider != null)
@@ -33,7 +33,14 @@ public class PlayerTemp : MonoBehaviour
                 Buildable buildable = go.GetComponent<Buildable>();
                 if (buildable != null)
                 {
-                    boat.AddPlatform(buildable);
+                    if (Input.GetKeyDown(KeyCode.Mouse0))
+                    {
+                        boat.AddPlatform(buildable);
+                    }
+                    else if (Input.GetKeyDown(KeyCode.Mouse1))
+                    {
+                        boat.RemovePlatform(buildable);
+                    }
                 }
             }
         }
