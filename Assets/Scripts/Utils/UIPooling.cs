@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
 namespace Utils
 {
-    public static class UIPooling
+    public class UIPooling<TV, TK>
+        where TV : UIBehaviour<TK>
+        where TK : struct
     {
+        
+        public List<TV> items;
+        
         // This method refreshes the items in the pool based on the given data.
-        public static void Refresh<TV, TK>(List<TK> data, GameObject prefab, Transform container)
-            where TV : UIBehaviour<TK>
-            where TK : struct
+        public void Refresh(List<TK> data, GameObject prefab, Transform container, Action<TV> onActive = null)
         {
-            // Get all the items in the container.
-            List<TV> items = new List<TV>();
-            items.AddRange(container.GetComponentsInChildren<TV>());
+            if (items == null) items = container.GetComponentsInChildren<TV>().ToList();
 
             // Loop through the data and update the items in the pool.
             for (int i = 0; i < Math.Max(items.Count, data.Count); i++)
@@ -31,13 +34,18 @@ namespace Utils
                     else
                     {
                         GameObject item = Object.Instantiate(prefab, container);
-                        item.GetComponent<TV>().Refresh(data[i]);
+                        TV tv = item.GetComponent<TV>();
+                        tv.Refresh(data[i]);
+                        
+                        onActive?.Invoke(tv);
+                        
+                        items.Add(item.GetComponent<TV>());
                     }
                 }
-                // If there is no data for this index, destroy the item in the pool.
+                // If there is no data for this index, hide the item in the pool.
                 else
                 {
-                    Object.Destroy(items[i].gameObject);
+                    items[i].gameObject.SetActive(false);
                 }
             }
         }

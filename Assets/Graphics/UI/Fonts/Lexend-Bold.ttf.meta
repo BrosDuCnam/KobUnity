@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 60951e0056ec3bc48aab77cd5896647c
+guid: 75098d0091e238a4d81cdee8cd161e06
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,11 +9,10 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - New Zen
+  - Lexend
   fallbackFontReferences:
-  - {fileID: 12800000, guid: 5896105caac0e094b9dc1157881b0162, type: 3}
-  - {fileID: 12800000, guid: 13f6d658d83d66e46be295960974c439, type: 3}
-  - {fileID: 12800000, guid: 0b9032063aea87e47ac358b5c5808c94, type: 3}
+  - {fileID: 12800000, guid: 4176a6a314f09354b84501e34de1550b, type: 3}
+  - {fileID: 12800000, guid: c1fe0b34e3eef83489788ff77640fe65, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1

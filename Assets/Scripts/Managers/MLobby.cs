@@ -34,9 +34,6 @@ namespace Managers
         
 		[Header("Prefabs References")]
         [SerializeField] public GameObject lobbyItemPrefab;
-        
-        [Header("UI References")]
-        [SerializeField] private LobbyList lobbyList;
 
         [HideInInspector] public GameObject currentSelection;
         [HideInInspector] public UnityEvent<GameObject> onHoverButton = new UnityEvent<GameObject>();
@@ -72,21 +69,21 @@ namespace Managers
                 yield return new WaitUntil(() => task.IsCompleted);
                 lobbies = task.Result;
                 
-                LobbyList.LobbyListData lobbyListData = new LobbyList.LobbyListData
-                {
-                    lobbies = task.Result == null ? 
-                        new List<LobbyItem.LobbyItemData>() : 
-                        task.Result
-                            .Where(lobby => lobby != null)
-                            .Select(lobby => new LobbyItem.LobbyItemData 
-                            { 
-                                lobbyName = lobby.Name, 
-                                lobbyId = lobby.Id, 
-                                playerCount = lobby.MaxPlayers - lobby.AvailableSlots, 
-                                maxPlayerCount = lobby.MaxPlayers 
-                            }).ToList()
-                };
-                lobbyList.Refresh(lobbyListData);
+                // LobbyList.LobbyListData lobbyListData = new LobbyList.LobbyListData
+                // {
+                //     lobbies = task.Result == null ? 
+                //         new List<LobbyItem.LobbyItemData>() : 
+                //         task.Result
+                //             .Where(lobby => lobby != null)
+                //             .Select(lobby => new LobbyItem.LobbyItemData 
+                //             { 
+                //                 lobbyName = lobby.Name, 
+                //                 lobbyId = lobby.Id, 
+                //                 playerCount = lobby.MaxPlayers - lobby.AvailableSlots, 
+                //                 maxPlayerCount = lobby.MaxPlayers 
+                //             }).ToList()
+                // };
+                // lobbyList.Refresh(lobbyListData);
 
                 yield return new WaitForSeconds(lobbyRefreshInterval);
             }

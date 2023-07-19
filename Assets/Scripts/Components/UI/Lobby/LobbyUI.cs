@@ -1,91 +1,123 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
-using Managers;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using Utils;
 
 namespace Components.UI.Lobby
 {
     public class LobbyUI : MonoBehaviour
     {
-        [SerializeField] private Selector selector;
-        [SerializeField] private float selectorOffset = 10f;
+        [Header("References")]
+        [SerializeField] public GameObject lobbyButtonPrefab;
+        [SerializeField] public Transform lobbyButtonParent;
+
+        [Header("Settings")]
+        [SerializeField] private float _buttonDisplayDelay = 0.1f;
         
-        private List<LeftButton> _buttons;
-        private GameObject _lastSelected;
-        
-        private void Awake()
+        private readonly UIPooling<LobbyButton, LobbyButton.LobbyButtonData> _lobbyButtonPool = new();
+
+        public enum Panel
         {
-            _buttons = GetComponentsInChildren<LeftButton>(true).ToList();
-            
-            for (int i = _buttons.Count - 1; i >= 0; i--)
-            {
-                var button = _buttons[i];
-                
-                if (!button.TryGetComponent(out EventTrigger eventTrigger))
-                {
-                    _buttons.RemoveAt(i);
-                    continue;
-                }
-                
-                eventTrigger.triggers.Add(new EventTrigger.Entry
-                {
-                    eventID = EventTriggerType.PointerEnter,
-                    callback = new EventTrigger.TriggerEvent()
-                });
-                
-                eventTrigger.triggers[^1].callback.AddListener((data) => OnHoverButton(button));
-            }
+            Main,
+            Play,
         }
-        
+
         private void Start()
         {
-            MLobby.Instance.onHoverButton.AddListener(OnSelectionChanged);
+            LoadPanel(Panel.Main);
         }
 
-        private void OnSelectionChanged(GameObject selected)
+        public void LoadPanel(Panel panel)
         {
-            if (selected != null && selected.TryGetComponent(out LeftButton button))
+            switch (panel)
             {
-                OnHoverButton(button);
-
-                // Set hover to false for all other buttons.
-                foreach (var otherButton in _buttons)
-                {
-                    if (otherButton == button) continue;
-                    otherButton.SetHover(false);
-                }
-            }
-            else
-            {
-                selector.SetActive(false);
-
-                // Set hover to false for all buttons.
-                foreach (var otherButton in _buttons)
-                {
-                    otherButton.SetHover(false);
-                }
+                case Panel.Main:
+                    LoadMain();
+                    break;
+                case Panel.Play:
+                    LoadPlay();
+                    break;
             }
         }
 
-        private void OnHoverButton(LeftButton leftButton)
+        private void LoadMain()
         {
-            if (!_buttons.Contains(leftButton)) return;
+            List<LobbyButton.LobbyButtonData> data = new List<LobbyButton.LobbyButtonData>()
+            {
+                new LobbyButton.LobbyButtonData()
+                {
+                    text = "Play",
+                    onPressed = () => LoadPanel(Panel.Play),
+                },
+                new LobbyButton.LobbyButtonData()
+                {
+                    text = "Settings",
+                    onPressed = () => Debug.Log("Settings"),
+                },
+                new LobbyButton.LobbyButtonData()
+                {
+                    text = "Quit",
+                    onPressed = () => Debug.Log("Quit"),
+                },
+            };
             
-            // Make sure this button as hover for the event system.
-            EventSystem.current.SetSelectedGameObject(leftButton.gameObject);
+            StartCoroutine(LoadPanelCoroutine(data));
+        }
+        
+        private void LoadPlay()
+        {
+            List<LobbyButton.LobbyButtonData> data = new List<LobbyButton.LobbyButtonData>()
+            {
+                new LobbyButton.LobbyButtonData()
+                {
+                    text = "New Game",
+                    onPressed = () => Debug.Log("New Game"),
+                },
+                new LobbyButton.LobbyButtonData()
+                {
+                    text = "Load Game",
+                    onPressed = () => Debug.Log("Load Game"),
+                },
+                new LobbyButton.LobbyButtonData()
+                {
+                    text = "Back",
+                    onPressed = () => LoadPanel(Panel.Main),
+                },
+            };
             
-            // Move the selector to the left of the button.
-            RectTransform buttonRect = (RectTransform) leftButton.transform;
+            StartCoroutine(LoadPanelCoroutine(data));
+        }
+        
+        private IEnumerator LoadPanelCoroutine(List<LobbyButton.LobbyButtonData> data)
+        {
+            yield return DisplayButtons(false).Play().WaitForCompletion();
             
-            selector.gameObject.SetActive(true);
-            var targetPos = buttonRect.position - new Vector3(buttonRect.rect.width / 2f + selectorOffset, 0f, 0f);
+
+            _lobbyButtonPool.Refresh(data, lobbyButtonPrefab, lobbyButtonParent, (button) =>
+            {
+                button.Display(false, true);
+            });
             
-            selector.SetActive(true);
-            selector.rectTransform.DOMove(targetPos, 0.1f);
+            yield return DisplayButtons(true).Play().WaitForCompletion();
+        }
+        
+        public Sequence DisplayButtons(bool display)
+        {
+            Sequence sequence = DOTween.Sequence();
+
+            if (_lobbyButtonPool.items == null) return sequence;
             
-            leftButton.SetHover(true);
+            int j = 0;
+            foreach (LobbyButton button in _lobbyButtonPool.items)
+            {
+                if (!button.gameObject.activeSelf) continue;
+                
+                sequence.Insert(j * _buttonDisplayDelay, button.Display(display));
+                j++;
+            }
+            
+            return sequence;
         }
     }
 }
