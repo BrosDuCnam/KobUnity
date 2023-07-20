@@ -30,25 +30,29 @@ namespace Components.UI.Lobby
             _inputField.onDeselect.AddListener(OnDeselect);
         }
 
+        private void Start()
+        {
+            Select(false, true);
+        }
+
         public void OnSelect(string text)
         {
-            _borderSequence?.Kill();
-            _borderSequence = GetSelectionSequence();
-            
-            _borderSequence.Play();
+            Select(true);
         }
         
         public void OnDeselect(string text)
         {
-            _borderSequence?.Kill();
-            _borderSequence = GetDeselectionSequence();
+            Select(false);
+        }
+
+        public void Select(bool select, bool instant = false)
+        {
+            _borderSequence?.Kill(); 
+            _borderSequence = select ? GetSelectionSequence() : GetDeselectionSequence();
             
             _borderSequence.Play();
-        }
-        
-        public Tween Display()
-        {
-            return _canvasGroup.DOFade(1, 0.15f);
+            
+            if (instant) _borderSequence.Complete();
         }
         
         public Sequence GetSelectionSequence()
