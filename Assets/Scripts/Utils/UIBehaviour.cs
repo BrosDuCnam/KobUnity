@@ -73,14 +73,14 @@ namespace Utils
         {
             base.OnPointerEnter(eventData);
             
-            onSelected.Invoke();
+            DoStateTransition(SelectionState.Highlighted, false);
         }
         
         public override void OnPointerExit(PointerEventData eventData)
         {
             base.OnPointerExit(eventData);
             
-            onDeselected.Invoke();
+            DoStateTransition(SelectionState.Normal, false);
         }
 
         public void OnSubmit(BaseEventData eventData)
