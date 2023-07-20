@@ -10,10 +10,28 @@ namespace Components.UI.Lobby
 {
     public class LobbyUI : MonoBehaviour
     {
+        #region Singleton
+
+        public static LobbyUI Singleton { get; private set; }
+        
+        private void Awake()
+        {
+            if (Singleton != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Singleton = this;
+        }
+
+        #endregion
+        
         [Header("References")]
         [SerializeField] public GameObject lobbyButtonPrefab;
         [SerializeField] public Transform lobbyButtonParent;
         [SerializeField] public LobbyInputField lobbyInputField;
+        [SerializeField] public JoinButton joinButton;
 
         [Header("Settings")]
         [SerializeField] private float _buttonDisplayDelay = 0.1f;
@@ -79,7 +97,7 @@ namespace Components.UI.Lobby
                 new LobbyButton.LobbyButtonData()
                 {
                     text = "New Game",
-                    onPressed = () => Debug.Log("New Game"),
+                    onPressed = () => MNetwork.Singleton.CreateLobby(),
                 },
                 new LobbyButton.LobbyButtonData()
                 {
@@ -110,6 +128,7 @@ namespace Components.UI.Lobby
             StartCoroutine(LoadPanelCoroutine(data, () =>
             {
                 lobbyInputField.gameObject.SetActive(true);
+                joinButton.gameObject.SetActive(true);
             }));
         }
         

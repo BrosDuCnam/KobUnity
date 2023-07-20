@@ -4,14 +4,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Security;
 using System.Threading.Tasks;
+#if UNITY_EDITOR
 using ParrelSync;
+#endif
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using Random = System.Random;
 
 public class MNetwork : NetworkManager
 {
@@ -34,9 +38,17 @@ public class MNetwork : NetworkManager
     
     #endregion
     
+    public enum ActionEnum
+    {
+        TryJoinLobby,
+        FinishJoinLobby,
+    }
+    
     [Header("Lobby settings")]
     [SerializeField] private string defaultLobbyName = "Default Lobby";
     [SerializeField] private float heartbeatInterval = 15f;
+    
+    public UnityEvent<ActionEnum> onAction = new UnityEvent<ActionEnum>();
     
     private Lobby _lobby;
     private float _heartbeatTimer;
@@ -45,6 +57,7 @@ public class MNetwork : NetworkManager
     {
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "Lobby")
         {
+#if UNITY_EDITOR
             if (ClonesManager.IsClone())
             {
                 StartClient();
@@ -53,7 +66,7 @@ public class MNetwork : NetworkManager
             {
                 StartHost();
             }
-            
+#endif
             return;
         }
         
@@ -74,6 +87,7 @@ public class MNetwork : NetworkManager
     private async void HandleHeartbeat()
     {
         if (_lobby == null) return;
+        if (_lobby.HostId != AuthenticationService.Instance.PlayerId) return;
         
         _heartbeatTimer -= Time.deltaTime;
         if (_heartbeatTimer <= 0)
@@ -94,7 +108,7 @@ public class MNetwork : NetworkManager
             };
 
             Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(defaultLobbyName, 5, options);
-            Debug.Log("Created lobby: " + lobby.Id);
+            Debug.Log("Created lobby: " + lobby.Id + " with code: " + lobby.LobbyCode);
             
             _lobby = lobby;
         } catch (Exception e)
@@ -133,19 +147,21 @@ public class MNetwork : NetworkManager
             return null;
         }
     }
-    
-    public async void JoinLobby(string lobbyId)
+
+    public async void JoinLobbyByCode(string code)
     {
+        onAction.Invoke(ActionEnum.TryJoinLobby);
         try
         {
-            Lobby lobby = await LobbyService.Instance.GetLobbyAsync(lobbyId);
+            Lobby lobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
+            
+            onAction.Invoke(ActionEnum.FinishJoinLobby);
             Debug.Log("Joined lobby: " + lobby.Id);
             
             _lobby = lobby;
-            
-            await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
         } catch (Exception e)
         {
+            onAction.Invoke(ActionEnum.FinishJoinLobby);
             Debug.LogError(e);
         }
     }

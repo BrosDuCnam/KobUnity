@@ -22,6 +22,7 @@ namespace Components.UI.Lobby
         
         private Sequence _borderSequence;
         
+        public string Text => _inputField.text;
         CanvasGroup IDisplayable.CanvasGroup => _canvasGroup;
 
         private void Awake()

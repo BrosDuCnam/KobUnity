@@ -39,11 +39,6 @@ namespace Managers
         [HideInInspector] public UnityEvent<GameObject> onHoverButton = new UnityEvent<GameObject>();
         [HideInInspector] public List<Lobby> lobbies = new List<Lobby>();
         
-        private void Start()
-        {
-            StartCoroutine(RefreshLobbyListCoroutine());
-        }
-        
         private void Update()
         {
             GameObject selected = EventSystem.current.currentSelectedGameObject;
@@ -51,41 +46,6 @@ namespace Managers
             {
                 currentSelection = selected;
                 onHoverButton.Invoke(selected);
-            }
-        }
-        
-        private IEnumerator RefreshLobbyListCoroutine()
-        {
-            while (true)
-            {
-                if (AuthenticationService.Instance == null || AuthenticationService.Instance.IsSignedIn == false)
-                {
-                    yield return new WaitForSeconds(lobbyRefreshInterval);
-                    continue;
-                }
-                
-                Task<List<Lobby>> task = MNetwork.Singleton.GetLobbies();
-                
-                yield return new WaitUntil(() => task.IsCompleted);
-                lobbies = task.Result;
-                
-                // LobbyList.LobbyListData lobbyListData = new LobbyList.LobbyListData
-                // {
-                //     lobbies = task.Result == null ? 
-                //         new List<LobbyItem.LobbyItemData>() : 
-                //         task.Result
-                //             .Where(lobby => lobby != null)
-                //             .Select(lobby => new LobbyItem.LobbyItemData 
-                //             { 
-                //                 lobbyName = lobby.Name, 
-                //                 lobbyId = lobby.Id, 
-                //                 playerCount = lobby.MaxPlayers - lobby.AvailableSlots, 
-                //                 maxPlayerCount = lobby.MaxPlayers 
-                //             }).ToList()
-                // };
-                // lobbyList.Refresh(lobbyListData);
-
-                yield return new WaitForSeconds(lobbyRefreshInterval);
             }
         }
     }
