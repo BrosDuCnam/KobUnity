@@ -31,11 +31,6 @@ namespace Components.UI.Lobby
             base.Awake();
             
             _symbol.gameObject.SetActive(false);
-            
-            onPressed.AddListener(OnPressed);
-            
-            onSelected.AddListener(OnHoverEnter);
-            onDeselected.AddListener(OnHoverExit);
         }
         
         public override void Refresh(LobbyButtonData data)
@@ -48,7 +43,7 @@ namespace Components.UI.Lobby
             _text.text = data.text;
         }
 
-        public  void OnPressed()
+        public override void OnPressed()
         {
             _symbolSequence?.Kill();
             _symbolSequence = DOTween.Sequence();
@@ -59,7 +54,7 @@ namespace Components.UI.Lobby
             _symbolSequence.Play();
         }
 
-        public void OnHoverEnter()
+        public override void OnSelect()
         {
             _symbolSequence?.Kill();
             _symbolSequence = DOTween.Sequence();
@@ -74,7 +69,7 @@ namespace Components.UI.Lobby
             _symbolSequence.Play();
         }
         
-        public void OnHoverExit()
+        public override void OnDeselect()
         {
             _symbolSequence?.Kill();
             _symbolSequence = DOTween.Sequence();

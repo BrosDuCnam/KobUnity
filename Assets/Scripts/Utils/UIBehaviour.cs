@@ -21,16 +21,16 @@ namespace Utils
             switch (state)
             {
                 case SelectionState.Normal:
-                    OnDeselected();
+                    ApplyDeselected();
                     break;
                 case SelectionState.Highlighted: 
-                    OnSelected();
+                    ApplySelect();
                     break;
                 case SelectionState.Pressed: 
-                    OnPressed();
+                    ApplyPress();
                     break;
                 case SelectionState.Selected:
-                    OnSelected();
+                    ApplySelect();
                     break;
                 case SelectionState.Disabled:
                     break;
@@ -39,28 +39,35 @@ namespace Utils
             }
         }
         
-        protected void OnSelected()
+        private void ApplySelect()
         {
             if (_isSelected)
                 return;
             
             _isSelected = true;
             onSelected.Invoke();
+            OnSelect();
         }
         
-        protected void OnDeselected()
+        private void ApplyDeselected()
         {
             if (!_isSelected)
                 return;
             
             _isSelected = false;
             onDeselected.Invoke();
+            OnDeselect();
         }
         
-        protected void OnPressed()
+        private void ApplyPress()
         {
             onPressed.Invoke();
+            OnPressed();
         }
+
+        public virtual void OnSelect() { }
+        public virtual void OnDeselect() { }
+        public virtual void OnPressed() { }
         
         public override void OnPointerEnter(PointerEventData eventData)
         {
