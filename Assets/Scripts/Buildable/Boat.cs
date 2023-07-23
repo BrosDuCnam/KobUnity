@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Boat : MonoBehaviour
 {
@@ -24,6 +26,7 @@ public class Boat : MonoBehaviour
         grid.Add(new List<Buildable>());
         GameObject platform = Instantiate(basePlatform, transform);
         Buildable buildable = platform.GetComponent<Buildable>();
+        buildable.SetParentBoat(this);
         buildable.collider.enabled = true;
         buildable.SetAsPlatform();
         platform.transform.position = transform.position;
@@ -129,7 +132,10 @@ public class Boat : MonoBehaviour
             {
                 GameObject platform = Instantiate(basePlatform, transform);
                 platform.transform.position = transform.position + new Vector3(_pos.x + 1, 0, i - negativeY) * scale;
+                platform.transform.rotation = Quaternion.Euler(0, Mathf.Round(Random.Range(0 ,4))* 90, 0);
+
                 Buildable buildable = platform.GetComponent<Buildable>();
+                buildable.SetParentBoat(this);
                 buildable.SetGridPos(_pos.x + 1, i - negativeY);
                 list.Add(buildable);
             }
@@ -141,7 +147,10 @@ public class Boat : MonoBehaviour
             {
                 GameObject platform = Instantiate(basePlatform, transform);
                 platform.transform.position = transform.position + new Vector3(i - negativeX, 0, _pos.y + 1) * scale;
+                platform.transform.rotation = Quaternion.Euler(0, Mathf.Round(Random.Range(0 ,4))* 90, 0);
+
                 Buildable buildable = platform.GetComponent<Buildable>();
+                buildable.SetParentBoat(this);
                 buildable.SetGridPos(i - negativeX, _pos.y + 1);
                 grid[i].Add(buildable);
             }
@@ -153,7 +162,10 @@ public class Boat : MonoBehaviour
             {
                 GameObject platform = Instantiate(basePlatform, transform);
                 platform.transform.position = transform.position + new Vector3(_pos.x - 1, 0, i - negativeY) * scale;
+                platform.transform.rotation = Quaternion.Euler(0, Mathf.Round(Random.Range(0 ,4))* 90, 0);
+
                 Buildable buildable = platform.GetComponent<Buildable>();
+                buildable.SetParentBoat(this);
                 buildable.SetGridPos(_pos.x - 1, i - negativeY);
                 list.Add(buildable);
             }
@@ -166,7 +178,11 @@ public class Boat : MonoBehaviour
             {
                 GameObject platform = Instantiate(basePlatform, transform);
                 platform.transform.position = transform.position + new Vector3(i - negativeX, 0, _pos.y - 1) * scale;
+                platform.transform.rotation = Quaternion.Euler(0, Mathf.Round(Random.Range(0 ,4))* 90, 0);
+
+
                 Buildable buildable = platform.GetComponent<Buildable>();
+                buildable.SetParentBoat(this);
                 buildable.SetGridPos(i - negativeX, _pos.y - 1);
                 grid[i].Insert(0, buildable);
             }

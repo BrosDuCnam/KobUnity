@@ -10,8 +10,19 @@ public class Buildable : MonoBehaviour
     public MeshRenderer meshRenderer;
     public bool onGrid;
     public GameObject edgeObject;
+    private Boat boat;
     
     [HideInInspector] public bool isPlatform = false;
+
+    public void SetParentBoat(Boat parentBoat)
+    {
+        boat = parentBoat;
+    }
+    
+    public Boat GetParentBoat()
+    {
+        return boat;
+    }
     
     public void SetGridPos(int x, int y)
     {

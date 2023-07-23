@@ -310,10 +310,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97ac68d9ca6fe8541aab9e677b73e661, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gridPos:
+    x: 0
+    y: 0
   collider: {fileID: 7761394744039694295}
   meshRenderer: {fileID: 7711717079238615476}
   onGrid: 1
   edgeObject: {fileID: 6124927187807231553}
+  isPlatform: 0
 --- !u!4 &8885224999159028443 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d97a3ce678a67db4e88af72dc3af9cd4,

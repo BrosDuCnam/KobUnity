@@ -33,6 +33,8 @@ public class PlayerTemp : MonoBehaviour
                 Buildable buildable = go.GetComponent<Buildable>();
                 if (buildable != null)
                 {
+                    boat = buildable.GetParentBoat();
+                    
                     if (Input.GetKeyDown(KeyCode.Mouse0))
                     {
                         boat.AddPlatform(buildable);
