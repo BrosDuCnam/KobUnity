@@ -2,24 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Buildable : MonoBehaviour
+public class Old_Buildable : MonoBehaviour
 {
 
-    [HideInInspector]public Boat.GridPos gridPos;
+    [HideInInspector]public Old_Boat.GridPos gridPos;
     public Collider collider;
     public MeshRenderer meshRenderer;
     public bool onGrid;
     public GameObject edgeObject;
-    private Boat boat;
+    private Old_Boat boat;
     
     [HideInInspector] public bool isPlatform = false;
 
-    public void SetParentBoat(Boat parentBoat)
+    public void SetParentBoat(Old_Boat parentBoat)
     {
         boat = parentBoat;
     }
     
-    public Boat GetParentBoat()
+    public Old_Boat GetParentBoat()
     {
         return boat;
     }
