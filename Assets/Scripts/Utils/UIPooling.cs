@@ -14,10 +14,19 @@ namespace Utils
         
         public List<TV> items;
         
-        // This method refreshes the items in the pool based on the given data.
-        public void Refresh(List<TK> data, GameObject prefab, Transform container, Action<TV> onActive = null)
+        public class PoolingResult
         {
-            if (items == null) items = container.GetComponentsInChildren<TV>().ToList();
+            public List<TV> disabledItems = new();
+            public List<TV> newItems = new();
+            public List<TV> activeItems = new();
+        }
+        
+        // This method refreshes the items in the pool based on the given data.
+        public PoolingResult Refresh(List<TK> data, GameObject prefab, Transform container)
+        {
+            if (items == null) items = container.GetComponentsInChildren<MonoBehaviour>().OfType<TV>().ToList();
+            
+            PoolingResult result = new();
 
             // Loop through the data and update the items in the pool.
             for (int i = 0; i < Math.Max(items.Count, data.Count); i++)
@@ -25,7 +34,7 @@ namespace Utils
                 // If there is data for this index, update the item in the pool.
                 if (i < data.Count)
                 {
-                    TV tv = null;
+                    TV tv;
                     
                     // If there is an item in the pool for this index, update it.
                     if (i < items.Count)
@@ -41,16 +50,20 @@ namespace Utils
                         tv.Refresh(data[i]);
                         
                         items.Add(item.GetComponent<TV>());
+                        result.newItems.Add(items[i]);
                     }
                     
-                    onActive?.Invoke(tv);
+                    result.activeItems.Add(items[i]);
                 }
                 // If there is no data for this index, hide the item in the pool.
                 else
                 {
-                    items[i].gameObject.SetActive(false);
+                    items[i].GetMonoBehaviour().gameObject.SetActive(false);
+                    result.disabledItems.Add(items[i]);
                 }
             }
+            
+            return result;
         }
     }
 

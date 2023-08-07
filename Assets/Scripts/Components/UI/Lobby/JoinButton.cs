@@ -8,7 +8,7 @@ using Utils;
 
 namespace Components.UI.Lobby
 {
-    public class JoinButton : UIBehaviour<JoinButton.JoinButtonData>, IDisplayable
+    public class JoinButton : CustomButton, UIBehaviour<JoinButton.JoinButtonData>, IDisplayable
     {
         public struct JoinButtonData
         {
@@ -60,7 +60,7 @@ namespace Components.UI.Lobby
                 _dotsSequence.Pause();
         }
         
-        public override void Refresh(JoinButtonData data)
+        public void Refresh(JoinButtonData data)
         {
             _text.text = data.text;
         }

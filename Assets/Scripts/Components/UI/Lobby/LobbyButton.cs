@@ -8,7 +8,7 @@ using Utils;
 
 namespace Components.UI.Lobby
 {
-    public class LobbyButton : UIBehaviour<LobbyButton.LobbyButtonData>, IDisplayable
+    public class LobbyButton : CustomButton, UIBehaviour<LobbyButton.LobbyButtonData>, IDisplayable
     {
         public struct LobbyButtonData
         {
@@ -33,7 +33,7 @@ namespace Components.UI.Lobby
             _symbol.gameObject.SetActive(false);
         }
         
-        public override void Refresh(LobbyButtonData data)
+        public void Refresh(LobbyButtonData data)
         {
             if (_onPressed != null) onPressed.RemoveListener(_onPressed);
             

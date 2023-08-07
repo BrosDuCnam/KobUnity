@@ -138,7 +138,9 @@ namespace Components.UI.Lobby
             
             afterHide?.Invoke();
 
-            _lobbyButtonPool.Refresh(data, lobbyButtonPrefab, lobbyButtonParent, (button) =>
+            var refreshResult = _lobbyButtonPool.Refresh(data, lobbyButtonPrefab, lobbyButtonParent);
+            
+            refreshResult.activeItems.ForEach(button =>
             {
                 ((IDisplayable)button).Display(false, false, true);
                 button.gameObject.SetActive(true);
