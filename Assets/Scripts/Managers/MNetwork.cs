@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Security;
 using System.Threading.Tasks;
+using Components.UI.Lobby;
 #if UNITY_EDITOR
 using ParrelSync;
 #endif
@@ -52,6 +53,8 @@ public class MNetwork : NetworkManager
     
     private Lobby _lobby;
     private float _heartbeatTimer;
+    
+    public bool IsHost => _lobby != null && _lobby.HostId == AuthenticationService.Instance.PlayerId;
     
     public async void Start()
     {
@@ -111,6 +114,8 @@ public class MNetwork : NetworkManager
             Debug.Log("Created lobby: " + lobby.Id + " with code: " + lobby.LobbyCode);
             
             _lobby = lobby;
+            
+            LobbyUI.Singleton.LoadPanel(LobbyUI.Panel.Room);
         } catch (Exception e)
         {
             Debug.LogError(e);

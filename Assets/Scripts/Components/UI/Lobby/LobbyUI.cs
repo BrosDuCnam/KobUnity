@@ -31,6 +31,7 @@ namespace Components.UI.Lobby
         [SerializeField] public GameObject lobbyButtonPrefab;
         [SerializeField] public Transform lobbyButtonParent;
         [SerializeField] public LobbyInputField lobbyInputField;
+        [SerializeField] public LobbyData lobbyData;
         [SerializeField] public JoinButton joinButton;
 
         [Header("Settings")]
@@ -43,6 +44,7 @@ namespace Components.UI.Lobby
             Main,
             Play,
             Join,
+            Room,
         }
 
         private void Start()
@@ -63,8 +65,13 @@ namespace Components.UI.Lobby
                 case Panel.Join:
                     LoadJoin();
                     break;
+                case Panel.Room:
+                    LoadRoom();
+                    break;
             }
         }
+
+        #region LoadPanel
 
         private void LoadMain()
         {
@@ -131,6 +138,28 @@ namespace Components.UI.Lobby
                 joinButton.gameObject.SetActive(true);
             }));
         }
+
+        private void LoadRoom()
+        {
+            List<LobbyButton.LobbyButtonData> data = new List<LobbyButton.LobbyButtonData>();
+            
+            LobbyData.RoomSettingsData roomSettingsData = new LobbyData.RoomSettingsData()
+            {
+                lastPlayed = DateTime.Now,
+                lobbyName = "Default Lobby",
+                lobbyCode = "123456",
+                timePlayed = 123456,
+            };
+            
+            StartCoroutine(LoadPanelCoroutine(data, () =>
+            {
+                lobbyData.Refresh(roomSettingsData);
+                lobbyData.gameObject.SetActive(true);
+            }));
+        }
+        
+        #endregion
+        
         
         private IEnumerator LoadPanelCoroutine(List<LobbyButton.LobbyButtonData> data, Action afterHide = null)
         {
