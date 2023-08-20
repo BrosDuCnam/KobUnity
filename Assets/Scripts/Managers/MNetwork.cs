@@ -84,7 +84,7 @@ public class MNetwork : NetworkManager
     [Header("Lobby settings")]
     [SerializeField] private string defaultLobbyName = "Default Lobby";
     [SerializeField] private float heartbeatInterval = 15f;
-    [SerializeField] private float lobbyPollingInterval = 5f;
+    [SerializeField] private float lobbyPollingInterval = 2f;
     
     [Header("Events")]
     public UnityEvent<Lobby> lobbyUpdated = new();

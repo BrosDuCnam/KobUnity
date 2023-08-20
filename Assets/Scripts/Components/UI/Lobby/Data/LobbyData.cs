@@ -10,7 +10,7 @@ namespace Components.UI.Lobby
     {
         public struct LobbyDataElement
         {
-            public SaveSection.SaveSectionData? saveSectionData;
+            public SaveSection.SaveSectionData saveSectionData;
             public NetworkSection.NetworkSectionData? networkSectionData;
         }
         
@@ -23,10 +23,15 @@ namespace Components.UI.Lobby
         
         public void Refresh(LobbyDataElement dataElement)
         {
-            if (dataElement.saveSectionData != null)
-                _saveSection.Refresh(dataElement.saveSectionData.Value);
-            if (dataElement.networkSectionData != null)
-                _networkSection.Refresh(dataElement.networkSectionData.Value);
+            _saveSection.Refresh(dataElement.saveSectionData);
+            
+            // if newtworkSectionData is null, set it to a new NetworkSectionData with online = false
+            dataElement.networkSectionData ??= new NetworkSection.NetworkSectionData
+            {
+                online = false,
+            };
+            
+            _networkSection.Refresh(dataElement.networkSectionData.Value);
         }
     }
 }
