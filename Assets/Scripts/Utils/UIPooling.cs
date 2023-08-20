@@ -12,8 +12,6 @@ namespace Utils
         where TK : struct
     {
         
-        public List<TV> items;
-        
         public class PoolingResult
         {
             public List<TV> disabledItems = new();
@@ -24,7 +22,7 @@ namespace Utils
         // This method refreshes the items in the pool based on the given data.
         public PoolingResult Refresh(List<TK> data, GameObject prefab, Transform container)
         {
-            if (items == null) items = container.GetComponentsInChildren<MonoBehaviour>().OfType<TV>().ToList();
+            List<TV> items = container.GetComponentsInChildren<MonoBehaviour>().OfType<TV>().ToList();
             
             PoolingResult result = new();
 

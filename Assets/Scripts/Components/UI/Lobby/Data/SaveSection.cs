@@ -6,33 +6,29 @@ using Utils;
 
 namespace Components.UI.Lobby
 {
-    public class LobbyData : MonoBehaviour, UIBehaviour<LobbyData.RoomSettingsData>
+    public class SaveSection : MonoBehaviour, UIBehaviour<SaveSection.SaveSectionData>
     {
-        public struct RoomSettingsData
+        public struct SaveSectionData
         {
-            public string lobbyName;
+            public string saveName;
             public int? timePlayed; // In milliseconds
             public DateTime? lastPlayed;
-            public string lobbyCode;
         }
-        
+
         [Header("References")]
-        [SerializeField] private TMP_InputField _lobbyNameInputField;
+        [SerializeField] private TMP_InputField _saveNameInputField;
 
         [SerializeField] private TextMeshProUGUI _timePlayed;
         [SerializeField] private TextMeshProUGUI _lastPlayed;
         
-        [SerializeField] private TextMeshProUGUI _lobbyCode;
-
         protected void OnEnable()
         {
-            _lobbyNameInputField.enabled = MNetwork.Singleton.IsHost;
+            _saveNameInputField.enabled = MNetwork.Singleton.IsLobbyHost;
         }
         
-        public void Refresh(RoomSettingsData data)
+        public void Refresh(SaveSectionData data)
         {
-            _lobbyNameInputField.text = data.lobbyName;
-            _lobbyCode.text = data.lobbyCode;
+            _saveNameInputField.text = data.saveName;
 
             if (data.timePlayed == null)
             {

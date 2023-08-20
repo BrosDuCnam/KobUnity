@@ -66,7 +66,7 @@ namespace Components.UI.Lobby
                     LoadJoin();
                     break;
                 case Panel.Room:
-                    LoadRoom();
+                    LoadLobby();
                     break;
             }
         }
@@ -139,22 +139,24 @@ namespace Components.UI.Lobby
             }));
         }
 
-        private void LoadRoom()
+        private void LoadLobby()
         {
             List<LobbyButton.LobbyButtonData> data = new List<LobbyButton.LobbyButtonData>();
             
-            LobbyData.RoomSettingsData roomSettingsData = new LobbyData.RoomSettingsData()
+            LobbyData.LobbyDataElement lobbyDataElement = new LobbyData.LobbyDataElement()
             {
-                lastPlayed = DateTime.Now,
-                lobbyName = "Default Lobby",
-                lobbyCode = "123456",
-                timePlayed = 123456,
+                saveSectionData = new SaveSection.SaveSectionData()
+                {
+                    lastPlayed = DateTime.Now,
+                    saveName = "Default Lobby",
+                    timePlayed = 123456,
+                }
             };
             
             StartCoroutine(LoadPanelCoroutine(data, () =>
             {
-                lobbyData.Refresh(roomSettingsData);
                 lobbyData.gameObject.SetActive(true);
+                lobbyData.Refresh(lobbyDataElement);
             }));
         }
         
@@ -181,8 +183,6 @@ namespace Components.UI.Lobby
         public Sequence DisplayObjects(bool display, bool changeActive = false)
         {
             Sequence sequence = DOTween.Sequence();
-
-            if (_lobbyButtonPool.items == null) return sequence;
             
             int j = 0;
             foreach (IDisplayable obj in lobbyButtonParent.GetComponentsInChildren<MonoBehaviour>().OfType<IDisplayable>().ToArray())

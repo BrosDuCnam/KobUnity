@@ -31,7 +31,7 @@ namespace Components.UI.Lobby
         private Sequence _textSequence;
         private Sequence _dotsSequence;
 
-        protected void Start()
+        protected new void Start()
         {
             SetupDotsSequence();
             
@@ -39,10 +39,13 @@ namespace Components.UI.Lobby
             {
                 switch (action)
                 {
-                    case MNetwork.ActionEnum.TryJoinLobby:
+                    case MNetwork.NetworkAction.TryJoinLobby:
                         SetLoading(true);
                         break;
-                    case MNetwork.ActionEnum.FinishJoinLobby:
+                    case MNetwork.NetworkAction.FinishJoinLobby:
+                        if (MNetwork.Singleton.Lobby != null)
+                            LobbyUI.Singleton.LoadPanel(LobbyUI.Panel.Room);
+
                         SetLoading(false);
                         break;
                 }

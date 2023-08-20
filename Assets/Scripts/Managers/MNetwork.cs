@@ -38,23 +38,64 @@ public class MNetwork : NetworkManager
     }
     
     #endregion
-    
-    public enum ActionEnum
+
+    public enum NetworkAction
     {
         TryJoinLobby,
         FinishJoinLobby,
     }
     
+    [Header("Player settings")]
+    [SerializeField] private List<string> defaultPlayerNames = new List<string>()
+    {
+        // Funny nicknames
+        "Baby Yoda",
+        "Mandalorian",
+        "Darth Vader",
+        "Darth Maul",
+        "Darth Sidious",
+        "Obi-Wan Kenobi",
+        "Han Solo",
+        "Chewbacca",
+        "Luke Skywalker",
+        "Leia Organa",
+        "R2-D2",
+        "C-3PO",
+        "BB-8",
+        "Yoda",
+        "Jabba the Hutt",
+        "Boba Fett",
+        "Jango Fett",
+        "Padmé Amidala",
+        "Qui-Gon Jinn",
+        "Mace Windu",
+        "Count Dooku",
+        "General Grievous",
+        "Kylo Ren",
+        "Rey",
+        "Poe Dameron",
+        "Finn",
+        "Captain Phasma",
+        "Lando Calrissian",
+        "Jyn Erso",
+        "Grand Moff Tarkin"
+    };
+
     [Header("Lobby settings")]
     [SerializeField] private string defaultLobbyName = "Default Lobby";
     [SerializeField] private float heartbeatInterval = 15f;
+    [SerializeField] private float lobbyPollingInterval = 5f;
     
-    public UnityEvent<ActionEnum> onAction = new UnityEvent<ActionEnum>();
+    [Header("Events")]
+    public UnityEvent<Lobby> lobbyUpdated = new();
+    public UnityEvent<NetworkAction> onAction;
     
     private Lobby _lobby;
     private float _heartbeatTimer;
-    
-    public bool IsHost => _lobby != null && _lobby.HostId == AuthenticationService.Instance.PlayerId;
+    private float _lobbyPollingTimer;
+
+    public bool IsLobbyHost => _lobby != null && _lobby.HostId == AuthenticationService.Instance.PlayerId;
+    public Lobby Lobby => _lobby;
     
     public async void Start()
     {
@@ -85,6 +126,7 @@ public class MNetwork : NetworkManager
     private void Update()
     {
         HandleHeartbeat();
+        HandleLobbyPolling();
     }
     
     private async void HandleHeartbeat()
@@ -100,6 +142,49 @@ public class MNetwork : NetworkManager
             await LobbyService.Instance.SendHeartbeatPingAsync(_lobby.Id);
         }
     }
+
+    private async void HandleLobbyPolling()
+    {
+        if (_lobby == null) return;
+        
+        _lobbyPollingTimer -= Time.deltaTime;
+        if (_lobbyPollingTimer <= 0)
+        {
+            _lobbyPollingTimer = lobbyPollingInterval;
+
+            Lobby lobby = await LobbyService.Instance.GetLobbyAsync(_lobby.Id);
+            if (lobby == null)
+            {
+                Debug.Log("Lobby doesn't exist anymore");
+                SetLobby(null);
+                return;
+            }
+            
+            SetLobby(lobby);
+        }
+    }
+
+    #region Lobby
+    
+    private void SetLobby(Lobby lobby)
+    {
+        bool isSameLobby = _lobby != null && lobby != null && _lobby.Id == lobby.Id;
+        
+        _lobby = lobby;
+        lobbyUpdated.Invoke(lobby);
+        
+        if (lobby == null) return;
+        if (isSameLobby) return;
+        if (lobby.Players.All(p => p.Id != AuthenticationService.Instance.PlayerId)) return; // Player is not in lobby
+        
+        UpdatePlayerOptions options = new UpdatePlayerOptions();
+        options.Data = new Dictionary<string, PlayerDataObject>()
+        {
+            { "name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, GetRandomPlayerName()) }
+        };
+        
+        LobbyService.Instance.UpdatePlayerAsync(lobby.Id, AuthenticationService.Instance.PlayerId, options);
+    }
     
     public async void CreateLobby()
     {
@@ -108,12 +193,21 @@ public class MNetwork : NetworkManager
             CreateLobbyOptions options = new CreateLobbyOptions
             {
                 IsPrivate = false,
+                Data = new Dictionary<string, DataObject>
+                {
+                    {
+                        "code", new DataObject(
+                            visibility: DataObject.VisibilityOptions.Public,
+                            value: GenerateLobbyCode(),
+                            index: DataObject.IndexOptions.S1)
+                    }
+                }
             };
 
             Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(defaultLobbyName, 5, options);
             Debug.Log("Created lobby: " + lobby.Id + " with code: " + lobby.LobbyCode);
             
-            _lobby = lobby;
+            SetLobby(lobby);
             
             LobbyUI.Singleton.LoadPanel(LobbyUI.Panel.Room);
         } catch (Exception e)
@@ -122,8 +216,10 @@ public class MNetwork : NetworkManager
         }
     }
 
-    public async Task<List<Lobby>> GetLobbies()
+    public async Task<Lobby> JoinLobbyByCode(string code)
     {
+        onAction.Invoke(NetworkAction.TryJoinLobby);
+        
         try
         {
             QueryLobbiesOptions options = new QueryLobbiesOptions
@@ -132,42 +228,48 @@ public class MNetwork : NetworkManager
                 Filters = new List<QueryFilter>()
                 {
                     new(QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT),
+                    new(QueryFilter.FieldOptions.S1, code, QueryFilter.OpOptions.EQ),
                 },
                 Order = new List<QueryOrder>()
                 {
                     new(false, QueryOrder.FieldOptions.Created),
                 }
             };
-
+            
             QueryResponse response = await LobbyService.Instance.QueryLobbiesAsync(options);
             
-            Debug.Log("Found :" + string.Join(", ", response.Results.Select(x => x.Id)));
+            if (response.Results.Count == 0)
+            {
+                Debug.Log("No lobby found with code: " + code);
+                return null;
+            }
             
-            return response.Results;
-
-        }
-        catch (Exception e)
+            Lobby lobby = response.Results[0];
+            
+            lobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobby.Id);
+            SetLobby(lobby);
+            onAction.Invoke(NetworkAction.FinishJoinLobby);
+            
+            return lobby;
+        } catch (Exception e)
         {
             Debug.LogError(e);
+            onAction.Invoke(NetworkAction.FinishJoinLobby);
             return null;
         }
     }
-
-    public async void JoinLobbyByCode(string code)
+    
+    #endregion
+    
+    public static string GenerateLobbyCode()
     {
-        onAction.Invoke(ActionEnum.TryJoinLobby);
-        try
-        {
-            Lobby lobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
-            
-            onAction.Invoke(ActionEnum.FinishJoinLobby);
-            Debug.Log("Joined lobby: " + lobby.Id);
-            
-            _lobby = lobby;
-        } catch (Exception e)
-        {
-            onAction.Invoke(ActionEnum.FinishJoinLobby);
-            Debug.LogError(e);
-        }
+        const string chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // No I, L, 1, O, 0 to avoid confusion
+        return new string(Enumerable.Repeat(chars, 4)
+            .Select(s => s[new Random().Next(s.Length)]).ToArray());
+    }
+    
+    public string GetRandomPlayerName()
+    {
+        return defaultPlayerNames[new Random().Next(defaultPlayerNames.Count)];
     }
 }
