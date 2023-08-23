@@ -37,7 +37,6 @@ namespace Components.UI.Lobby
                     if (lobby.Players != null)
                     {
                         data.players = lobby.Players
-                            .Where(p => p is { Data: not null } && p.Data.ContainsKey("name"))
                             .Select(p => p.Data["name"].Value).ToList();
                     }
                 }

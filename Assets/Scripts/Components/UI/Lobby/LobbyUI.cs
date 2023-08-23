@@ -39,6 +39,8 @@ namespace Components.UI.Lobby
         [SerializeField] private SerializedDictionary<Panel, LobbyPanel> _panels;
         [SerializeField] private float _pageDisplayDelay = 0.1f;
         
+        public Panel CurrentPanel => _panels.FirstOrDefault(p => p.Value == _currentPanel).Key;
+        
         private Sequence _sequence;
         private LobbyPanel _currentPanel;
         
@@ -53,6 +55,18 @@ namespace Components.UI.Lobby
         private void Start()
         {
             LoadPanel(Panel.Main);
+            
+            MNetwork.Singleton.lobbyUpdated.AddListener((lobby) =>
+            {
+                if (lobby == null && CurrentPanel == Panel.Room)
+                {
+                    LoadPanel(Panel.Main);
+                }
+                else if (lobby != null && CurrentPanel != Panel.Room)
+                {
+                    LoadPanel(Panel.Room);
+                }
+            });
         }
 
         public void LoadPanel(string panel)
@@ -79,8 +93,6 @@ namespace Components.UI.Lobby
 
             if (_currentPanel != null)
             {
-                Debug.Log("[DEBUG/LobbyUI]: Hide last panel");
-                
                 _sequence.Append(_currentPanel.Display(false));
                 _sequence.AppendInterval(_pageDisplayDelay);
             }
@@ -90,12 +102,9 @@ namespace Components.UI.Lobby
             _sequence.Play();
         }
         
-        public async void CreateRoom()
+        public void CreateRoom()
         {
-            await MNetwork.Singleton.CreateLobby();
-            if (MNetwork.Singleton.Lobby == null) return;
-            
-            LoadPanel(Panel.Room);
+            MNetwork.Singleton.CreateLobby();
         }
     }
 }

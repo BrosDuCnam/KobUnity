@@ -168,22 +168,8 @@ public class MNetwork : NetworkManager
     
     private void SetLobby(Lobby lobby)
     {
-        bool isSameLobby = _lobby != null && lobby != null && _lobby.Id == lobby.Id;
-        
         _lobby = lobby;
         lobbyUpdated.Invoke(lobby);
-        
-        if (lobby == null) return;
-        if (isSameLobby) return;
-        if (lobby.Players.All(p => p.Id != AuthenticationService.Instance.PlayerId)) return; // Player is not in lobby
-        
-        UpdatePlayerOptions options = new UpdatePlayerOptions();
-        options.Data = new Dictionary<string, PlayerDataObject>()
-        {
-            { "name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, GetRandomPlayerName()) }
-        };
-        
-        LobbyService.Instance.UpdatePlayerAsync(lobby.Id, AuthenticationService.Instance.PlayerId, options);
     }
     
     public async Task CreateLobby()
@@ -205,7 +191,7 @@ public class MNetwork : NetworkManager
             };
 
             Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(defaultLobbyName, 5, options);
-            Debug.Log("Created lobby: " + lobby.Id + " with code: " + lobby.LobbyCode);
+            await ApplyNickname(lobby, GetRandomPlayerName());
             
             SetLobby(lobby);
         } catch (Exception e)
@@ -245,6 +231,8 @@ public class MNetwork : NetworkManager
             Lobby lobby = response.Results[0];
             
             lobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobby.Id);
+            await ApplyNickname(lobby, GetRandomPlayerName());
+            
             SetLobby(lobby);
             onAction.Invoke(NetworkAction.FinishJoinLobby);
             
@@ -254,6 +242,29 @@ public class MNetwork : NetworkManager
             Debug.LogError(e);
             onAction.Invoke(NetworkAction.FinishJoinLobby);
             return null;
+        }
+    }
+    
+    private async Task ApplyNickname(Lobby lobby, string nickname)
+    {
+        try
+        {
+            if (lobby == null) return;
+            if (lobby.Players == null) return;
+            if (lobby.Players.All(p => p.Id != AuthenticationService.Instance.PlayerId)) return; // Not in lobby
+            
+            UpdatePlayerOptions options = new UpdatePlayerOptions();
+            options.Data = new Dictionary<string, PlayerDataObject>()
+            {
+                { "name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, nickname) }
+            };
+            
+            await LobbyService.Instance.UpdatePlayerAsync(lobby.Id, AuthenticationService.Instance.PlayerId, options);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
     }
     
