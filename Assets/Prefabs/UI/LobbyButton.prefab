@@ -98,6 +98,10 @@ MonoBehaviour:
   _text: {fileID: 649834506916486577}
   _symbol: {fileID: 8768146387166708817}
   _canvasGroup: {fileID: 6936367234313144343}
+  _defaultText: Default Text
+  _defaultOnPressed:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &3519672012618245520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -363,7 +367,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Default Text
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 70b4c36a30287154c868ec70974e8cf8, type: 2}
   m_sharedMaterial: {fileID: -739351326448357589, guid: 70b4c36a30287154c868ec70974e8cf8,
