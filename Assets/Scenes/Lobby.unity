@@ -1277,8 +1277,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7063583168135528101, guid: accd9bfd4b6701e4aa520fed572533a9,
         type: 3}
+      propertyPath: _defaultOnPressed.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1939286109}
+    - target: {fileID: 7063583168135528101, guid: accd9bfd4b6701e4aa520fed572533a9,
+        type: 3}
       propertyPath: _defaultOnPressed.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7063583168135528101, guid: accd9bfd4b6701e4aa520fed572533a9,
+        type: 3}
+      propertyPath: _defaultOnPressed.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CreateRoom
+      objectReference: {fileID: 0}
+    - target: {fileID: 7063583168135528101, guid: accd9bfd4b6701e4aa520fed572533a9,
+        type: 3}
+      propertyPath: _defaultOnPressed.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Components.UI.Lobby.LobbyUI, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7063583168135528101, guid: accd9bfd4b6701e4aa520fed572533a9,
+        type: 3}
+      propertyPath: _defaultOnPressed.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3307,6 +3327,11 @@ PrefabInstance:
         type: 3}
       propertyPath: _defaultText
       value: Back
+      objectReference: {fileID: 0}
+    - target: {fileID: 7063583168135528101, guid: accd9bfd4b6701e4aa520fed572533a9,
+        type: 3}
+      propertyPath: m_Transition
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7063583168135528101, guid: accd9bfd4b6701e4aa520fed572533a9,
         type: 3}

@@ -79,6 +79,8 @@ namespace Components.UI.Lobby
 
             if (_currentPanel != null)
             {
+                Debug.Log("[DEBUG/LobbyUI]: Hide last panel");
+                
                 _sequence.Append(_currentPanel.Display(false));
                 _sequence.AppendInterval(_pageDisplayDelay);
             }
@@ -86,6 +88,14 @@ namespace Components.UI.Lobby
             _sequence.AppendCallback(() => _currentPanel = _panels[panel]);
             
             _sequence.Play();
+        }
+        
+        public async void CreateRoom()
+        {
+            await MNetwork.Singleton.CreateLobby();
+            if (MNetwork.Singleton.Lobby == null) return;
+            
+            LoadPanel(Panel.Room);
         }
     }
 }

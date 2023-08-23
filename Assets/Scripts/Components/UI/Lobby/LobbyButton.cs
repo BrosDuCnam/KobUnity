@@ -40,10 +40,8 @@ namespace Components.UI.Lobby
             if (_defaultOnPressed != null) _onPressed = _defaultOnPressed.Invoke;
         }
 
-        protected override void OnValidate()
+        private new void OnValidate()
         {
-            base.OnValidate();
-            
             if (!string.IsNullOrEmpty(_defaultText)) _text.text = _defaultText;
         }
 

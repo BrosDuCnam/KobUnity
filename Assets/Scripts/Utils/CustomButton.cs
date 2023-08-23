@@ -6,7 +6,7 @@ namespace Utils
 {
     public class CustomButton : Selectable, ISubmitHandler
     {
-                [Header("Events")]
+        [Header("Events")]
         [SerializeField] public UnityEngine.Events.UnityEvent onPressed = new (); // Called when the button is pressed.
         [SerializeField] public UnityEngine.Events.UnityEvent onSelected = new (); 
         [SerializeField] public UnityEngine.Events.UnityEvent onDeselected = new ();

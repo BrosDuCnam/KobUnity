@@ -27,10 +27,12 @@ namespace Components.UI.Lobby
 			for (int i = 0; i < canvasGroups.Count; i++)
 			{
 				CanvasGroup canvasGroup = canvasGroups[i];
+
+				canvasGroup.alpha = display? 0 : 1;
 				canvasGroup.interactable = display;
 				canvasGroup.blocksRaycasts = display;
 				
-				_sequence.Insert(displayDelay * i, canvasGroup.DOFade(display ? 1 : 0, fadeDuration));
+				_sequence.Insert(displayDelay * i, canvasGroup.DOFade(display ? 1 : 0, fadeDuration).Play());
 			}
 
 			return _sequence;

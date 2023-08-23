@@ -25,21 +25,24 @@ namespace Components.UI.Lobby
         {
             MNetwork.Singleton.lobbyUpdated.AddListener((lobby) =>
             {
-                if (lobby == null)
+                NetworkSectionData data = new NetworkSectionData
                 {
-                    Refresh(new NetworkSectionData
+                    online = lobby != null,
+                };
+                
+                if (lobby != null)
+                {
+                    data.lobbyCode = lobby.Data["code"].Value;
+
+                    if (lobby.Players != null)
                     {
-                        online = false,
-                    });
-                    return;
+                        data.players = lobby.Players
+                            .Where(p => p is { Data: not null } && p.Data.ContainsKey("name"))
+                            .Select(p => p.Data["name"].Value).ToList();
+                    }
                 }
                 
-                Refresh(new NetworkSectionData
-                {
-                    online = true,
-                    lobbyCode = lobby.Data["code"].Value,
-                    players = lobby.Players.Select(p => p.Data["name"].Value).ToList(),
-                });
+                Refresh(data);
             });
         }
 

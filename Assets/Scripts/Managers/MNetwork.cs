@@ -186,7 +186,7 @@ public class MNetwork : NetworkManager
         LobbyService.Instance.UpdatePlayerAsync(lobby.Id, AuthenticationService.Instance.PlayerId, options);
     }
     
-    public async void CreateLobby()
+    public async Task CreateLobby()
     {
         try
         {
@@ -208,8 +208,6 @@ public class MNetwork : NetworkManager
             Debug.Log("Created lobby: " + lobby.Id + " with code: " + lobby.LobbyCode);
             
             SetLobby(lobby);
-            
-            LobbyUI.Singleton.LoadPanel(LobbyUI.Panel.Room);
         } catch (Exception e)
         {
             Debug.LogError(e);
