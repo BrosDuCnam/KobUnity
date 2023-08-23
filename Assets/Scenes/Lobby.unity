@@ -2636,11 +2636,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: JoinButton
       objectReference: {fileID: 0}
-    - target: {fileID: 65589090571267158, guid: b12c5b9ae95b9fb418693f1f0d641466,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1438778136877202986, guid: b12c5b9ae95b9fb418693f1f0d641466,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -2661,10 +2656,70 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -25
       objectReference: {fileID: 0}
+    - target: {fileID: 2023575747703246588, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2023575747703246588, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2023575747703246588, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2023575747703246588, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4196399331656105346, guid: b12c5b9ae95b9fb418693f1f0d641466,
         type: 3}
       propertyPath: m_SizeDelta.x
       value: -356
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154089165070507343, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: _cooldown
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154089165070507343, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: _onPressed.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154089165070507343, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: _onPressed.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154089165070507343, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: _onPressed.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1939286109}
+    - target: {fileID: 6154089165070507343, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: _onPressed.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154089165070507343, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: _onPressed.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: JoinRoom
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154089165070507343, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: _onPressed.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Components.UI.Lobby.LobbyUI, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6154089165070507343, guid: b12c5b9ae95b9fb418693f1f0d641466,
+        type: 3}
+      propertyPath: _onPressed.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 6378126451760891291, guid: b12c5b9ae95b9fb418693f1f0d641466,
         type: 3}

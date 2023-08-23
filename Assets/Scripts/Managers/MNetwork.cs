@@ -225,6 +225,8 @@ public class MNetwork : NetworkManager
             if (response.Results.Count == 0)
             {
                 Debug.Log("No lobby found with code: " + code);
+                onAction.Invoke(NetworkAction.FinishJoinLobby);
+
                 return null;
             }
             
@@ -237,7 +239,8 @@ public class MNetwork : NetworkManager
             onAction.Invoke(NetworkAction.FinishJoinLobby);
             
             return lobby;
-        } catch (Exception e)
+        } 
+        catch (Exception e)
         {
             Debug.LogError(e);
             onAction.Invoke(NetworkAction.FinishJoinLobby);

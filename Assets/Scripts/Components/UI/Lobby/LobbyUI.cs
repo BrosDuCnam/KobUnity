@@ -106,5 +106,10 @@ namespace Components.UI.Lobby
         {
             MNetwork.Singleton.CreateLobby();
         }
+        
+        public void JoinRoom(string lobbyId)
+        {
+            MNetwork.Singleton.JoinLobbyByCode(lobbyId);
+        }
     }
 }

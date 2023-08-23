@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using Utils;
 
@@ -20,17 +21,24 @@ namespace Components.UI.Lobby
         [SerializeField] private TextMeshProUGUI _text;
         [SerializeField] private CanvasGroup _dotsCanvasGroup;
         [SerializeField] private List<Image> _dots;
-        
-        [Header("Settings")]
-        [SerializeField] private float _normalSpacing = 10;
-        [SerializeField] private float _selectedSpacing = 15;
-        [SerializeField] private float _selectedPressSpacing = 5;
+        [SerializeField] private Image _background;
+
+        [Header("Settings")] 
+        [SerializeField] private float _normalBgAlpha = 0f;
+        [SerializeField] private float _selectedBgAlpha = 0.2f;
+        [SerializeField] private float _cooldown = 0.5f;
+        [SerializeField] private UnityEvent<string> _onPressed = new ();
 
         CanvasGroup IDisplayable.CanvasGroup => _canvasGroup;
         
-        private Sequence _textSequence;
+        private Sequence _bgSequence;
         private Sequence _dotsSequence;
+        private bool _isLoading;
 
+        // Cooldown
+        private bool CanPress => Time.time - _lastPressTime > _cooldown;
+        private float _lastPressTime;
+        
         protected new void Start()
         {
             SetupDotsSequence();
@@ -54,7 +62,10 @@ namespace Components.UI.Lobby
         
         public void SetLoading(bool loading)
         {
+            _isLoading = loading;
+            
             _text.DOFade(loading ? 0f : 1f, 0.3f);
+            
             _dotsCanvasGroup.DOFade(loading ? 1f : 0f, 0.3f);
             
             if (loading)
@@ -70,39 +81,35 @@ namespace Components.UI.Lobby
 
         public override void OnSelect()
         {
-            _textSequence?.Kill();
-            _textSequence = DOTween.Sequence();
+            if (_isLoading) return;
             
-            _textSequence.Append(
-                DOTween.To(() => _text.characterSpacing, x => _text.characterSpacing = x, _selectedSpacing, 0.1f));
+            _bgSequence?.Kill();
+            _bgSequence = DOTween.Sequence();
             
-            _textSequence.Play();
+            _bgSequence.Append(_background.DOFade(_selectedBgAlpha, 0.3f));
+            
+            _bgSequence.Play();
         }
         
         public override void OnDeselect()
         {
-            _textSequence?.Kill();
-            _textSequence = DOTween.Sequence();
+            _bgSequence?.Kill();
+            _bgSequence = DOTween.Sequence();
             
-            _textSequence.Append(
-                DOTween.To(() => _text.characterSpacing, x => _text.characterSpacing = x, _normalSpacing, 0.1f));
+            _bgSequence.Append(_background.DOFade(_normalBgAlpha, 0.3f));
             
-            _textSequence.Play();
+            _bgSequence.Play();
         }
         
         public override void OnPressed()
         {
-            _textSequence?.Kill();
-            _textSequence = DOTween.Sequence();
+            if (_isLoading) return;
+            if (!CanPress) return;
             
-            _textSequence.Append(
-                DOTween.To(() => _text.characterSpacing, x => _text.characterSpacing = x, _selectedPressSpacing, 0.1f));
-            _textSequence.Append(
-                DOTween.To(() => _text.characterSpacing, x => _text.characterSpacing = x, _selectedSpacing, 0.1f));
+            _lastPressTime = Time.time;
             
-            _textSequence.Play();
-            
-            MNetwork.Singleton.JoinLobbyByCode(LobbyUI.Singleton.lobbyInputField.Text);
+            _bgSequence?.Kill();
+            _onPressed?.Invoke(LobbyUI.Singleton.lobbyInputField.Text);
         }
 
         private void SetupDotsSequence()
