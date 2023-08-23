@@ -20,6 +20,9 @@ namespace Components.UI.Lobby
         [Header("References")]
         [SerializeField] private TextMeshProUGUI _lobbyCode;
         [SerializeField] private TextMeshProUGUI _players;
+        [SerializeField] private TextMeshProUGUI _clipboardMessage;
+        
+        private Sequence _clipboardSequence;
         
         private void Start()
         {
@@ -56,6 +59,23 @@ namespace Components.UI.Lobby
             
             _lobbyCode.text = data.lobbyCode;
             _players.text = string.Join(", ", data.players);
+        }
+        
+        public void PlayClipboardMessage()
+        {
+            _clipboardSequence?.Kill();
+            _clipboardSequence = DOTween.Sequence();
+            
+            _clipboardSequence.Append(_clipboardMessage.DOFade(1, 0));
+            _clipboardSequence.Append(_clipboardMessage.DOFade(0, 0.5f).SetEase(Ease.OutCubic));
+            
+            _clipboardSequence.Play();
+        }
+        
+        public void CopyLobbyCode()
+        {
+            GUIUtility.systemCopyBuffer = _lobbyCode.text;
+            PlayClipboardMessage();
         }
     }
 }
