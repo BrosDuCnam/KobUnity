@@ -21,6 +21,10 @@ namespace Components.UI.Lobby
         [SerializeField] private Image _symbol;
         [SerializeField] private CanvasGroup _canvasGroup;
         
+        [Header("Default Data")]
+        [SerializeField] private string _defaultText;
+        [SerializeField] private UnityEvent _defaultOnPressed;
+        
         private Sequence _symbolSequence;
         private UnityAction _onPressed;
         
@@ -31,8 +35,18 @@ namespace Components.UI.Lobby
             base.Awake();
             
             _symbol.gameObject.SetActive(false);
+            
+            if (!string.IsNullOrEmpty(_defaultText)) _text.text = _defaultText;
+            if (_defaultOnPressed != null) _onPressed = _defaultOnPressed.Invoke;
         }
-        
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            
+            if (!string.IsNullOrEmpty(_defaultText)) _text.text = _defaultText;
+        }
+
         public void Refresh(LobbyButtonData data)
         {
             if (_onPressed != null) onPressed.RemoveListener(_onPressed);
@@ -52,6 +66,8 @@ namespace Components.UI.Lobby
             _symbolSequence.Append(_symbol.rectTransform.DOAnchorPosX(0, 0.1f));
             
             _symbolSequence.Play();
+            
+            _onPressed?.Invoke();
         }
 
         public override void OnSelect()

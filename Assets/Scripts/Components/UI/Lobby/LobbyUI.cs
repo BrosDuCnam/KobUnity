@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Utils;
 
 namespace Components.UI.Lobby
@@ -35,10 +36,12 @@ namespace Components.UI.Lobby
         [SerializeField] public JoinButton joinButton;
 
         [Header("Settings")]
-        [SerializeField] private float _buttonDisplayDelay = 0.1f;
+        [SerializeField] private SerializedDictionary<Panel, LobbyPanel> _panels;
+        [SerializeField] private float _pageDisplayDelay = 0.1f;
         
-        private readonly UIPooling<LobbyButton, LobbyButton.LobbyButtonData> _lobbyButtonPool = new();
-
+        private Sequence _sequence;
+        private LobbyPanel _currentPanel;
+        
         public enum Panel
         {
             Main,
@@ -52,146 +55,37 @@ namespace Components.UI.Lobby
             LoadPanel(Panel.Main);
         }
 
+        public void LoadPanel(string panel)
+        {
+            if (Enum.TryParse(panel, true, out Panel panelEnum))
+            {
+                LoadPanel(panelEnum);
+                return;
+            }
+            
+            LoadPanel(panelEnum);
+        }
+        
         public void LoadPanel(Panel panel)
         {
-            switch (panel)
+            if (!_panels.ContainsKey(panel))
             {
-                case Panel.Main:
-                    LoadMain();
-                    break;
-                case Panel.Play:
-                    LoadPlay();
-                    break;
-                case Panel.Join:
-                    LoadJoin();
-                    break;
-                case Panel.Room:
-                    LoadLobby();
-                    break;
-            }
-        }
-
-        #region LoadPanel
-
-        private void LoadMain()
-        {
-            List<LobbyButton.LobbyButtonData> data = new List<LobbyButton.LobbyButtonData>()
-            {
-                new LobbyButton.LobbyButtonData()
-                {
-                    text = "Play",
-                    onPressed = () => LoadPanel(Panel.Play),
-                },
-                new LobbyButton.LobbyButtonData()
-                {
-                    text = "Settings",
-                    onPressed = () => Debug.Log("Settings"),
-                },
-                new LobbyButton.LobbyButtonData()
-                {
-                    text = "Quit",
-                    onPressed = () => Debug.Log("Quit"),
-                },
-            };
-            
-            StartCoroutine(LoadPanelCoroutine(data));
-        }
-        
-        private void LoadPlay()
-        {
-            List<LobbyButton.LobbyButtonData> data = new List<LobbyButton.LobbyButtonData>()
-            {
-                new LobbyButton.LobbyButtonData()
-                {
-                    text = "New Game",
-                    onPressed = () => MNetwork.Singleton.CreateLobby(),
-                },
-                new LobbyButton.LobbyButtonData()
-                {
-                    text = "Load Game",
-                    onPressed = () => LoadPanel(Panel.Join),
-                },
-                new LobbyButton.LobbyButtonData()
-                {
-                    text = "Back",
-                    onPressed = () => LoadPanel(Panel.Main),
-                },
-            };
-            
-            StartCoroutine(LoadPanelCoroutine(data));
-        }
-        
-        private void LoadJoin()
-        {
-            List<LobbyButton.LobbyButtonData> data = new List<LobbyButton.LobbyButtonData>()
-            {
-                new LobbyButton.LobbyButtonData()
-                {
-                    text = "Back",
-                    onPressed = () => LoadPanel(Panel.Main),
-                }
-            };
-            
-            StartCoroutine(LoadPanelCoroutine(data, () =>
-            {
-                lobbyInputField.gameObject.SetActive(true);
-                joinButton.gameObject.SetActive(true);
-            }));
-        }
-
-        private void LoadLobby()
-        {
-            List<LobbyButton.LobbyButtonData> data = new List<LobbyButton.LobbyButtonData>();
-            
-            LobbyData.LobbyDataElement lobbyDataElement = new LobbyData.LobbyDataElement()
-            {
-                saveSectionData = new SaveSection.SaveSectionData()
-                {
-                    lastPlayed = DateTime.Now,
-                    saveName = "Default Lobby",
-                    timePlayed = 123456,
-                }
-            };
-            
-            StartCoroutine(LoadPanelCoroutine(data, () =>
-            {
-                lobbyData.gameObject.SetActive(true);
-                lobbyData.Refresh(lobbyDataElement);
-            }));
-        }
-        
-        #endregion
-        
-        
-        private IEnumerator LoadPanelCoroutine(List<LobbyButton.LobbyButtonData> data, Action afterHide = null)
-        {
-            yield return DisplayObjects(false, true).Play().WaitForCompletion();
-            
-            afterHide?.Invoke();
-
-            var refreshResult = _lobbyButtonPool.Refresh(data, lobbyButtonPrefab, lobbyButtonParent);
-            
-            refreshResult.activeItems.ForEach(button =>
-            {
-                ((IDisplayable)button).Display(false, false, true);
-                button.gameObject.SetActive(true);
-            });
-            
-            yield return DisplayObjects(true).Play().WaitForCompletion();
-        }
-        
-        public Sequence DisplayObjects(bool display, bool changeActive = false)
-        {
-            Sequence sequence = DOTween.Sequence();
-            
-            int j = 0;
-            foreach (IDisplayable obj in lobbyButtonParent.GetComponentsInChildren<MonoBehaviour>().OfType<IDisplayable>().ToArray())
-            {
-                sequence.Insert(j * _buttonDisplayDelay, obj.Display(display, changeActive));
-                j++;
+                Debug.LogError($"Panel {panel} not found!");
+                return;
             }
             
-            return sequence;
+            _sequence?.Kill();
+            _sequence = DOTween.Sequence();
+
+            if (_currentPanel != null)
+            {
+                _sequence.Append(_currentPanel.Display(false));
+                _sequence.AppendInterval(_pageDisplayDelay);
+            }
+            _sequence.Append(_panels[panel].Display(true));
+            _sequence.AppendCallback(() => _currentPanel = _panels[panel]);
+            
+            _sequence.Play();
         }
     }
 }
