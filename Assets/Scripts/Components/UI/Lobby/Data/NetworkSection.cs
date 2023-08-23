@@ -35,7 +35,7 @@ namespace Components.UI.Lobby
                 
                 if (lobby != null)
                 {
-                    data.lobbyCode = lobby.Data["code"].Value;
+                    data.lobbyCode = lobby.Data[MNetwork.KEY_LOBBY_CODE].Value;
 
                     if (lobby.Players != null)
                     {

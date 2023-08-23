@@ -9,10 +9,14 @@ using Components.UI.Lobby;
 using ParrelSync;
 #endif
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
+using Unity.Services.Relay;
+using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -94,6 +98,9 @@ public class MNetwork : NetworkManager
     private float _heartbeatTimer;
     private float _lobbyPollingTimer;
 
+    public const string KEY_LOBBY_CODE = "lobbyCode";
+    private const string KEY_LOBBY_STARTGAME = "lobbyStartGame";
+    
     public bool IsLobbyHost => _lobby != null && _lobby.HostId == AuthenticationService.Instance.PlayerId;
     public Lobby Lobby => _lobby;
     
@@ -159,6 +166,18 @@ public class MNetwork : NetworkManager
                 SetLobby(null);
                 return;
             }
+
+            if (lobby.Data[KEY_LOBBY_STARTGAME].Value != "0")
+            {
+                Debug.Log("Lobby is starting game");
+                if (!IsLobbyHost)
+                {
+                    JoinRelay(lobby.Data[KEY_LOBBY_STARTGAME].Value);
+                }
+
+                SetLobby(null); // Reset lobby so we don't get stuck in a loop
+                return;
+            }
             
             SetLobby(lobby);
         }
@@ -182,10 +201,16 @@ public class MNetwork : NetworkManager
                 Data = new Dictionary<string, DataObject>
                 {
                     {
-                        "code", new DataObject(
+                        KEY_LOBBY_CODE, new DataObject(
                             visibility: DataObject.VisibilityOptions.Public,
                             value: GenerateLobbyCode(),
                             index: DataObject.IndexOptions.S1)
+                    },
+                    {
+                        KEY_LOBBY_STARTGAME, new DataObject(
+                            visibility: DataObject.VisibilityOptions.Member,
+                            value: "0",
+                            index: DataObject.IndexOptions.S2)
                     }
                 }
             };
@@ -272,6 +297,73 @@ public class MNetwork : NetworkManager
     }
     
     #endregion
+
+    #region Relay
+
+    public async Task<string> CreateRelay()
+    {
+        try
+        {
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
+            
+            string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+
+            RelayServerData serverData = new RelayServerData(allocation, "dtls");
+            GetComponent<UnityTransport>().SetRelayServerData(serverData);
+            StartHost();
+            
+            return joinCode;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+        
+        return null;
+    }
+
+    public async void JoinRelay(string relayCode)
+    {
+        try
+        {
+            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(relayCode);
+            
+            RelayServerData serverData = new RelayServerData(joinAllocation, "dtls");
+            GetComponent<UnityTransport>().SetRelayServerData(serverData);
+            StartClient();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    #endregion
+    
+    public async void StartGame()
+    {
+        if (_lobby == null) return;
+        if (!IsLobbyHost) return;
+
+        string relayCode = await CreateRelay();
+        
+        Lobby lobby = await LobbyService.Instance.UpdateLobbyAsync(_lobby.Id, new UpdateLobbyOptions
+        {
+            Data = new Dictionary<string, DataObject>
+            {
+                {
+                    KEY_LOBBY_STARTGAME, new DataObject(
+                        visibility: DataObject.VisibilityOptions.Member,
+                        value: relayCode,
+                        index: DataObject.IndexOptions.S2)
+                }
+            }
+        });
+        
+        SetLobby(lobby);
+    }
+    
     
     public static string GenerateLobbyCode()
     {

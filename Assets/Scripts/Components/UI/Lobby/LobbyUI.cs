@@ -111,5 +111,13 @@ namespace Components.UI.Lobby
         {
             MNetwork.Singleton.JoinLobbyByCode(lobbyId);
         }
+
+        public void StartGame()
+        {
+            if (MNetwork.Singleton.Lobby == null) return;
+            if (!MNetwork.Singleton.IsLobbyHost) return;
+            
+            MNetwork.Singleton.StartGame();
+        }
     }
 }
