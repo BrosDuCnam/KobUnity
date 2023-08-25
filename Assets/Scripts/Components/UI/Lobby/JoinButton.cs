@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using Utils;
+using Utils.Network;
 
 namespace Components.UI.Lobby
 {
@@ -43,15 +44,15 @@ namespace Components.UI.Lobby
         {
             SetupDotsSequence();
             
-            MNetwork.Singleton.onAction.AddListener((action) =>
+            MNetwork.Singleton.lobbyHandler.onStateChanged.AddListener((action) =>
             {
                 switch (action)
                 {
-                    case MNetwork.NetworkAction.TryJoinLobby:
+                    case LobbyHandler.LobbyState.Joining:
                         SetLoading(true);
                         break;
-                    case MNetwork.NetworkAction.FinishJoinLobby:
-                        if (MNetwork.Singleton.Lobby != null)
+                    case not LobbyHandler.LobbyState.Joining:
+                        if (MNetwork.Singleton.lobbyHandler.Lobby != null)
                             LobbyUI.Singleton.LoadPanel(LobbyUI.Panel.Room);
 
                         SetLoading(false);

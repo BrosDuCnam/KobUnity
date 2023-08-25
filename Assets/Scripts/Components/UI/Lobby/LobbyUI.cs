@@ -56,7 +56,7 @@ namespace Components.UI.Lobby
         {
             LoadPanel(Panel.Main);
             
-            MNetwork.Singleton.lobbyUpdated.AddListener((lobby) =>
+            MNetwork.Singleton.lobbyHandler.onLobbyChanged.AddListener((lobby) =>
             {
                 if (lobby == null && CurrentPanel == Panel.Room)
                 {
@@ -104,20 +104,20 @@ namespace Components.UI.Lobby
         
         public void CreateRoom()
         {
-            MNetwork.Singleton.CreateLobby();
+            MNetwork.Singleton.lobbyHandler.CreateLobby();
         }
         
         public void JoinRoom(string lobbyId)
         {
-            MNetwork.Singleton.JoinLobbyByCode(lobbyId);
+            MNetwork.Singleton.lobbyHandler.JoinLobbyByCode(lobbyId);
         }
 
         public void StartGame()
         {
-            if (MNetwork.Singleton.Lobby == null) return;
-            if (!MNetwork.Singleton.IsLobbyHost) return;
+            if (MNetwork.Singleton.lobbyHandler.Lobby == null) return;
+            if (!MNetwork.Singleton.lobbyHandler.IsLobbyOwner) return;
             
-            MNetwork.Singleton.StartGame();
+            MNetwork.Singleton.lobbyHandler.StartGame();
         }
     }
 }

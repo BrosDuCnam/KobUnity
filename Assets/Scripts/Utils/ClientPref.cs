@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Utils
 {
@@ -7,11 +8,32 @@ namespace Utils
         // keys
         private const string NicknameKey = "nickname";
         
+        // default nicknames
+        private static readonly List<string> DefaultNicknames = new List<string>
+        {
+            "Player",
+            "Guest",
+            "Stranger",
+            "You",
+            "Me",
+            "Myself",
+            "I",
+            "Unknown",
+            "Anonymous",
+            "Anon",
+            "NoName",
+            "NoNickname",
+        };
+        
         #region Getters
         
         public static string GetNickname()
         {
-            return PlayerPrefs.GetString(NicknameKey, "");
+            if (!PlayerPrefs.HasKey(NicknameKey))
+            {
+                PlayerPrefs.SetString(NicknameKey, DefaultNicknames[Random.Range(0, DefaultNicknames.Count)]);
+            }
+            return PlayerPrefs.GetString(NicknameKey);
         }
         
         #endregion

@@ -5,6 +5,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using Utils;
+using Utils.Network;
 
 namespace Components.UI.Lobby
 {
@@ -26,7 +27,7 @@ namespace Components.UI.Lobby
         
         private void Start()
         {
-            MNetwork.Singleton.lobbyUpdated.AddListener((lobby) =>
+            MNetwork.Singleton.lobbyHandler.onLobbyChanged.AddListener((lobby) =>
             {
                 NetworkSectionData data = new NetworkSectionData
                 {
@@ -35,7 +36,7 @@ namespace Components.UI.Lobby
                 
                 if (lobby != null)
                 {
-                    data.lobbyCode = lobby.Data[MNetwork.KEY_LOBBY_CODE].Value;
+                    data.lobbyCode = lobby.Data[LobbyHandler.KEY_CODE].Value;
 
                     if (lobby.Players != null)
                     {

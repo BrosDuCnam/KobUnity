@@ -15,9 +15,12 @@ namespace Utils.Network
     public class LobbyHandler
     {
         private Lobby _lobby;
-        private const string KEY_CODE = "lobbyCode";
-        private const string KEY_STARTGAME = "startGame";
-        private const string KEY_PLAYERNAME = "name";
+        private LobbyState _state = LobbyState.None;
+        
+        public const string DEFAULT_LOBBY_NAME = "Lobby";
+        public const string KEY_CODE = "lobbyCode";
+        public const string KEY_STARTGAME = "startGame";
+        public const string KEY_PLAYERNAME = "name";
         
         private const int HEARTBEAT_INTERVAL = 5;
         private float _lastHeartbeat = 0;
@@ -27,16 +30,40 @@ namespace Utils.Network
         private float _lastPoll = 0;
         private bool CanPoll => Time.time - _lastPoll > POLL_INTERVAL;
         
+        public enum LobbyState
+        {
+            None,
+            Creating,
+            Joining,
+            Joined,
+        }
+        
         // Events
         public UnityEvent<Lobby> onLobbyChanged = new ();
+        public UnityEvent<LobbyState> onStateChanged = new ();
         
+        public LobbyState State
+        {
+            get => _state;
+            set 
+            {
+                if (_state == value) return;
+                
+                _state = value;
+                onStateChanged?.Invoke(_state);
+            }
+        }
         public Lobby Lobby
         {
             get => _lobby;
-            set
+            private set
             {
+                if (_lobby == value) return;
+                
                 _lobby = value;
                 onLobbyChanged?.Invoke(_lobby);
+                
+                State = _lobby == null ? LobbyState.None : LobbyState.Joined;
             }
         }
         public bool IsLobbyOwner => Lobby != null && Lobby.HostId == AuthenticationService.Instance.PlayerId;
@@ -45,6 +72,8 @@ namespace Utils.Network
         
         public async Task CreateLobby()
         {
+            State = LobbyState.Creating;
+            
             try
             {
                 CreateLobbyOptions options = new CreateLobbyOptions
@@ -67,19 +96,21 @@ namespace Utils.Network
                     }
                 };
 
-                // TODO: fill default lobby name
-                Lobby lobby = await LobbyService.Instance.CreateLobbyAsync("", 5, options);
+                Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(DEFAULT_LOBBY_NAME, 5, options);
                 await ApplyNickname(lobby);
             
                 Lobby = lobby;
             } catch (Exception e)
             {
+                Lobby = null;
                 Debug.LogError(e);
             }
         }
         
         public async Task JoinLobbyByCode(string code)
         {
+            State = LobbyState.Joining;
+            
             try
             {
                 QueryLobbiesOptions options = new QueryLobbiesOptions
@@ -113,8 +144,32 @@ namespace Utils.Network
             } 
             catch (Exception e)
             {
+                Lobby = null;
                 Debug.LogError(e);
             }
+        }
+        
+        public async Task StartGame()
+        {
+            if (_lobby == null) return;
+            if (!IsLobbyOwner) return;
+
+            string relayCode = await MNetwork.Singleton.relayHandler.CreateRelay();
+        
+            Lobby lobby = await LobbyService.Instance.UpdateLobbyAsync(_lobby.Id, new UpdateLobbyOptions
+            {
+                Data = new Dictionary<string, DataObject>
+                {
+                    {
+                        KEY_STARTGAME, new DataObject(
+                            visibility: DataObject.VisibilityOptions.Member,
+                            value: relayCode,
+                            index: DataObject.IndexOptions.S2)
+                    }
+                }
+            });
+        
+            Lobby = lobby;
         }
         
         #endregion
@@ -155,7 +210,7 @@ namespace Utils.Network
                 Debug.Log("Lobby is starting game");
                 if (!IsLobbyOwner)
                 {
-                    JoinRelay(lobby.Data[KEY_STARTGAME].Value);
+                    MNetwork.Singleton.JoinRelay(lobby.Data[KEY_STARTGAME].Value);
                 }
 
                 Lobby = null; // Reset lobby so we don't get stuck in a loop
