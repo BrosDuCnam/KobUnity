@@ -20,6 +20,7 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using Utils.Network;
 using Random = System.Random;
 
 public class MNetwork : NetworkManager
@@ -376,4 +377,35 @@ public class MNetwork : NetworkManager
     {
         return defaultPlayerNames[new Random().Next(defaultPlayerNames.Count)];
     }
+    
+    
+    // ==========================================
+    
+    public AuthHandler authHandler = new();
+    public LobbyHandler lobbyHandler = new();
+    
+    private async void TrySignIn()
+    {
+        try
+        {
+            string profile = "default";
+            
+#if UNITY_EDITOR
+            if (ClonesManager.IsClone()) profile = "clone";
+#endif
+            
+            
+            var unityAuthenticationInitOptions = authHandler.GenerateAuthenticationOptions(profile);
+
+            await authHandler.InitializeAndSignInAsync(unityAuthenticationInitOptions);
+            
+            // TODO: OnAuthSignIn();
+        }
+        catch (Exception)
+        {
+            // TODO: OnSignInFailed();
+        }
+    }
+    
+    
 }
