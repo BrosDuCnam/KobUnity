@@ -677,9 +677,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b34445442f4245d6a895ad598b27b4a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lobbyRefreshInterval: 5
-  lobbyItemPrefab: {fileID: 9141708306676107457, guid: eb744ff89a497654e803ce5743339e74,
-    type: 3}
   currentSelection: {fileID: 0}
   onHoverButton:
     m_PersistentCalls:

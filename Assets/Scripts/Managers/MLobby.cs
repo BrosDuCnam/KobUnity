@@ -28,16 +28,9 @@ namespace Managers
 
             Instance = this;
         }
-        
-        [Header("Settings")]
-        [SerializeField] private float lobbyRefreshInterval = 5f;
-        
-		[Header("Prefabs References")]
-        [SerializeField] public GameObject lobbyItemPrefab;
 
         [HideInInspector] public GameObject currentSelection;
         [HideInInspector] public UnityEvent<GameObject> onHoverButton = new UnityEvent<GameObject>();
-        [HideInInspector] public List<Lobby> lobbies = new List<Lobby>();
         
         private void Update()
         {
