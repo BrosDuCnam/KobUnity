@@ -6,6 +6,11 @@ namespace Utils
 {
     public class CustomButton : Selectable, ISubmitHandler
     {
+        [Header("Settings")]
+        [SerializeField] private float cooldown = 0.25f;
+        private float _lastPressTime = -Mathf.Infinity;
+        private bool CanPress => Time.time - _lastPressTime > cooldown;
+        
         [Header("Events")]
         [SerializeField] public UnityEngine.Events.UnityEvent onPressed = new (); // Called when the button is pressed.
         [SerializeField] public UnityEngine.Events.UnityEvent onSelected = new (); 
@@ -60,6 +65,9 @@ namespace Utils
         
         private void ApplyPress()
         {
+            if (!CanPress) return;
+            _lastPressTime = Time.time;
+            
             onPressed.Invoke();
             OnPressed();
         }

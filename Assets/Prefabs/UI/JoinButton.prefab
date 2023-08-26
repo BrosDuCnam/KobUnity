@@ -86,6 +86,7 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 8405747306631963815}
+  cooldown: 2
   onPressed:
     m_PersistentCalls:
       m_Calls: []
@@ -105,9 +106,10 @@ MonoBehaviour:
   _background: {fileID: 2023575747703246588}
   _normalBgAlpha: 0
   _selectedBgAlpha: 0.2
-  _selectedPressBgAlpha: 1
-  textPressedNormal: {r: 1, g: 1, b: 1, a: 1}
-  textPressedColor: {r: 0.13725491, g: 0.3137255, b: 0.41176474, a: 1}
+  _cooldown: 0.5
+  _onPressed:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &3965597805728536336
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -147,6 +147,8 @@ public class MNetworkHandler : MonoBehaviour
     {
         if (NetworkManager.Singleton != null)
         {
+            // TODO : if host disconnect everyone
+            
             if (NetworkManager.Singleton.IsListening) NetworkManager.Singleton.Shutdown();
             Destroy(NetworkManager.Singleton.gameObject);
         }

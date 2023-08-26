@@ -36,10 +36,6 @@ namespace Components.UI.Lobby
         private Sequence _bgSequence;
         private Sequence _dotsSequence;
         private bool _isLoading;
-
-        // Cooldown
-        private bool CanPress => Time.time - _lastPressTime > _cooldown;
-        private float _lastPressTime;
         
         protected new void Start()
         {
@@ -110,9 +106,6 @@ namespace Components.UI.Lobby
         public override void OnPressed()
         {
             if (_isLoading) return;
-            if (!CanPress) return;
-            
-            _lastPressTime = Time.time;
             
             _bgSequence?.Kill();
             _onPressed?.Invoke(LobbyUI.Singleton.lobbyInputField.Text);

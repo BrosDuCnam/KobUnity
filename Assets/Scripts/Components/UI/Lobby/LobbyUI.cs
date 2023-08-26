@@ -29,20 +29,17 @@ namespace Components.UI.Lobby
         #endregion
         
         [Header("References")]
-        [SerializeField] public GameObject lobbyButtonPrefab;
-        [SerializeField] public Transform lobbyButtonParent;
         [SerializeField] public LobbyInputField lobbyInputField;
-        [SerializeField] public LobbyData lobbyData;
-        [SerializeField] public JoinButton joinButton;
 
         [Header("Settings")]
-        [SerializeField] private SerializedDictionary<Panel, LobbyPanel> _panels;
-        [SerializeField] private float _pageDisplayDelay = 0.1f;
+        [SerializeField] private SerializedDictionary<Panel, LobbyPanel> panels;
+        [SerializeField] private float pageDisplayDelay = 0.1f;
         
-        public Panel CurrentPanel => _panels.FirstOrDefault(p => p.Value == _currentPanel).Key;
+        public Panel CurrentPanel => panels.FirstOrDefault(p => p.Value == _currentPanel).Key;
         
         private Sequence _sequence;
         private LobbyPanel _currentPanel;
+        private LobbyPanel _incomingPanel;
         
         public enum Panel
         {
@@ -82,11 +79,17 @@ namespace Components.UI.Lobby
         
         public void LoadPanel(Panel panel)
         {
-            if (!_panels.ContainsKey(panel))
+            if (!panels.ContainsKey(panel))
             {
                 Debug.LogError($"Panel {panel} not found!");
                 return;
             }
+            
+            // Prevent loading the same panel twice
+            if (_currentPanel == panels[panel] ||
+                _incomingPanel == panels[panel]) return;
+            
+            _incomingPanel = panels[panel];
             
             _sequence?.Kill();
             _sequence = DOTween.Sequence();
@@ -94,10 +97,14 @@ namespace Components.UI.Lobby
             if (_currentPanel != null)
             {
                 _sequence.Append(_currentPanel.Display(false));
-                _sequence.AppendInterval(_pageDisplayDelay);
+                _sequence.AppendInterval(pageDisplayDelay);
             }
-            _sequence.Append(_panels[panel].Display(true));
-            _sequence.AppendCallback(() => _currentPanel = _panels[panel]);
+            _sequence.Append(panels[panel].Display(true));
+            _sequence.OnKill(() =>
+            {
+                _currentPanel = panels[panel];
+                _incomingPanel = null;
+            });
             
             _sequence.Play();
         }

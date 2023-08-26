@@ -19,6 +19,8 @@ namespace Components.UI.Lobby
 		
 		public Sequence Display(bool display)
 		{
+			Debug.Log("[DEBUG/LobbyPanel]: display: " + display, this);
+			
 			_sequence?.Kill();
 			_sequence = DOTween.Sequence();
 
