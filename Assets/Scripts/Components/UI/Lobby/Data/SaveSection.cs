@@ -23,7 +23,7 @@ namespace Components.UI.Lobby
         
         protected void OnEnable()
         {
-            _saveNameInputField.enabled = MNetwork.Singleton.lobbyHandler.IsLobbyOwner;
+            _saveNameInputField.enabled = MNetworkHandler.Instance.lobbyHandler.IsLobbyOwner;
         }
         
         public void Refresh(SaveSectionData data)

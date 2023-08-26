@@ -27,7 +27,7 @@ namespace Components.UI.Lobby
         
         private void Start()
         {
-            MNetwork.Singleton.lobbyHandler.onLobbyChanged.AddListener((lobby) =>
+            MNetworkHandler.Instance.lobbyHandler.onLobbyChanged.AddListener((lobby) =>
             {
                 NetworkSectionData data = new NetworkSectionData
                 {
@@ -41,6 +41,7 @@ namespace Components.UI.Lobby
                     if (lobby.Players != null)
                     {
                         data.players = lobby.Players
+                            .Where(p => p is { Data: not null } && p.Data.ContainsKey("name"))
                             .Select(p => p.Data["name"].Value).ToList();
                     }
                 }
@@ -77,6 +78,11 @@ namespace Components.UI.Lobby
         {
             GUIUtility.systemCopyBuffer = _lobbyCode.text;
             PlayClipboardMessage();
+        }
+
+        protected void OnDestroy()
+        {
+            _clipboardSequence?.Kill();
         }
     }
 }

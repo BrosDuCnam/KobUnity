@@ -82,5 +82,13 @@ namespace Components.UI.Lobby
 
             return sequence;
         }
+
+        protected void OnDestroy()
+        {
+            _inputField.onSelect.RemoveListener(OnSelect);
+            _inputField.onDeselect.RemoveListener(OnDeselect);
+            
+            _borderSequence?.Kill();
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 using Unity.Services.Relay;
@@ -10,6 +11,8 @@ namespace Utils.Network
 {
     public class RelayHandler
     {
+        public RelayServerData? serverData = null;
+        
         public async Task<string> CreateRelay()
         {
             try
@@ -18,10 +21,10 @@ namespace Utils.Network
             
                 string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-                RelayServerData serverData = new RelayServerData(allocation, "dtls");
-                MNetwork.Singleton.GetComponent<UnityTransport>().SetRelayServerData(serverData);
-                MNetwork.Singleton.StartHost();
-            
+                serverData = new RelayServerData(allocation, "dtls");
+                MNetworkHandler.Instance.isHost = true;
+                MNetworkHandler.Instance.isClient = false;
+                
                 return joinCode;
             }
             catch (Exception e)
@@ -32,15 +35,15 @@ namespace Utils.Network
             return null;
         }
         
-        public async void JoinRelay(string relayCode)
+        public async Task JoinRelay(string relayCode)
         {
             try
             {
                 JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(relayCode);
             
-                RelayServerData serverData = new RelayServerData(joinAllocation, "dtls");
-                MNetwork.Singleton.GetComponent<UnityTransport>().SetRelayServerData(serverData);
-                MNetwork.Singleton.StartClient();
+                serverData = new RelayServerData(joinAllocation, "dtls");
+                MNetworkHandler.Instance.isHost = false;
+                MNetworkHandler.Instance.isClient = true;
             }
             catch (Exception e)
             {

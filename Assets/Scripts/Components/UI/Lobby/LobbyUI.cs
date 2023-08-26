@@ -56,7 +56,7 @@ namespace Components.UI.Lobby
         {
             LoadPanel(Panel.Main);
             
-            MNetwork.Singleton.lobbyHandler.onLobbyChanged.AddListener((lobby) =>
+            MNetworkHandler.Instance.lobbyHandler.onLobbyChanged.AddListener((lobby) =>
             {
                 if (lobby == null && CurrentPanel == Panel.Room)
                 {
@@ -102,22 +102,27 @@ namespace Components.UI.Lobby
             _sequence.Play();
         }
         
+        protected void OnDestroy()
+        {
+            _sequence?.Kill();
+        }
+        
         public void CreateRoom()
         {
-            MNetwork.Singleton.lobbyHandler.CreateLobby();
+            MNetworkHandler.Instance.lobbyHandler.CreateLobby();
         }
         
         public void JoinRoom(string lobbyId)
         {
-            MNetwork.Singleton.lobbyHandler.JoinLobbyByCode(lobbyId);
+            MNetworkHandler.Instance.lobbyHandler.JoinLobbyByCode(lobbyId);
         }
 
         public void StartGame()
         {
-            if (MNetwork.Singleton.lobbyHandler.Lobby == null) return;
-            if (!MNetwork.Singleton.lobbyHandler.IsLobbyOwner) return;
+            if (MNetworkHandler.Instance.lobbyHandler.Lobby == null) return;
+            if (!MNetworkHandler.Instance.lobbyHandler.IsLobbyOwner) return;
             
-            MNetwork.Singleton.lobbyHandler.StartGame();
+            MNetworkHandler.Instance.lobbyHandler.StartGame();
         }
     }
 }

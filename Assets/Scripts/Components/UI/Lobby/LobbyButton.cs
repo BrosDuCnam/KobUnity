@@ -93,5 +93,12 @@ namespace Components.UI.Lobby
 
             _symbolSequence.Play();
         }
+        
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            
+            _symbolSequence?.Kill();
+        }
     }
 }

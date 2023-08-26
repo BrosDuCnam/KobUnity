@@ -22,7 +22,7 @@ namespace Utils.Network
         public const string KEY_STARTGAME = "startGame";
         public const string KEY_PLAYERNAME = "name";
         
-        private const int HEARTBEAT_INTERVAL = 5;
+        private const int HEARTBEAT_INTERVAL = 10;
         private float _lastHeartbeat = 0;
         private bool CanHeartbeat => Time.time - _lastHeartbeat > HEARTBEAT_INTERVAL;
         
@@ -70,7 +70,7 @@ namespace Utils.Network
         
         #region Lobby Handlers
         
-        public async Task CreateLobby()
+        public async void CreateLobby()
         {
             State = LobbyState.Creating;
             
@@ -107,7 +107,7 @@ namespace Utils.Network
             }
         }
         
-        public async Task JoinLobbyByCode(string code)
+        public async void JoinLobbyByCode(string code)
         {
             State = LobbyState.Joining;
             
@@ -149,12 +149,12 @@ namespace Utils.Network
             }
         }
         
-        public async Task StartGame()
+        public async void StartGame()
         {
             if (_lobby == null) return;
             if (!IsLobbyOwner) return;
 
-            string relayCode = await MNetwork.Singleton.relayHandler.CreateRelay();
+            string relayCode = await MNetworkHandler.Instance.StartHost();
         
             Lobby lobby = await LobbyService.Instance.UpdateLobbyAsync(_lobby.Id, new UpdateLobbyOptions
             {
@@ -184,14 +184,14 @@ namespace Utils.Network
             if (CanPoll) Poll();
         }
 
-        private async Task Heartbeat()
+        private async void Heartbeat()
         {
             _lastHeartbeat = Time.time;
             
             await LobbyService.Instance.SendHeartbeatPingAsync(_lobby.Id);
         }
 
-        private async Task Poll()
+        private async void Poll()
         {
             _lastPoll = Time.time;
             
@@ -210,7 +210,7 @@ namespace Utils.Network
                 Debug.Log("Lobby is starting game");
                 if (!IsLobbyOwner)
                 {
-                    MNetwork.Singleton.JoinRelay(lobby.Data[KEY_STARTGAME].Value);
+                    MNetworkHandler.Instance.JoinRelay(lobby.Data[KEY_STARTGAME].Value);
                 }
 
                 Lobby = null; // Reset lobby so we don't get stuck in a loop

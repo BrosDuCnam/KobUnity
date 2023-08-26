@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -36,6 +37,11 @@ namespace Components.UI.Lobby
 			}
 
 			return _sequence;
+		}
+
+		protected void OnDestroy()
+		{
+			_sequence?.Kill();
 		}
 	}
 }

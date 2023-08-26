@@ -16,6 +16,7 @@ namespace Components.UI
         [SerializeField] private ColorBlock _colors;
         
         private TextMeshProUGUI _text;
+        private Sequence _sequence;
         
         private void Awake()
         {
@@ -40,19 +41,51 @@ namespace Components.UI
 
         private void OnClick()
         {
-            DOTween.Sequence()
+            _sequence?.Kill();
+            
+            _sequence = DOTween.Sequence()
                 .Append(_text.DOColor(_colors.pressedColor, _colors.fadeDuration))
                 .Append(_text.DOColor(_colors.selectedColor, _colors.fadeDuration));
+            
+            _sequence.Play();
         }
         
         private void OnHover()
         {
-            _text.DOColor(_colors.selectedColor, _colors.fadeDuration);
+            _sequence?.Kill();
+            _sequence = DOTween.Sequence();
+            
+            _sequence.Append(_text.DOColor(_colors.selectedColor, _colors.fadeDuration));
+            
+            _sequence.Play();
         }
         
         private void OnExit()
         {
-            _text.DOColor(_colors.normalColor, _colors.fadeDuration);
+            _sequence?.Kill();
+            _sequence = DOTween.Sequence();
+            
+            _sequence.Append(_text.DOColor(_colors.normalColor, _colors.fadeDuration));
+            
+            _sequence.Play();
+        }
+        
+        private void OnDestroy()
+        {
+            _sequence.Kill();
+            
+            _button.onClick.RemoveListener(OnClick);
+            MLobby.Instance.onHoverButton.RemoveListener((obj) =>
+            {
+                if (obj == _button.gameObject)
+                {
+                    OnHover();
+                }
+                else
+                {
+                    OnExit();
+                }
+            });
         }
     }
 }

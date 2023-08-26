@@ -32,6 +32,7 @@ namespace Components.UI.Lobby
 
         CanvasGroup IDisplayable.CanvasGroup => _canvasGroup;
         
+        private Sequence _fadeSequence;
         private Sequence _bgSequence;
         private Sequence _dotsSequence;
         private bool _isLoading;
@@ -44,7 +45,7 @@ namespace Components.UI.Lobby
         {
             SetupDotsSequence();
             
-            MNetwork.Singleton.lobbyHandler.onStateChanged.AddListener((action) =>
+            MNetworkHandler.Instance.lobbyHandler.onStateChanged.AddListener((action) =>
             {
                 switch (action)
                 {
@@ -52,7 +53,7 @@ namespace Components.UI.Lobby
                         SetLoading(true);
                         break;
                     case not LobbyHandler.LobbyState.Joining:
-                        if (MNetwork.Singleton.lobbyHandler.Lobby != null)
+                        if (MNetworkHandler.Instance.lobbyHandler.Lobby != null)
                             LobbyUI.Singleton.LoadPanel(LobbyUI.Panel.Room);
 
                         SetLoading(false);
@@ -65,14 +66,18 @@ namespace Components.UI.Lobby
         {
             _isLoading = loading;
             
-            _text.DOFade(loading ? 0f : 1f, 0.3f);
+            _fadeSequence?.Kill();
+            _fadeSequence = DOTween.Sequence();
             
-            _dotsCanvasGroup.DOFade(loading ? 1f : 0f, 0.3f);
+            _fadeSequence.Append(_text.DOFade(loading ? 0f : 1f, 0.3f));
+            _fadeSequence.Join(_dotsCanvasGroup.DOFade(loading ? 1f : 0f, 0.3f));
             
             if (loading)
                 _dotsSequence.Restart();
             else
                 _dotsSequence.Pause();
+            
+            _fadeSequence.Play();
         }
         
         public void Refresh(JoinButtonData data)
@@ -138,6 +143,15 @@ namespace Components.UI.Lobby
             }
             
             _dotsSequence.SetLoops(-1);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            
+            _fadeSequence?.Kill();
+            _bgSequence?.Kill();
+            _dotsSequence?.Kill();
         }
     }
 }
