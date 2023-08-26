@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
 
-public class TempCharacterController : MonoBehaviour
+public class TempCharacterController : NetworkBehaviour
 {
     public float walkingSpeed = 7.5f;
     public float runningSpeed = 11.5f;
@@ -28,6 +29,11 @@ public class TempCharacterController : MonoBehaviour
         // Lock cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+    
+    public override void OnNetworkSpawn()
+    {
+        enabled = IsOwner;
     }
 
     void Update()

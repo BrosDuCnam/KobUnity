@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerTemp : MonoBehaviour
+public class PlayerTemp : NetworkBehaviour
 {
     public Camera playerCamera;
     public GameObject boatPrefab;
@@ -26,6 +27,12 @@ public class PlayerTemp : MonoBehaviour
         blockObjects.Add(basePlatform);
     }
 
+    public override void OnNetworkSpawn()
+    {
+        enabled = IsOwner;
+        playerCamera.transform.gameObject.SetActive(IsOwner);
+    }
+    
     private void Update()
     {
         ProcessInput();
