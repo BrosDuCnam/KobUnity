@@ -7,9 +7,10 @@ public class Boat : MonoBehaviour
 {
     private Grid grid = new Grid();
     public BlockObject basePlatform;
+    
 
     private void Start()
     {
-        grid.InitGrid(gameObject, basePlatform);
+        grid.InitGrid(basePlatform, this);
     }
 }

@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5015602130276546471
 Transform:
   m_ObjectHideFlags: 0
@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f17ba2ea5a234b145a76fbab19949507, type: 2}
+  - {fileID: 2100000, guid: 25048b79c8568ea4b920d57a3e35e4aa, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -150,4 +150,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3b746fce9a9fa44b852b689a9c732c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blockCollider: {fileID: 0}
+  grid: {fileID: 0}
+  gridPos: {x: 0, y: 0, z: 0}
+  blockObject: {fileID: 0}
+  blockObjectInstance: {fileID: 0}
+  currentfloater: {fileID: 0}
+  holderObject: {fileID: 0}

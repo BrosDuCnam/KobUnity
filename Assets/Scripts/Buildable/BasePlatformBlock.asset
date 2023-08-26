@@ -10,9 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 997022604a707204b814c91642d11a44, type: 3}
-  m_Name: BasePlatform
+  m_Name: BasePlatformBlock
   m_EditorClassIdentifier: 
   blockPrefab: {fileID: 8071991648302334049, guid: 15c97f4ab837f624ca95776ad1a40e4f,
     type: 3}
   onGrid: 1
+  spawnType: 0
+  blockType: 0
   occupiedSlots: []

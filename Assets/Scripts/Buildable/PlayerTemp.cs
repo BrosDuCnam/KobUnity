@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,115 +9,137 @@ public class PlayerTemp : MonoBehaviour
     public GameObject boatPrefab;
     private Boat boat;
     private bool buildMode = false;
+    
 
-    private float rayLength = 5;
+    [SerializeField] private float rayLength = 7;
+    [SerializeField] private Material previewMat;
 
     public BlockObject basePlatform;
-    
-    void Update()
+    public List<BlockObject> blockObjects;
+    private int currentBlockObjectIndex = 0;
+
+    private GameObject structurePreview;
+    private int rotation = 0;
+
+    private void Start()
+    {
+        blockObjects.Add(basePlatform);
+    }
+
+    private void Update()
     {
         ProcessInput();
-        if (buildMode) ProcessClick();
+        if (buildMode) BuildMode();
     }
     
-    void ProcessInput()
+    private void ProcessInput()
     {
         if (Input.GetKeyDown(KeyCode.B))
         {
             buildMode = !buildMode;
+            ActivatePreview(buildMode);
         }
         
         if (Input.GetKeyDown(KeyCode.P))
         {
             GameObject go = new GameObject();
-            go.transform.position = transform.position + Vector3.down * 2.5f + playerCamera.transform.forward * 2;
+            go.transform.position = transform.position + playerCamera.transform.forward * 2;
             boat = go.AddComponent<Boat>();
             boat.basePlatform = basePlatform;
             go.name = "Boat";
+            // Rigidbody rb = go.AddComponent<Rigidbody>();
+            // rb.useGravity = false;
         }
+        
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Rotate();
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            currentBlockObjectIndex += 1;
+            currentBlockObjectIndex = Mathf.Clamp(currentBlockObjectIndex, 0, blockObjects.Count-1);
+            UpdatePreview();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            currentBlockObjectIndex -= 1;
+            currentBlockObjectIndex = Mathf.Clamp(currentBlockObjectIndex, 0, blockObjects.Count-1);
+            UpdatePreview();
+        }
+
+    }
+
+    private void Rotate()
+    {
+        rotation += 1;
+        if (rotation == 4) rotation = 0;
     }
     
-    void ProcessClick()
+    private void BuildMode()
     {
         Debug.DrawRay(playerCamera.transform.position, playerCamera.transform.forward * rayLength, Color.blue);
 
-        if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1))
-        {
-            RaycastHit[] hits;
-            hits = Physics.RaycastAll(playerCamera.transform.position, playerCamera.transform.forward, 3, LayerMask.GetMask("Block"));
-            if (hits.Length != 0)
-            {
-                foreach (RaycastHit hit in hits)
-                {
-                    if (hit.transform.TryGetComponent<Block>(out Block block))
-                    {
-                        // if (block.SpawnBlock(basePlatform)) return; --> Use this in the future to prevent spawning multiple blocks at once
-                        block.SpawnBlock(basePlatform);
+        structurePreview.transform.position = playerCamera.transform.position + playerCamera.transform.forward * rayLength;
+        structurePreview.transform.rotation = Quaternion.Euler(new Vector3(0, 90 * rotation, 0));
+        previewMat.SetColor("_BaseColor", new Color(255, 0, 0, 25));
+        
 
+        RaycastHit[] hits;
+        hits = Physics.RaycastAll(playerCamera.transform.position, playerCamera.transform.forward, rayLength, LayerMask.GetMask("Block"));
+        if (hits.Length != 0)
+        {
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.transform.TryGetComponent<Block>(out Block block))
+                {
+                    if (block.CheckIfCanSpawnBlock(blockObjects[currentBlockObjectIndex], rotation))
+                    {
+                        structurePreview.transform.position = block.transform.position;
+                        previewMat.SetColor("_BaseColor", new Color(0, 255, 0, 25));
+                    }
+                    if (Input.GetKeyDown(KeyCode.Mouse0))
+                    {
+                        if (block.SpawnBlock(blockObjects[currentBlockObjectIndex], rotation)) return; //--> Prevent spawning multiple blocks at once
+                    }
+                    else if (Input.GetKeyDown(KeyCode.Mouse1))
+                    {
+                        if (block.DestroyBlock()) return; //--> Prevent destroying multiple blocks at once
                     }
                 }
             }
         }
     }
     
-    // !! OLD !!
-    // public Camera playerCamera;
-    // public GameObject boatPrefab;
-    // private Old_Boat boat;
-    // private bool buildMode = false;
-    //
-    // private float rayLength = 3;
-    //
-    // void Update()
-    // {
-    //     ProcessInput();
-    //
-    //     if (buildMode)
-    //     {
-    //         Debug.DrawRay(playerCamera.transform.position, playerCamera.transform.forward * rayLength, Color.blue);
-    //         ProcessClick();
-    //     }
-    // }
-    //
-    // void ProcessClick()
-    // {
-    //     if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1))
-    //     {
-    //         Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward * 3, out RaycastHit hit);
-    //         if (hit.collider != null)
-    //         {
-    //             GameObject go = hit.collider.gameObject;
-    //             Old_Buildable Old_Buildable = go.GetComponent<Old_Buildable>();
-    //             if (Old_Buildable != null)
-    //             {
-    //                 boat = Old_Buildable.GetParentBoat();
-    //                 
-    //                 if (Input.GetKeyDown(KeyCode.Mouse0))
-    //                 {
-    //                     boat.AddPlatform(Old_Buildable);
-    //                 }
-    //                 else if (Input.GetKeyDown(KeyCode.Mouse1))
-    //                 {
-    //                     boat.RemovePlatform(Old_Buildable);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-    //
-    // void ProcessInput()
-    // {
-    //     if (Input.GetKeyDown(KeyCode.B))
-    //     {
-    //         buildMode = !buildMode;
-    //     }
-    //     
-    //     if (Input.GetKeyDown(KeyCode.P))
-    //     {
-    //         GameObject go = Instantiate(boatPrefab);
-    //         go.transform.position = transform.position + playerCamera.transform.forward * 2;
-    //         boat = go.GetComponent<Old_Boat>();
-    //         boat.Spawn();
-    //     }
-    // }
+
+    private void ActivatePreview(bool activate)
+    {
+        if (activate)
+        {
+            if (structurePreview == null)
+            {
+                structurePreview = Instantiate(blockObjects[currentBlockObjectIndex].blockPrefab);
+                List<Material> mats = new();
+                Renderer renderer = structurePreview.GetComponent<MeshRenderer>();
+                renderer.sharedMaterial = previewMat; // TODO : fix this (apply it to multiple mats)
+                structurePreview.GetComponent<Collider>().enabled = false;
+            }
+        }
+        else
+        {
+            Destroy(structurePreview);
+        }
+    }
+
+    private void UpdatePreview()
+    {
+        Destroy(structurePreview);
+        structurePreview = Instantiate(blockObjects[currentBlockObjectIndex].blockPrefab);
+        List<Material> mats = new();
+        Renderer renderer = structurePreview.GetComponent<MeshRenderer>();
+        renderer.material = previewMat; // TODO : fix this (apply it to multiple mats)
+    }
+
 }
