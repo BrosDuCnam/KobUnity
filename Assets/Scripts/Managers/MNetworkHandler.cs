@@ -95,6 +95,8 @@ public class MNetworkHandler : MonoBehaviour
             return;
         }
         
+        NetworkManager.Singleton.OnClientStopped += (_) => Disconnect();
+        
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayHandler.serverData.Value);
         if (isHost) NetworkManager.Singleton.StartHost();
         else if (isClient) NetworkManager.Singleton.StartClient();
@@ -143,9 +145,11 @@ public class MNetworkHandler : MonoBehaviour
     
     public void Disconnect()
     {
-        if (NetworkManager.Singleton == null) return;
-        
-        NetworkManager.Singleton.Shutdown();
+        if (NetworkManager.Singleton != null)
+        {
+            if (NetworkManager.Singleton.IsListening) NetworkManager.Singleton.Shutdown();
+            Destroy(NetworkManager.Singleton.gameObject);
+        }
         SceneManager.LoadScene(offlineSceneName);
     }
 }
