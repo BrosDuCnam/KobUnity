@@ -227,7 +227,11 @@ public class Block : MonoBehaviour
                 currentfloater = Instantiate(Resources.Load("SingleFloater") as GameObject, transform);
                 break;
             case 2:
-                currentfloater = Instantiate(Resources.Load("DoubleFloater") as GameObject, transform);
+                // Check if the two neighbours are facing each other
+                if (validNeighbours[0].x * -1 == validNeighbours[1].x || validNeighbours[0].z * -1 == validNeighbours[1].z)
+                    currentfloater = Instantiate(Resources.Load("DoubleFloaterFacing") as GameObject, transform);
+                else
+                    currentfloater = Instantiate(Resources.Load("DoubleFloater") as GameObject, transform);
                 break;
             case 3:
                 currentfloater = Instantiate(Resources.Load("TripleFloater") as GameObject, transform);
@@ -281,14 +285,34 @@ public class Block : MonoBehaviour
             case 1:
                 return ConvertCoordsToAngle(walls[0]);
             case 2:
+                // Check if the two neighbours are facing each other
+                if (walls[0].x * -1 == walls[1].x || walls[0].z * -1 == walls[1].z)
+                {
+                    int sum2 = 0;
+                    foreach (Vector3Int wall in walls) sum2 += ConvertCoordsToAngle(wall);
+                    
+                    if (sum2 == 2 ) return 0;
+                    if (sum2 == 4) return 1;
+                }
+                else
+                {
+                    int wall0 = ConvertCoordsToAngle(walls[0]);
+                    int wall1 = ConvertCoordsToAngle(walls[1]);
+                    print(wall0 +" "+ wall1);
+                    if ((wall0 == 0 && wall1 == 1) || (wall0 == 1 && wall1 == 0)) return 0;
+                    if ((wall0 == 1 && wall1 == 2) || (wall0 == 2 && wall1 == 1)) return 1;
+                    if ((wall0 == 0 && wall1 == 3) || (wall0 == 3 && wall1 == 0)) return 3;
+                    if ((wall0 == 2 && wall1 == 3) || (wall0 == 3 && wall1 == 2)) return 2;
+
+                }
                 return 0;
             case 3:
-                int sum = 0;
-                foreach (Vector3Int wall in walls) sum += ConvertCoordsToAngle(wall);
-                if (sum == 3) return 2;
-                if (sum == 4) return 1;
-                if (sum == 5) return 0;
-                if (sum == 6) return 3;
+                int sum3 = 0;
+                foreach (Vector3Int wall in walls) sum3 += ConvertCoordsToAngle(wall);
+                if (sum3 == 3) return 2;
+                if (sum3 == 4) return 1;
+                if (sum3 == 5) return 0;
+                if (sum3 == 6) return 3;
                 break;
         }
         return 0;
