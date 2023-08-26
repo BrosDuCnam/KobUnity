@@ -128,13 +128,8 @@ public class Block : MonoBehaviour
 
     private bool HasEdgePlatformBlocks()
     {
-        
-        List<Vector3Int> slotsToCheck = new List<Vector3Int>();
-        
-        slotsToCheck.Add(new Vector3Int(1, 0, 0));
-        slotsToCheck.Add(new Vector3Int(-1, 0, 0));
-        slotsToCheck.Add(new Vector3Int(0, 0, -1));
-        slotsToCheck.Add(new Vector3Int(0, 0, 1));
+
+        List<Vector3Int> slotsToCheck = NeighboursOffset();
         
         foreach (Vector3Int slot in slotsToCheck)
         {
@@ -186,6 +181,8 @@ public class Block : MonoBehaviour
         
         GameObject go = Instantiate(blockObject.blockPrefab, transform);
         go.transform.parent = transform;
+        
+        UpdateFloaterAndNeighbours();
     }
 
     private Vector3Int RotateVector(Vector3Int vec, int _rotation)
@@ -203,15 +200,24 @@ public class Block : MonoBehaviour
     private void UpdateFloaterAndNeighbours()
     {
         UpdateFloaterState();
+        
+        List<Vector3Int> slotsToCheck = NeighboursOffset();
+        
+        foreach (Vector3Int slot in slotsToCheck)
+        {
+            Block block = grid.GetBlockAtPos(slot + gridPos);
+            if (block == null) continue;
+            block.UpdateFloaterState();
+        }
     }
 
     private void UpdateFloaterState()
     {
+        if (currentfloater != null) Destroy(currentfloater);
         if (blockObject != null) return;
 
         List<Vector3Int> validNeighbours = GetBasePlatformNeighbours();
 
-        if (currentfloater != null) Destroy(currentfloater);
         
         switch (validNeighbours.Count)
         {
@@ -239,12 +245,7 @@ public class Block : MonoBehaviour
     /// <returns>List of neighbours of type "BasePlatform" </returns>
     private List<Vector3Int> GetBasePlatformNeighbours()
     {
-        List<Vector3Int> slotsToCheck = new List<Vector3Int>();
-        
-        slotsToCheck.Add(new Vector3Int(1, 0, 0));
-        slotsToCheck.Add(new Vector3Int(-1, 0, 0));
-        slotsToCheck.Add(new Vector3Int(0, 0, -1));
-        slotsToCheck.Add(new Vector3Int(0, 0, 1));
+        List<Vector3Int> slotsToCheck = NeighboursOffset();
 
         int negOffset = 0;
         
@@ -252,6 +253,12 @@ public class Block : MonoBehaviour
         for (int i = 0; i < 4; i++)
         {
             Block neighbourBlock = grid.GetBlockAtPos(slotsToCheck[i - negOffset] + gridPos);
+            if (neighbourBlock == null)
+            {
+                slotsToCheck.RemoveAt(i - negOffset);
+                negOffset += 1;
+            }
+            else
             if (neighbourBlock.blockObject == null)
             {
                 slotsToCheck.RemoveAt(i - negOffset);
@@ -266,15 +273,6 @@ public class Block : MonoBehaviour
         return slotsToCheck;
     }
 
-    public void ActivateFloater(FloaterType _type, int _rotation)
-    {
-        
-    }
-
-    public void HideFloater()
-    {
-        
-    }
 
     private int GetRotationForFloater(List<Vector3Int> walls)
     {
@@ -287,10 +285,9 @@ public class Block : MonoBehaviour
             case 3:
                 int sum = 0;
                 foreach (Vector3Int wall in walls) sum += ConvertCoordsToAngle(wall);
-                print(sum);
-                if (sum == 3) return 0;
+                if (sum == 3) return 2;
                 if (sum == 4) return 1;
-                if (sum == 5) return 2;
+                if (sum == 5) return 0;
                 if (sum == 6) return 3;
                 break;
         }
@@ -307,6 +304,16 @@ public class Block : MonoBehaviour
     }
 
     #endregion
-    
-    
+
+    private List<Vector3Int> NeighboursOffset()
+    {
+        List<Vector3Int> slotsToCheck = new List<Vector3Int>();
+        
+        slotsToCheck.Add(new Vector3Int(1, 0, 0));
+        slotsToCheck.Add(new Vector3Int(-1, 0, 0));
+        slotsToCheck.Add(new Vector3Int(0, 0, -1));
+        slotsToCheck.Add(new Vector3Int(0, 0, 1));
+
+        return slotsToCheck;
+    }
 }
