@@ -1,11 +1,10 @@
-﻿using Interfaces;
-using Unity.Netcode;
+﻿using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Components.Proto
 {
-    public class MovingPlatform : NetworkBehaviour, IMovingObject
+    public class MovingPlatform : NetworkBehaviour
     {
         [SerializeField] private Transform[] points;
         [SerializeField] private float speed = 1f;
@@ -17,13 +16,16 @@ namespace Components.Proto
 
         private void Update()
         {
+            Rigidbody rb = GetComponent<Rigidbody>();
+            
             Vector3 delta = transform.position - _lastPosition;
             OnMove?.Invoke(delta);
             _lastPosition = transform.position;
 
             if (!IsServer) return;
             
-            transform.position = Vector3.MoveTowards(transform.position, points[_currentPoint].position, speed * Time.deltaTime);
+            // transform.position = Vector3.MoveTowards(transform.position, points[_currentPoint].position, speed * Time.deltaTime);
+            rb.MovePosition(Vector3.MoveTowards(transform.position, points[_currentPoint].position, speed * Time.deltaTime));
             if (transform.position == points[_currentPoint].position)
             {
                 _currentPoint++;
