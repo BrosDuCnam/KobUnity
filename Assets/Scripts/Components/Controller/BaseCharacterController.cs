@@ -833,6 +833,7 @@ namespace Components.Controller
         /// Handles input.
         /// </summary>
 
+        [System.Obsolete("Use Input System instead.")]
         protected virtual void HandleInput()
         {
             // Toggle pause / resume.
@@ -853,6 +854,26 @@ namespace Components.Controller
             jump = Input.GetButton("Jump");
 
             crouch = Input.GetKey(KeyCode.C);
+        }
+        
+        public void Call_MoveHorizontal(Vector2 horizontal)
+        {
+            moveDirection = new Vector3
+            {
+                x = horizontal.x,
+                y = 0.0f,
+                z = horizontal.y
+            };
+        }
+        
+        public void Call_Jump(bool value)
+        {
+            jump = value;
+        }
+        
+        public void Call_Crouch(bool value)
+        {
+            crouch = value;
         }
 
         #endregion
@@ -935,7 +956,7 @@ namespace Components.Controller
         {
             // Handle input
 
-            HandleInput();
+            // HandleInput();
 
             // If paused, return
 

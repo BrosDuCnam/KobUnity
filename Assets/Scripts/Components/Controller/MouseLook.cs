@@ -156,6 +156,9 @@ namespace Components.Controller
             set { _maxPitchAngle = Mathf.Clamp(value, -180.0f, 180.0f); }
         }
 
+        public float lastYaw { get; protected set; }
+        public float lastPitch { get; protected set; }
+        
         #endregion
 
         #region METHODS
@@ -175,11 +178,8 @@ namespace Components.Controller
 
         public virtual void LookRotation(CharacterMovement movement, Transform cameraTransform)
         {
-            var yaw = Input.GetAxis("Mouse X") * lateralSensitivity;
-            var pitch = Input.GetAxis("Mouse Y") * verticalSensitivity;
-
-            var yawRotation = Quaternion.Euler(0.0f, yaw, 0.0f);
-            var pitchRotation = Quaternion.Euler(-pitch, 0.0f, 0.0f);
+            var yawRotation = Quaternion.Euler(0.0f, lastYaw, 0.0f);
+            var pitchRotation = Quaternion.Euler(-lastPitch, 0.0f, 0.0f);
 
             characterTargetRotation *= yawRotation;
             cameraTargetRotation *= pitchRotation;
@@ -214,7 +214,13 @@ namespace Components.Controller
 
             UpdateCursorLock();
         }
-
+        
+        public void Call_Look(Vector2 delta)
+        {
+            lastYaw = delta.x * lateralSensitivity;
+            lastPitch = delta.y * verticalSensitivity;
+        }
+        
         public virtual void SetCursorLock(bool value)
         {
             lockCursor = value;

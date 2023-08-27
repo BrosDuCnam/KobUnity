@@ -287,7 +287,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5953886099945184175}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.048, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -403,8 +403,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lockCursor: 1
   _unlockCursorKey: 27
-  _lateralSensitivity: 2
-  _verticalSensitivity: 2
+  _lateralSensitivity: 0.2
+  _verticalSensitivity: 0.2
   _smooth: 0
   _smoothTime: 5
   _clampPitch: 1
@@ -417,7 +417,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5953886099945184175}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
@@ -438,9 +438,9 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: CharacterLocomotion, Assembly-CSharp
-        m_MethodName: Call_Move
+      - m_Target: {fileID: 8988517689234740281}
+        m_TargetAssemblyTypeName: Network.NetworkPlayer, Assembly-CSharp
+        m_MethodName: Call_MoveHorizontal
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -454,8 +454,8 @@ MonoBehaviour:
     m_ActionName: Game/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/XInputControllerWindows/leftStick]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ControllerPlayer, Assembly-CSharp
+      - m_Target: {fileID: 8988517689234740281}
+        m_TargetAssemblyTypeName: Network.NetworkPlayer, Assembly-CSharp
         m_MethodName: Call_Look
         m_Mode: 0
         m_Arguments:
@@ -470,8 +470,8 @@ MonoBehaviour:
     m_ActionName: Game/Direction[/XInputControllerWindows/rightStick,/Mouse/delta]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ControllerPlayer, Assembly-CSharp
+      - m_Target: {fileID: 8988517689234740281}
+        m_TargetAssemblyTypeName: Network.NetworkPlayer, Assembly-CSharp
         m_MethodName: Call_Jump
         m_Mode: 0
         m_Arguments:
@@ -486,9 +486,9 @@ MonoBehaviour:
     m_ActionName: Game/Jump[/XInputControllerWindows/buttonSouth,/Keyboard/space]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ControllerPlayer, Assembly-CSharp
-        m_MethodName: Call_Sprint
+      - m_Target: {fileID: 8988517689234740281}
+        m_TargetAssemblyTypeName: Network.NetworkPlayer, Assembly-CSharp
+        m_MethodName: Call_Run
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -500,6 +500,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: aaf2f906-7e3b-4ab9-b58f-eb6779a1cde4
     m_ActionName: Game/Sprint[/XInputControllerWindows/leftStickPress,/Keyboard/leftShift]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8988517689234740281}
+        m_TargetAssemblyTypeName: Network.NetworkPlayer, Assembly-CSharp
+        m_MethodName: Call_Crouch
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 061e206a-8f75-4948-9e7e-1a19a4e2eb1f
+    m_ActionName: Game/Crouch[/Keyboard/leftCtrl]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Game
@@ -574,7 +590,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5953886099945184175}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 6f145a765b13326419c3267bed8a2fbb, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -589,7 +605,7 @@ CapsuleCollider:
   m_Radius: 0.5
   m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!54 &-1472620470183179398
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -641,7 +657,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6606259333358568959}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -673,7 +689,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8529694542816982617}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

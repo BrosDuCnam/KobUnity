@@ -33,9 +33,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Sprint",
+                    "name": "Run",
                     "type": "Button",
                     "id": "aaf2f906-7e3b-4ab9-b58f-eb6779a1cde4",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Crouch",
+                    "type": "Button",
+                    "id": "061e206a-8f75-4948-9e7e-1a19a4e2eb1f",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -160,7 +169,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Sprint",
+                    "action": "Run",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -171,7 +180,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Sprint",
+                    "action": "Run",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "76766a0e-07de-46e5-850a-c33f60de81d4",
+                    "path": "<Keyboard>/leftCtrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Crouch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

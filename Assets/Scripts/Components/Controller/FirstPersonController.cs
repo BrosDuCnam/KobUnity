@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Components.Controller
 {
@@ -196,6 +197,7 @@ namespace Components.Controller
         /// to perform custom input code. 
         /// </summary>
 
+        [Obsolete("Use Input System instead.")]
         protected override void HandleInput()
         {
             // Toggle pause / resume.
@@ -220,6 +222,11 @@ namespace Components.Controller
             crouch = Input.GetKey(KeyCode.C);
         }
 
+        public void Call_Run(bool value)
+        {
+            run = value;
+        }
+        
         #endregion
 
         #region MONOBEHAVIOUR
