@@ -149,6 +149,25 @@ namespace Utils.Network
             }
         }
         
+        public async void LeaveLobby()
+        {
+            if (Lobby == null) return;
+            
+            try
+            {
+                string playerId = AuthenticationService.Instance.PlayerId;
+                if (Lobby.Players.All(p => p.Id != playerId)) return; // Not in lobby
+                
+                await LobbyService.Instance.RemovePlayerAsync(Lobby.Id, playerId);
+                
+                Lobby = null;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+        
         public async void StartGame()
         {
             if (_lobby == null) return;
@@ -205,16 +224,13 @@ namespace Utils.Network
                 return;
             }
 
-            if (lobby.Data[KEY_STARTGAME].Value != "0")
+            if (lobby.Data[KEY_STARTGAME].Value != "0" && (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening))
             {
                 Debug.Log("Lobby is starting game");
                 if (!IsLobbyOwner)
                 {
                     MNetworkHandler.Instance.JoinRelay(lobby.Data[KEY_STARTGAME].Value);
                 }
-
-                Lobby = null; // Reset lobby so we don't get stuck in a loop
-                return;
             }
             
             Lobby = lobby;

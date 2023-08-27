@@ -145,6 +145,8 @@ public class MNetworkHandler : MonoBehaviour
     
     public void Disconnect()
     {
+        lobbyHandler.LeaveLobby();
+        
         if (NetworkManager.Singleton != null)
         {
             // TODO : if host disconnect everyone
