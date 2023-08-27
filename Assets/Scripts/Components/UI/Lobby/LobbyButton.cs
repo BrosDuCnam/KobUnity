@@ -45,14 +45,14 @@ namespace Components.UI.Lobby
             if (!string.IsNullOrEmpty(_defaultText)) _text.text = _defaultText;
         }
 
-        public void Refresh(LobbyButtonData data)
+        public void Refresh(LobbyButtonData newData)
         {
             if (_onPressed != null) onPressed.RemoveListener(_onPressed);
             
-            _onPressed = () => data.onPressed?.Invoke();
+            _onPressed = () => newData.onPressed?.Invoke();
             onPressed.AddListener(_onPressed);
             
-            _text.text = data.text;
+            _text.text = newData.text;
         }
 
         public override void OnPressed()

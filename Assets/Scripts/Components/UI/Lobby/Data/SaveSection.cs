@@ -26,27 +26,27 @@ namespace Components.UI.Lobby
             _saveNameInputField.enabled = MNetworkHandler.Instance.lobbyHandler.IsLobbyOwner;
         }
         
-        public void Refresh(SaveSectionData data)
+        public void Refresh(SaveSectionData newData)
         {
-            _saveNameInputField.text = data.saveName;
+            _saveNameInputField.text = newData.saveName;
 
-            if (data.timePlayed == null)
+            if (newData.timePlayed == null)
             {
                 _timePlayed.text = "0m 0s";
                 _lastPlayed.text = "Never";
                 return;
             }
 
-            string timePlayed = $"{data.timePlayed / 1000 / 60}m {data.timePlayed / 1000 % 60}s";
+            string timePlayed = $"{newData.timePlayed / 1000 / 60}m {newData.timePlayed / 1000 % 60}s";
             _timePlayed.text = timePlayed;
 
-            if (data.lastPlayed == null) // Should never happen
+            if (newData.lastPlayed == null) // Should never happen
             {
                 _lastPlayed.text = "Never";
             }
             else
             {
-                _lastPlayed.text = data.lastPlayed.Value.ToString("dd/MM/yyyy HH:mm");
+                _lastPlayed.text = newData.lastPlayed.Value.ToString("dd/MM/yyyy HH:mm");
             }
         }
     }

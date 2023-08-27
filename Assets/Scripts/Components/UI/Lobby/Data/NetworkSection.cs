@@ -50,17 +50,17 @@ namespace Components.UI.Lobby
             });
         }
 
-        public void Refresh(NetworkSectionData data)
+        public void Refresh(NetworkSectionData newData)
         {
-            if (!data.online)
+            if (!newData.online)
             {
                 _lobbyCode.text = "..."; // TODO: polish, animate dots
                 _players.text = "...";
                 return;
             }
             
-            _lobbyCode.text = data.lobbyCode;
-            _players.text = string.Join(", ", data.players);
+            _lobbyCode.text = newData.lobbyCode;
+            _players.text = string.Join(", ", newData.players);
         }
         
         public void PlayClipboardMessage()

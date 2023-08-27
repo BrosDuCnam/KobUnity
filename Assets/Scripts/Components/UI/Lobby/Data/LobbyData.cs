@@ -21,17 +21,17 @@ namespace Components.UI.Lobby
         CanvasGroup IDisplayable.CanvasGroup => _canvasGroup;
         
         
-        public void Refresh(LobbyDataElement dataElement)
+        public void Refresh(LobbyDataElement newData)
         {
-            _saveSection.Refresh(dataElement.saveSectionData);
+            _saveSection.Refresh(newData.saveSectionData);
             
             // if newtworkSectionData is null, set it to a new NetworkSectionData with online = false
-            dataElement.networkSectionData ??= new NetworkSection.NetworkSectionData
+            newData.networkSectionData ??= new NetworkSection.NetworkSectionData
             {
                 online = false,
             };
             
-            _networkSection.Refresh(dataElement.networkSectionData.Value);
+            _networkSection.Refresh(newData.networkSectionData.Value);
         }
     }
 }

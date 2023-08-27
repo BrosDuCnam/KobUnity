@@ -19,7 +19,8 @@ namespace Utils
         // This method refreshes the items in the pool based on the given data.
         public static PoolingResult Pool<TV, TK>(IEnumerable<TK> data, GameObject prefab, Transform container) where TV : UIBehaviour<TK> where TK : struct
         {
-            List<TV> items = container.GetComponentsInChildren<MonoBehaviour>().OfType<TV>().ToList();
+            // Can be a problem to take all children, not only direct children.
+            List<TV> items = container.GetComponentsInChildren<MonoBehaviour>(true).OfType<TV>().ToList();
             
             PoolingResult result = new() 
             {
@@ -70,7 +71,7 @@ namespace Utils
         // Method to pool any UI, not only UIBehaviours.
         public static PoolingResult Pool<TK>(int amount, GameObject prefab, Transform container) where TK : MonoBehaviour
         {
-            List<GameObject> items = container.GetComponentsInChildren<MonoBehaviour>().OfType<TK>().ToList().ConvertAll(x => x.gameObject);
+            List<GameObject> items = container.GetComponentsInChildren<MonoBehaviour>(true).OfType<TK>().ToList().ConvertAll(x => x.gameObject);
             
             PoolingResult result = new ()
             {

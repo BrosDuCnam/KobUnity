@@ -402,7 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0405ab904c34e54a8088b9bb259b5fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lockCursor: 0
+  _lockCursor: 1
   _unlockCursorKey: 27
   _lateralSensitivity: 0.2
   _verticalSensitivity: 0.2

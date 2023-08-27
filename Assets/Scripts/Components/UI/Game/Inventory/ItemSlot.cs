@@ -1,4 +1,5 @@
-﻿using Managers;
+﻿using System.Linq;
+using Managers;
 using Scriptable;
 using TMPro;
 using UnityEngine;
@@ -33,22 +34,18 @@ namespace Components.UI.Game.Inventory
         [SerializeField] private Image iconImg;
         [SerializeField] private TextMeshProUGUI amountTmp;
 
-        [HideInInspector] public InventorySlot currentSlot;
-        public BaseInventory currentInventory => currentSlot.currentInventory;
+        public ItemSlotData data { get; private set; }
         
-        public void Refresh(ItemSlotData data)
+        [HideInInspector] public InventorySlot currentSlot;
+        
+        public void Refresh(ItemSlotData newData)
         {
-            ScriptableItem item = UResources.GetScriptableItemById(data.itemId);
+            data = newData;
+            
+            ScriptableItem item = UResources.GetScriptableItemById(newData.itemId);
             
             iconImg.sprite = item.icon;
-            amountTmp.text = data.amount.ToString();
-        }
-
-        public void SetSlot(InventorySlot slot)
-        {
-            currentSlot = slot;
-            transform.SetParent(slot.transform);
-            RectTransform.anchoredPosition = Vector2.zero;
+            amountTmp.text = newData.amount.ToString();
         }
         
         #region Dragging
@@ -65,38 +62,49 @@ namespace Components.UI.Game.Inventory
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            InventorySlot targetSlot = GetPointedSlot(eventData) ?? currentSlot; // If the target slot is null, the item is dropped on the same slot
+            InventorySlot targetSlot = GetPointedSlot(eventData);
             
-            SetSlot(targetSlot);
+            if (targetSlot == null || 
+                !targetSlot.SetItem(this)) currentSlot.SetItem(this);
         }
 
         #endregion
         
+        
         public InventorySlot GetPointedSlot(PointerEventData eventData)
         {
-            if (eventData.pointerCurrentRaycast.gameObject == null)
+            // Get the game object that the mouse pointer is currently over
+            var target = eventData.pointerCurrentRaycast.gameObject;
+            if (target == null)
             {
-                Debug.Log("Drop target is null");
                 return null;
             }
 
-            if (eventData.pointerCurrentRaycast.gameObject.GetComponent<InventorySlot>() == null)
-            {
-                Debug.Log("Drop target is not a slot");
-                return null;
-            }
-            
-            var targetSlot = eventData.pointerCurrentRaycast.gameObject.GetComponent<InventorySlot>();
-
-            if (targetSlot.IsAvailable())
+            // Try to get the InventorySlot component on the target object
+            InventorySlot targetSlot = null;
+            if (target.TryGetComponent(out targetSlot))
             {
                 return targetSlot;
             }
-            else
+
+            // Try to get the ItemSlot component in the children of the target object
+            var itemSlot = target.GetComponentInChildren<ItemSlot>();
+            if (itemSlot!= null)
             {
-                Debug.Log("Drop target is not available");
-                return null;
+                return itemSlot.currentSlot;
             }
+
+            // Try to get the InventorySlot component in the parent of the target object
+            targetSlot = target.GetComponentInParent<InventorySlot>();
+            if (targetSlot != null)
+            {
+                return targetSlot;
+            }
+
+            return null;
         }
+
+
+
     }
 }

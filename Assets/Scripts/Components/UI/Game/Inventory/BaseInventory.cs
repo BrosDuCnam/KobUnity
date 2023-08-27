@@ -23,22 +23,28 @@ namespace Components.UI.Game.Inventory
         private List<InventorySlot> _slots = new List<InventorySlot>();
         private List<ItemSlot> _items = new List<ItemSlot>();
 
-        public void Refresh(InventoryData data)
+        public void Refresh(InventoryData newData)
         {
-            _slots = UIPooling.Pool<InventorySlot>(data.slotAmount, slotPrefab, transform)
+            _slots = UIPooling.Pool<InventorySlot>(newData.slotAmount, slotPrefab, transform)
                 .activeItems.ConvertAll(x => x.GetComponent<InventorySlot>());
             
             _slots.ForEach(x => x.currentInventory = this);
 
             // Make a list to conserve the order of the items.
-            KeyValuePair<int, ItemSlot.ItemSlotData>[] tempItems = data.items.ToArray(); 
+            KeyValuePair<int, ItemSlot.ItemSlotData>[] tempItems = newData.items.ToArray(); 
             
             _items = UIPooling.Pool<ItemSlot, ItemSlot.ItemSlotData>(tempItems.Select(x => x.Value), itemPrefab, contentRect) 
                 .activeItems.ConvertAll(x => x.GetComponent<ItemSlot>());
 
+            int i = 0;
             foreach (KeyValuePair<int, ItemSlot.ItemSlotData> kvpItem in tempItems)
             {
-                _items[kvpItem.Key].SetSlot(_slots[kvpItem.Key]);
+                InventorySlot slot = _slots[i];
+                ItemSlot item = _items[i];
+                
+                slot.SetItem(item);
+                
+                i++;
             }
         }
 
