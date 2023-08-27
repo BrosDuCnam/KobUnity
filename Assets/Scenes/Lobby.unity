@@ -2516,43 +2516,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: NetworkHandler
       objectReference: {fileID: 0}
-    - target: {fileID: 5525321581061153211, guid: 6eb8b1b36787b2e4a9743f9505a5d0a6,
-        type: 3}
-      propertyPath: LogLevel
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5525321581061153211, guid: 6eb8b1b36787b2e4a9743f9505a5d0a6,
-        type: 3}
-      propertyPath: onlineScene
-      value: 
-      objectReference: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05,
-        type: 3}
-    - target: {fileID: 5525321581061153211, guid: 6eb8b1b36787b2e4a9743f9505a5d0a6,
-        type: 3}
-      propertyPath: offlineScene
-      value: 
-      objectReference: {fileID: 102900000, guid: 91e3c8afa985bc74ba3ce918d132d9da,
-        type: 3}
-    - target: {fileID: 5525321581061153211, guid: 6eb8b1b36787b2e4a9743f9505a5d0a6,
-        type: 3}
-      propertyPath: onlineSceneName
-      value: SampleScene
-      objectReference: {fileID: 0}
-    - target: {fileID: 5525321581061153211, guid: 6eb8b1b36787b2e4a9743f9505a5d0a6,
-        type: 3}
-      propertyPath: _onlineSceneName
-      value: SampleScene
-      objectReference: {fileID: 0}
-    - target: {fileID: 5525321581061153211, guid: 6eb8b1b36787b2e4a9743f9505a5d0a6,
-        type: 3}
-      propertyPath: offlineSceneName
-      value: Lobby
-      objectReference: {fileID: 0}
-    - target: {fileID: 5525321581061153211, guid: 6eb8b1b36787b2e4a9743f9505a5d0a6,
-        type: 3}
-      propertyPath: _offlineSceneName
-      value: Lobby
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6289,8 +6252,7 @@ MonoBehaviour:
   m_MoveRepeatDelay: 0.5
   m_MoveRepeatRate: 0.1
   m_XRTrackingOrigin: {fileID: 0}
-  m_ActionsAsset: {fileID: -944628639613478452, guid: e62dc89ac68515c488603017b7623e2c,
-    type: 3}
+  m_ActionsAsset: {fileID: 0}
   m_PointAction: {fileID: -8932505590926974069, guid: e62dc89ac68515c488603017b7623e2c,
     type: 3}
   m_MoveAction: {fileID: 6697640632019609821, guid: e62dc89ac68515c488603017b7623e2c,

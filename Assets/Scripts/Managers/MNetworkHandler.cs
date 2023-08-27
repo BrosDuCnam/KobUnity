@@ -153,5 +153,7 @@ public class MNetworkHandler : MonoBehaviour
             Destroy(NetworkManager.Singleton.gameObject);
         }
         SceneManager.LoadScene(offlineSceneName);
+        
+        Cursor.lockState = CursorLockMode.None;
     }
 }

@@ -30,7 +30,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5525321581061153211
 MonoBehaviour:
@@ -44,7 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c55318204ea1f74597d657469599083, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onlineScene: {fileID: 0}
-  offlineScene: {fileID: 0}
+  onlineScene: {fileID: 102900000, guid: 106171ee88ed8bf449cde1631959f82a, type: 3}
+  offlineScene: {fileID: 102900000, guid: 91e3c8afa985bc74ba3ce918d132d9da, type: 3}
+  onlineSceneName: Game
+  offlineSceneName: Lobby
   isHost: 0
   isClient: 0
