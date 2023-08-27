@@ -40,7 +40,7 @@ namespace Network
             if (!IsOwner) return;
             
             Vector2 input = ctx.ReadValue<Vector2>();
-            mouseLook.Call_Look(input);
+            // mouseLook.Call_Look(input);
         }
         
         public void Call_Jump(InputAction.CallbackContext ctx)
