@@ -214,7 +214,7 @@ public class Block : MonoBehaviour
     private void UpdateFloaterState()
     {
         if (currentfloater != null) Destroy(currentfloater);
-        if (blockObject != null) return;
+        if (blockObject != null || holderObject != null) return;
 
         List<Vector3Int> validNeighbours = GetBasePlatformNeighbours();
 
