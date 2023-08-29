@@ -13,38 +13,30 @@ namespace Components.UI.Game.Inventory
             public Dictionary<int, ItemSlot.ItemSlotData> items;
         }
         
-        [Header("References")]
-        [SerializeField] private RectTransform contentRect;
-        
         [Header("Prefabs")] 
         [SerializeField] private GameObject slotPrefab;
-        [SerializeField] private GameObject itemPrefab;
 
-        private List<InventorySlot> _slots = new List<InventorySlot>();
-        private List<ItemSlot> _items = new List<ItemSlot>();
+        private List<InventorySlot> _slots = new ();
 
         public void Refresh(InventoryData newData)
         {
             _slots = UIPooling.Pool<InventorySlot>(newData.slotAmount, slotPrefab, transform)
                 .activeItems.ConvertAll(x => x.GetComponent<InventorySlot>());
             
-            _slots.ForEach(x => x.currentInventory = this);
-
-            // Make a list to conserve the order of the items.
-            KeyValuePair<int, ItemSlot.ItemSlotData>[] tempItems = newData.items.ToArray(); 
-            
-            _items = UIPooling.Pool<ItemSlot, ItemSlot.ItemSlotData>(tempItems.Select(x => x.Value), itemPrefab, contentRect) 
-                .activeItems.ConvertAll(x => x.GetComponent<ItemSlot>());
-
-            int i = 0;
-            foreach (KeyValuePair<int, ItemSlot.ItemSlotData> kvpItem in tempItems)
+            // Loop into all slot to spawn item if needed
+            for (int i = 0; i < _slots.Count; i++)
             {
                 InventorySlot slot = _slots[i];
-                ItemSlot item = _items[i];
+                slot.currentInventory = this;
                 
-                slot.SetItem(item);
-                
-                i++;
+                if (!newData.items.ContainsKey(i))
+                {
+                    slot.SetItem(null);
+                }
+                else
+                {
+                    slot.SetItem(newData.items[i]);
+                }
             }
         }
 

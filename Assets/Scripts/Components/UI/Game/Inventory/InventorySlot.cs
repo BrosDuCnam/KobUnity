@@ -8,42 +8,80 @@ namespace Components.UI.Game.Inventory
     {
         public BaseInventory currentInventory;
         public ItemSlot currentItem;
+
+        public bool HasItem()
+        {
+            return currentItem.gameObject.activeSelf;
+        }
+
+        public ItemSlot.ItemSlotData GetData()
+        {
+            if (HasItem()) return currentItem.Data;
+            return new ItemSlot.ItemSlotData()
+            {
+                itemId = "",
+                amount = 0
+            };
+        }
         
+        public void SetItem(ItemSlot.ItemSlotData? item)
+        {
+            if (!HasItem() &&!item.HasValue) {
+                return;
+            }
+
+            // Check if the new item is not null and is equal to the current item's data
+            if (item.HasValue && GetData().Equals(item.Value))
+            {
+                UpdateItemPos();
+                return;
+            }
+
+            if (item.HasValue)
+            {
+                currentItem.Refresh(item.Value);
+                UpdateItemPos();
+                currentItem.gameObject.SetActive(true);
+            }
+            else currentItem.gameObject.SetActive(false);
+        }
+
+        private void UpdateItemPos()
+        {
+            currentItem.RectTransform.anchoredPosition = Vector2.zero;
+        }
+
         public bool IsAvailable(ItemSlot.ItemSlotData item)
         {
-            if (currentItem == null) return true;
-            if (currentItem.data.itemId != item.itemId) return false;
-            
-            ScriptableItem itemData = UResources.GetScriptableItemById(item.itemId);
-            if (currentItem.data.amount + item.amount > itemData.maxStack) return false;
-            
+            if (!HasItem()) return true;
+
+            if (GetData().itemId != item.itemId) return false;
+
+            ScriptableItem data = UResources.GetScriptableItemById(item.itemId);
+            int sum = GetData().amount + item.amount;
+            if (sum > data.maxStack) return false;
+
             return true;
         }
         
-        public bool SetItem(ItemSlot item)
+        public bool TryPutItem(ItemSlot.ItemSlotData? item)
         {
-            if (!IsAvailable(item.data)) return false;
-            item.transform.SetParent(transform);
+            if (!item.HasValue)
+            {
+                SetItem(null);
+                return true;
+            }
             
-            if (currentItem != null &&  
-                currentItem != item && 
-                currentItem.data.itemId == item.data.itemId)
-            {
-                ItemSlot.ItemSlotData tempData = currentItem.data;
-                tempData.amount += item.data.amount;
-                
-                currentItem.Refresh(tempData);
-                
-                item.gameObject.SetActive(false);
-            }
-            else
-            {
-                item.RectTransform.anchoredPosition = Vector2.zero;
-                item.currentSlot = this;
-                
-                currentItem = item;
-            }
+            if (!IsAvailable(item.Value)) return false;
 
+            
+            ItemSlot.ItemSlotData newData = new ItemSlot.ItemSlotData()
+            {
+                itemId = item.Value.itemId,
+                amount = item.Value.amount + GetData().amount
+            };
+
+            SetItem(newData);
             return true;
         }
     }

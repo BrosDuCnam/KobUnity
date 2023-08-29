@@ -16,6 +16,7 @@ namespace Components.UI.Game.Inventory
             public int amount;
             public string itemId;
         }
+        
         private RectTransform _rectTransform; public RectTransform RectTransform
         {
             get
@@ -33,14 +34,13 @@ namespace Components.UI.Game.Inventory
         [SerializeField] private CanvasGroup borders;
         [SerializeField] private Image iconImg;
         [SerializeField] private TextMeshProUGUI amountTmp;
-
-        public ItemSlotData data { get; private set; }
+        [SerializeField] public InventorySlot currentSlot;
         
-        [HideInInspector] public InventorySlot currentSlot;
+        public ItemSlotData Data { get; private set; }
         
         public void Refresh(ItemSlotData newData)
         {
-            data = newData;
+            Data = newData;
             
             ScriptableItem item = UResources.GetScriptableItemById(newData.itemId);
             
@@ -62,15 +62,33 @@ namespace Components.UI.Game.Inventory
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            transform.SetParent(currentSlot.transform);
+    
             InventorySlot targetSlot = GetPointedSlot(eventData);
-            
-            if (targetSlot == null || 
-                !targetSlot.SetItem(this)) currentSlot.SetItem(this);
+            Debug.Log("[DEBUG/ItemSlot]: targetSlot found", targetSlot);
+    
+            if (targetSlot != null)
+            {
+                if (targetSlot.TryPutItem(Data))
+                {
+                    currentSlot.SetItem(null);
+                }
+                else
+                {
+                    currentSlot.SetItem(Data);
+                }
+            }
+            else
+            {
+                currentSlot.SetItem(Data);
+            }
         }
+
 
         #endregion
         
         
+        // Function to get the slot behind the cursor
         public InventorySlot GetPointedSlot(PointerEventData eventData)
         {
             // Get the game object that the mouse pointer is currently over
@@ -80,6 +98,8 @@ namespace Components.UI.Game.Inventory
                 return null;
             }
 
+            if (target == gameObject || target.GetComponentInParent<ItemSlot>() == this) return null;
+            
             // Try to get the InventorySlot component on the target object
             InventorySlot targetSlot = null;
             if (target.TryGetComponent(out targetSlot))
@@ -88,14 +108,14 @@ namespace Components.UI.Game.Inventory
             }
 
             // Try to get the ItemSlot component in the children of the target object
-            var itemSlot = target.GetComponentInChildren<ItemSlot>();
-            if (itemSlot!= null)
+            var itemSlot = target.transform.parent.GetComponent<ItemSlot>();
+            if (itemSlot != null)
             {
                 return itemSlot.currentSlot;
             }
 
             // Try to get the InventorySlot component in the parent of the target object
-            targetSlot = target.GetComponentInParent<InventorySlot>();
+            targetSlot = target.transform.parent.GetComponent<InventorySlot>();
             if (targetSlot != null)
             {
                 return targetSlot;
@@ -103,8 +123,5 @@ namespace Components.UI.Game.Inventory
 
             return null;
         }
-
-
-
     }
 }
