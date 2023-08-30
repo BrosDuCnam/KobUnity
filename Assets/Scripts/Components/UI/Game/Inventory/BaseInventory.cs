@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Utils;
 
@@ -9,9 +8,9 @@ namespace Components.UI.Game.Inventory
     {
         public struct InventoryData
         {
-            public int slotAmount;
-            public Dictionary<int, ItemSlot.ItemSlotData> items;
+            public List<InventorySlot.ItemSlotData> items;
         }
+
         
         [Header("Prefabs")] 
         [SerializeField] private GameObject slotPrefab;
@@ -20,24 +19,7 @@ namespace Components.UI.Game.Inventory
 
         public void Refresh(InventoryData newData)
         {
-            _slots = UIPooling.Pool<InventorySlot>(newData.slotAmount, slotPrefab, transform)
-                .activeItems.ConvertAll(x => x.GetComponent<InventorySlot>());
-            
-            // Loop into all slot to spawn item if needed
-            for (int i = 0; i < _slots.Count; i++)
-            {
-                InventorySlot slot = _slots[i];
-                slot.currentInventory = this;
-                
-                if (!newData.items.ContainsKey(i))
-                {
-                    slot.SetItem(null);
-                }
-                else
-                {
-                    slot.SetItem(newData.items[i]);
-                }
-            }
+            UIPooling.Pool<InventorySlot, InventorySlot.ItemSlotData>(newData.items, slotPrefab, transform);
         }
 
         private void Start()
@@ -45,21 +27,35 @@ namespace Components.UI.Game.Inventory
             // Test data
             InventoryData test = new InventoryData()
             {
-                slotAmount = 54,
-                items = new Dictionary<int, ItemSlot.ItemSlotData>()
+                items = new List<InventorySlot.ItemSlotData>()
                 {
-                    {0, new ItemSlot.ItemSlotData() {amount = 1, itemId = "7385fd06-8df4-4354-964d-2806daff3e33"}},
-                    {1, new ItemSlot.ItemSlotData() {amount = 59, itemId = "7385fd06-8df4-4354-964d-2806daff3e33"}},
-                    {2, new ItemSlot.ItemSlotData() {amount = 32, itemId = "7385fd06-8df4-4354-964d-2806daff3e33"}},
-                    {3, new ItemSlot.ItemSlotData() {amount = 48, itemId = "7385fd06-8df4-4354-964d-2806daff3e33"}},
-                    {4, new ItemSlot.ItemSlotData() {amount = 68, itemId = "7385fd06-8df4-4354-964d-2806daff3e33"}},
-                    {5, new ItemSlot.ItemSlotData() {amount = 05, itemId = "7385fd06-8df4-4354-964d-2806daff3e33"}},
-                    {6, new ItemSlot.ItemSlotData() {amount = 64, itemId = "7385fd06-8df4-4354-964d-2806daff3e33"}},
-                    {7, new ItemSlot.ItemSlotData() {amount = 99, itemId = "7385fd06-8df4-4354-964d-2806daff3e33"}}
+                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 1}},
+                    {new () {itemId = "", amount = 15}},
+                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 1}},
+                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 25}},
+                    {new () {itemId = "", amount = 37}},
+                    {new () {itemId = "", amount = 84}},
+                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 34}},
+                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 83}},
+                    {new () {itemId = "", amount = 0}},
+                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 57}},
+                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 68}},
+                    {new () {itemId = "", amount = 34}},
+                    {new () {itemId = "", amount = 18}},
+                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 92}},
+                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 64}},
+                    {new () {itemId = "", amount = 28}},
+                    
                 }
             };
             
             Refresh(test);
+        }
+
+        private void Update()
+        {
+            if (Cursor.lockState != CursorLockMode.None) Cursor.lockState = CursorLockMode.None;
+            if (Cursor.visible != true) Cursor.visible = true;
         }
     }
 }

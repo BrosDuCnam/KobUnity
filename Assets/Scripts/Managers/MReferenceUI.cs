@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Components.UI.Game.Inventory;
+using UnityEngine;
 
 namespace Managers
 {
@@ -20,8 +21,12 @@ namespace Managers
         }
 
         #endregion
-        
+
+        #region Inventory
+
         [Header("References")]
-        [SerializeField] public RectTransform dragRect;
+        [SerializeField] public ItemSlot grabbedItem;
+
+        #endregion
     }
 }

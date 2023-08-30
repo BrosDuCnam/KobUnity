@@ -9,14 +9,9 @@ using Utils;
 
 namespace Components.UI.Game.Inventory
 {
-    public class ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, UIBehaviour<ItemSlot.ItemSlotData>
+    public class ItemSlot : MonoBehaviour, UIBehaviour<InventorySlot.ItemSlotData>
     {
-        public struct ItemSlotData
-        {
-            public int amount;
-            public string itemId;
-        }
-        
+
         private RectTransform _rectTransform; public RectTransform RectTransform
         {
             get
@@ -31,15 +26,28 @@ namespace Components.UI.Game.Inventory
         }
 
         [Header("References")]
-        [SerializeField] private CanvasGroup borders;
+        [SerializeField] private CanvasGroup canvasGroup;
         [SerializeField] private Image iconImg;
         [SerializeField] private TextMeshProUGUI amountTmp;
         [SerializeField] public InventorySlot currentSlot;
+
+        public bool isGrabbed { get; private set; }
         
-        public ItemSlotData Data { get; private set; }
-        
-        public void Refresh(ItemSlotData newData)
+        public InventorySlot.ItemSlotData Data { get; private set; }
+
+        public void Refresh(InventorySlot.ItemSlotData newData)
         {
+            if (newData.IsVoid)
+            {
+                iconImg.sprite = null;
+                amountTmp.text = "";
+                Data = InventorySlot.ItemSlotData.Void;
+                
+                gameObject.SetActive(false);
+                return;
+            }
+            gameObject.SetActive(true);
+            
             Data = newData;
             
             ScriptableItem item = UResources.GetScriptableItemById(newData.itemId);
@@ -50,78 +58,30 @@ namespace Components.UI.Game.Inventory
         
         #region Dragging
         
-        public void OnBeginDrag(PointerEventData eventData)
+        public void SetGrabbed(bool grabbed)
         {
-            transform.SetParent(MReferenceUI.Instance.dragRect);
+            if (grabbed) UpdatePos();
+            
+            isGrabbed = grabbed;
+            canvasGroup.alpha = grabbed ? 1 : 0;
+        }
+        
+        private void Update()
+        {
+            if (!isGrabbed) return;
+            
+            UpdatePos();
         }
 
-        public void OnDrag(PointerEventData eventData)
+        private void UpdatePos()
         {
-            RectTransform.anchoredPosition += eventData.delta;
+            Vector2 screenSize = new Vector2(Screen.width, Screen.height);
+            Vector2 mousePos = EventSystem.current.currentInputModule.input.mousePosition;
+            mousePos.y -= screenSize.y;
+            
+            RectTransform.anchoredPosition = mousePos;
         }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            transform.SetParent(currentSlot.transform);
-    
-            InventorySlot targetSlot = GetPointedSlot(eventData);
-            Debug.Log("[DEBUG/ItemSlot]: targetSlot found", targetSlot);
-    
-            if (targetSlot != null)
-            {
-                if (targetSlot.TryPutItem(Data))
-                {
-                    currentSlot.SetItem(null);
-                }
-                else
-                {
-                    currentSlot.SetItem(Data);
-                }
-            }
-            else
-            {
-                currentSlot.SetItem(Data);
-            }
-        }
-
 
         #endregion
-        
-        
-        // Function to get the slot behind the cursor
-        public InventorySlot GetPointedSlot(PointerEventData eventData)
-        {
-            // Get the game object that the mouse pointer is currently over
-            var target = eventData.pointerCurrentRaycast.gameObject;
-            if (target == null)
-            {
-                return null;
-            }
-
-            if (target == gameObject || target.GetComponentInParent<ItemSlot>() == this) return null;
-            
-            // Try to get the InventorySlot component on the target object
-            InventorySlot targetSlot = null;
-            if (target.TryGetComponent(out targetSlot))
-            {
-                return targetSlot;
-            }
-
-            // Try to get the ItemSlot component in the children of the target object
-            var itemSlot = target.transform.parent.GetComponent<ItemSlot>();
-            if (itemSlot != null)
-            {
-                return itemSlot.currentSlot;
-            }
-
-            // Try to get the InventorySlot component in the parent of the target object
-            targetSlot = target.transform.parent.GetComponent<InventorySlot>();
-            if (targetSlot != null)
-            {
-                return targetSlot;
-            }
-
-            return null;
-        }
     }
 }
