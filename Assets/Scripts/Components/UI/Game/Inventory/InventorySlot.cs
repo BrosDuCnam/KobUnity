@@ -1,4 +1,5 @@
-﻿using Managers;
+﻿using DG.Tweening;
+using Managers;
 using Scriptable;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,74 +7,79 @@ using Utils;
 
 namespace Components.UI.Game.Inventory
 {
-    public class InventorySlot : CustomButton, UIBehaviour<InventorySlot.ItemSlotData>, IPointerClickHandler
+    public struct ItemSlotData
     {
-        public struct ItemSlotData
-        {
-            public int amount;
-            public string itemId;
+        public int amount;
+        public string itemId;
             
-            public ItemSlotData Add(int amountAdded)
+        public ItemSlotData Add(int amountAdded)
+        {
+            return new ItemSlotData()
             {
-                return new ItemSlotData()
-                {
-                    amount = amount + amountAdded,
-                    itemId = itemId
-                };
-            }
-            public (ItemSlotData, ItemSlotData) Split(int amountSplit = -1)
-            {
-                int leftAmount = amountSplit == -1 ? amount / 2 : amountSplit;
-                int rightAmount = amount - leftAmount;
-                
-                return (new ItemSlotData()
-                {
-                    amount = leftAmount,
-                    itemId = itemId
-                }, new ItemSlotData()
-                {
-                    amount = rightAmount,
-                    itemId = itemId
-                });
-            }
-
-            public bool IsVoid => amount == 0 || string.IsNullOrEmpty(itemId);
-            public static ItemSlotData Void => new ItemSlotData()
-            {
-                amount = 0,
-                itemId = ""
+                amount = amount + amountAdded,
+                itemId = itemId
             };
-            
-            public static bool operator ==(ItemSlotData a, ItemSlotData b)
-            {
-                return a.Equals(b);
-            }
-
-            public static bool operator !=(ItemSlotData a, ItemSlotData b)
-            {
-                return !(a == b);
-            }
         }
-        private RectTransform _rectTransform; public RectTransform RectTransform
+        public (ItemSlotData, ItemSlotData) Split(int amountSplit = -1)
         {
-            get
-            {
-                if (_rectTransform == null)
-                {
-                    _rectTransform = GetComponent<RectTransform>();
-                }
+            int leftAmount = amountSplit == -1 ? amount / 2 : amountSplit;
+            int rightAmount = amount - leftAmount;
                 
-                return _rectTransform;
+            return (new ItemSlotData()
+            {
+                amount = leftAmount,
+                itemId = itemId
+            }, new ItemSlotData()
+            {
+                amount = rightAmount,
+                itemId = itemId
+            });
+        }
+
+        public bool IsVoid => amount == 0 || string.IsNullOrEmpty(itemId);
+        public static ItemSlotData Void => new ItemSlotData()
+        {
+            amount = 0,
+            itemId = ""
+        };
+            
+        public static bool operator ==(ItemSlotData a, ItemSlotData b)
+        {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(ItemSlotData a, ItemSlotData b)
+        {
+            return !(a == b);
+        }
+    }
+    
+    public class InventorySlot : MonoBehaviour, UIBehaviour<ItemSlotData>, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+    {
+        [Header("References")]
+        [SerializeField] private CanvasGroup borders;
+        [SerializeField] public ItemSlot currentItem;
+        [SerializeField] public BaseInventory currentInventory;
+
+        private Sequence _sequence;
+        
+        #region Button Implementation
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                OnLeftClick();
+            }
+            else if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                OnRightClick();
             }
         }
         
-        public BaseInventory currentInventory;
-        public ItemSlot currentItem;
-
-        #region Button Implementation
-
         public void OnLeftClick()
         {
+            
             if (MReferenceUI.Instance.grabbedItem.isGrabbed)
             {
                 ItemSlotData rest = TryPutItem(MReferenceUI.Instance.grabbedItem.Data);
@@ -124,7 +130,28 @@ namespace Components.UI.Game.Inventory
             }
         }
 
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            _sequence?.Kill();
+            _sequence = DOTween.Sequence();
+            
+            _sequence.Append(borders.DOFade(1, 0.15f));
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            _sequence?.Kill();
+            _sequence = DOTween.Sequence();
+            
+            _sequence.Append(borders.DOFade(0, 0.15f));
+        }
+
         #endregion
+        
+        public void Refresh(ItemSlotData newData)
+        {
+            SetItem(newData);
+        }
         
         public bool HasItem()
         {
@@ -150,17 +177,11 @@ namespace Components.UI.Game.Inventory
             if (!item.IsVoid)
             {
                 currentItem.Refresh(item);
-                UpdateItemPos();
-                
                 currentItem.gameObject.SetActive(true);
             }
             else currentItem.gameObject.SetActive(false);
         }
-
-        private void UpdateItemPos()
-        {
-            currentItem.RectTransform.anchoredPosition = Vector2.zero;
-        }
+        
 
         public int HowMuchCanFit(ItemSlotData item)
         {
@@ -194,23 +215,6 @@ namespace Components.UI.Game.Inventory
 
             SetItem(newData);
             return rest;
-        }
-
-        public void Refresh(ItemSlotData newData)
-        {
-            SetItem(newData);
-        }
-
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (eventData.button == PointerEventData.InputButton.Left)
-            {
-                OnLeftClick();
-            }
-            else if (eventData.button == PointerEventData.InputButton.Right)
-            {
-                OnRightClick();
-            }
         }
     }
 }

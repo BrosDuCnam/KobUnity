@@ -8,7 +8,7 @@ namespace Components.UI.Game.Inventory
     {
         public struct InventoryData
         {
-            public List<InventorySlot.ItemSlotData> items;
+            public List<ItemSlotData> items;
         }
 
         
@@ -19,7 +19,7 @@ namespace Components.UI.Game.Inventory
 
         public void Refresh(InventoryData newData)
         {
-            UIPooling.Pool<InventorySlot, InventorySlot.ItemSlotData>(newData.items, slotPrefab, transform);
+            UIPooling.Pool<InventorySlot, ItemSlotData>(newData.items, slotPrefab, transform);
         }
 
         private void Start()
@@ -27,7 +27,7 @@ namespace Components.UI.Game.Inventory
             // Test data
             InventoryData test = new InventoryData()
             {
-                items = new List<InventorySlot.ItemSlotData>()
+                items = new List<ItemSlotData>()
                 {
                     {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 1}},
                     {new () {itemId = "", amount = 15}},

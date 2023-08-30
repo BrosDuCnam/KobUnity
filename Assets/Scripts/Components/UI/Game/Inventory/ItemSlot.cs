@@ -9,7 +9,7 @@ using Utils;
 
 namespace Components.UI.Game.Inventory
 {
-    public class ItemSlot : MonoBehaviour, UIBehaviour<InventorySlot.ItemSlotData>
+    public class ItemSlot : MonoBehaviour, UIBehaviour<ItemSlotData>
     {
 
         private RectTransform _rectTransform; public RectTransform RectTransform
@@ -33,15 +33,15 @@ namespace Components.UI.Game.Inventory
 
         public bool isGrabbed { get; private set; }
         
-        public InventorySlot.ItemSlotData Data { get; private set; }
+        public ItemSlotData Data { get; private set; }
 
-        public void Refresh(InventorySlot.ItemSlotData newData)
+        public void Refresh(ItemSlotData newData)
         {
             if (newData.IsVoid)
             {
                 iconImg.sprite = null;
                 amountTmp.text = "";
-                Data = InventorySlot.ItemSlotData.Void;
+                Data = ItemSlotData.Void;
                 
                 gameObject.SetActive(false);
                 return;
