@@ -1,4 +1,5 @@
 ﻿using Components.Controller;
+using Components.UI.Game.Inventory;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,12 +10,10 @@ namespace Network
     {
         #region EDITOR EXPOSED FIELDS
 
-        [SerializeField]
-        private GameObject _localOnlyObjects;
+        [Header("References")]
+        [SerializeField] private GameObject _localOnlyObjects;
+        [SerializeField] private GameObject _remoteOnlyObjects;
         
-        [SerializeField]
-        private GameObject _remoteOnlyObjects;
-
         #endregion
         
         #region PROPERTIES

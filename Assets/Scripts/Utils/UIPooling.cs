@@ -9,24 +9,24 @@ namespace Utils
     public static class UIPooling
     {
         
-        public struct PoolingResult
+        public struct PoolingResult<T>
         {
-            public List<GameObject> disabledItems;
-            public List<GameObject> newItems;
-            public List<GameObject> activeItems; // Contains both new and old items.
+            public List<T> disabledItems;
+            public List<T> newItems;
+            public List<T> activeItems; // Contains both new and old items.
         }
         
         // This method refreshes the items in the pool based on the given data.
-        public static PoolingResult Pool<TV, TK>(IEnumerable<TK> data, GameObject prefab, Transform container) where TV : UIBehaviour<TK> where TK : struct
+        public static PoolingResult<TV> Pool<TV, TK>(IEnumerable<TK> data, GameObject prefab, Transform container) where TV : UIBehaviour<TK> where TK : struct
         {
             // Can be a problem to take all children, not only direct children.
             List<TV> items = container.GetComponentsInChildren<MonoBehaviour>(true).OfType<TV>().ToList();
             
-            PoolingResult result = new() 
+            PoolingResult<TV> result = new() 
             {
-                disabledItems = new List<GameObject>(),
-                newItems = new List<GameObject>(),
-                activeItems = new List<GameObject>()
+                disabledItems = new List<TV>(),
+                newItems = new List<TV>(),
+                activeItems = new List<TV>()
             };
 
             // Loop through the data and update the items in the pool.
@@ -52,16 +52,16 @@ namespace Utils
                         tv.Refresh(data.ElementAt(i));
                         
                         items.Add(item.GetComponent<TV>());
-                        result.newItems.Add(item);
+                        result.newItems.Add(tv);
                     }
                     
-                    result.activeItems.Add(items[i].GetMonoBehaviour().gameObject);
+                    result.activeItems.Add(items[i]);
                 }
                 // If there is no data for this index, hide the item in the pool.
                 else
                 {
                     items[i].GetMonoBehaviour().gameObject.SetActive(false);
-                    result.disabledItems.Add(items[i].GetMonoBehaviour().gameObject);
+                    result.disabledItems.Add(items[i]);
                 }
             }
             
@@ -69,15 +69,15 @@ namespace Utils
         }
         
         // Method to pool any UI, not only UIBehaviours.
-        public static PoolingResult Pool<TK>(int amount, GameObject prefab, Transform container) where TK : MonoBehaviour
+        public static PoolingResult<TK> Pool<TK>(int amount, GameObject prefab, Transform container) where TK : MonoBehaviour
         {
-            List<GameObject> items = container.GetComponentsInChildren<MonoBehaviour>(true).OfType<TK>().ToList().ConvertAll(x => x.gameObject);
+            List<TK> items = container.GetComponentsInChildren<MonoBehaviour>(true).OfType<TK>().ToList();
             
-            PoolingResult result = new ()
+            PoolingResult<TK> result = new ()
             {
-                disabledItems = new List<GameObject>(),
-                newItems = new List<GameObject>(),
-                activeItems = new List<GameObject>()
+                disabledItems = new List<TK>(),
+                newItems = new List<TK>(),
+                activeItems = new List<TK>()
             };
             
             // Loop through the data and update the items in the pool.
@@ -86,7 +86,7 @@ namespace Utils
                 // If there is data for this index, update the item in the pool.
                 if (i < amount)
                 {
-                    GameObject item;
+                    TK item;
                     
                     // If there is an item in the pool for this index, update it.
                     if (i < items.Count)
@@ -96,19 +96,19 @@ namespace Utils
                     // If there is no item in the pool for this index, create a new item.
                     else
                     {
-                        item = Object.Instantiate(prefab, container);
+                        item = Object.Instantiate(prefab, container).GetComponent<TK>();
                         items.Add(item);
                         
                         result.newItems.Add(item);
                     }
                     
-                    item.SetActive(true);
-                    result.activeItems.Add(item);
+                    item.gameObject.SetActive(true);
+                    result.activeItems.Add(items[i]);
                 }
                 // If there is no data for this index, hide the item in the pool.
                 else
                 {
-                    items[i].SetActive(false);
+                    items[i].gameObject.SetActive(false);
                     result.disabledItems.Add(items[i]);
                 }
             }

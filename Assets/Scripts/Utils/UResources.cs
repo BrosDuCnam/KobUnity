@@ -12,7 +12,7 @@ namespace Utils
         private static readonly List<Scriptable.ScriptableItem> ScriptableItems = new();
         
         // Getters
-        public static Scriptable.ScriptableItem GetScriptableItemById(string id)
+        public static Scriptable.ScriptableItem GetScriptableItemById(int id)
         {
             if (ScriptableItems.Count == 0)
             {

@@ -49,8 +49,8 @@ namespace Components.UI.Game.Inventory
             gameObject.SetActive(true);
             
             Data = newData;
-            
-            ScriptableItem item = UResources.GetScriptableItemById(newData.itemId);
+
+            ScriptableItem item = UResources.GetScriptableItemById(newData.id);
             
             iconImg.sprite = item.icon;
             amountTmp.text = newData.amount.ToString();

@@ -8,7 +8,7 @@ namespace Scriptable
     public class ScriptableItem : ScriptableObject
     {
         [SerializeField] public ScriptableItem parent;
-        [SerializeField] public string id;
+        [SerializeField] public int id;
         
         [SerializeField] public string itemName;
         [SerializeField] public Sprite icon;
@@ -25,10 +25,9 @@ namespace Scriptable
         
         public void OnValidate()
         {
-            if (string.IsNullOrWhiteSpace(id))
+            if (id == 0)
             {
-                id = Guid.NewGuid().ToString();
-                EditorUtility.SetDirty(this);
+                id = Guid.NewGuid().GetHashCode();
             }
         }
     }

@@ -1,59 +1,14 @@
-﻿using DG.Tweening;
+﻿using System;
+using DG.Tweening;
 using Managers;
 using Scriptable;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Utils;
 
 namespace Components.UI.Game.Inventory
 {
-    public struct ItemSlotData
-    {
-        public int amount;
-        public string itemId;
-            
-        public ItemSlotData Add(int amountAdded)
-        {
-            return new ItemSlotData()
-            {
-                amount = amount + amountAdded,
-                itemId = itemId
-            };
-        }
-        public (ItemSlotData, ItemSlotData) Split(int amountSplit = -1)
-        {
-            int leftAmount = amountSplit == -1 ? amount / 2 : amountSplit;
-            int rightAmount = amount - leftAmount;
-                
-            return (new ItemSlotData()
-            {
-                amount = leftAmount,
-                itemId = itemId
-            }, new ItemSlotData()
-            {
-                amount = rightAmount,
-                itemId = itemId
-            });
-        }
-
-        public bool IsVoid => amount == 0 || string.IsNullOrEmpty(itemId);
-        public static ItemSlotData Void => new ItemSlotData()
-        {
-            amount = 0,
-            itemId = ""
-        };
-            
-        public static bool operator ==(ItemSlotData a, ItemSlotData b)
-        {
-            return a.Equals(b);
-        }
-
-        public static bool operator !=(ItemSlotData a, ItemSlotData b)
-        {
-            return !(a == b);
-        }
-    }
-    
     public class InventorySlot : MonoBehaviour, UIBehaviour<ItemSlotData>, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
         [Header("References")]
@@ -61,6 +16,7 @@ namespace Components.UI.Game.Inventory
         [SerializeField] public ItemSlot currentItem;
         [SerializeField] public BaseInventory currentInventory;
 
+        public int slotIndex;
         private Sequence _sequence;
         
         #region Button Implementation
@@ -150,7 +106,7 @@ namespace Components.UI.Game.Inventory
         
         public void Refresh(ItemSlotData newData)
         {
-            SetItem(newData);
+            SetItem(newData, false);
         }
         
         public bool HasItem()
@@ -161,25 +117,18 @@ namespace Components.UI.Game.Inventory
         public ItemSlotData GetData()
         {
             if (HasItem()) return currentItem.Data;
-            return new ItemSlotData()
-            {
-                itemId = "",
-                amount = 0
-            };
+            return ItemSlotData.Void;
         }
         
-        public void SetItem(ItemSlotData item)
+        public void SetItem(ItemSlotData item, bool notify = true)
         {
             if (!HasItem() && item.IsVoid) {
                 return;
             }
 
-            if (!item.IsVoid)
-            {
-                currentItem.Refresh(item);
-                currentItem.gameObject.SetActive(true);
-            }
-            else currentItem.gameObject.SetActive(false);
+            currentItem.gameObject.SetActive(!item.IsVoid);
+
+            if (notify) currentInventory.SetSlotItemServerRpc(slotIndex, item);
         }
         
 
@@ -187,9 +136,9 @@ namespace Components.UI.Game.Inventory
         {
             if (!HasItem()) return item.amount;
 
-            if (GetData().itemId != item.itemId) return 0;
+            if (GetData().id != item.id) return 0;
 
-            int maxAmount = UResources.GetScriptableItemById(item.itemId).maxStack;
+            int maxAmount = UResources.GetScriptableItemById(item.id).maxStack;
             int sum = GetData().amount + item.amount;
             
             return sum > maxAmount ? maxAmount - GetData().amount : item.amount;
@@ -208,7 +157,7 @@ namespace Components.UI.Game.Inventory
             
             ItemSlotData newData = new ItemSlotData()
             {
-                itemId = item.itemId,
+                id = item.id,
                 amount = GetData().amount + howMuchCanFit
             };
             ItemSlotData rest = item.Add(-howMuchCanFit);

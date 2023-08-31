@@ -1,61 +1,77 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using Utils;
+using Random = UnityEngine.Random;
 
 namespace Components.UI.Game.Inventory
 {
-    public class BaseInventory : MonoBehaviour, UIBehaviour<BaseInventory.InventoryData>
+    
+    public class BaseInventory : NetworkBehaviour
     {
-        public struct InventoryData
-        {
-            public List<ItemSlotData> items;
-        }
-
-        
         [Header("Prefabs")] 
         [SerializeField] private GameObject slotPrefab;
-
-        private List<InventorySlot> _slots = new ();
-
-        public void Refresh(InventoryData newData)
+        
+        private NetworkVariable<InventoryData> data = new ();
+        
+        public void Refresh(InventoryData items)
         {
-            UIPooling.Pool<InventorySlot, ItemSlotData>(newData.items, slotPrefab, transform);
+            int index = 0;
+
+            var result = UIPooling.Pool<InventorySlot, ItemSlotData>(items.items, slotPrefab, transform);
+            
+            result.activeItems.ForEach(x =>
+            {
+                x.slotIndex = index++;
+                x.currentInventory = this;
+            });
+        }
+        
+        #region Network
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            
+            data.OnValueChanged += OnServerValueChanged;
+
+            if (IsHost)
+            {
+                List<ItemSlotData> dataList = new List<ItemSlotData>();
+                for (int i = 0; i < 89; i++)
+                {
+                    if (Random.Range(0, 2) == 0)
+                    {
+                        dataList.Add(new ItemSlotData()
+                        {
+                            amount = Random.Range(1, 100),
+                            id = 7385
+                        });
+                    }
+                    else dataList.Add(ItemSlotData.Void);
+                }
+
+                data.Value = new InventoryData() { items = dataList };
+            }
         }
 
-        private void Start()
+        private void OnServerValueChanged(InventoryData previousvalue, InventoryData newvalue)
         {
-            // Test data
-            InventoryData test = new InventoryData()
-            {
-                items = new List<ItemSlotData>()
-                {
-                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 1}},
-                    {new () {itemId = "", amount = 15}},
-                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 1}},
-                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 25}},
-                    {new () {itemId = "", amount = 37}},
-                    {new () {itemId = "", amount = 84}},
-                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 34}},
-                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 83}},
-                    {new () {itemId = "", amount = 0}},
-                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 57}},
-                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 68}},
-                    {new () {itemId = "", amount = 34}},
-                    {new () {itemId = "", amount = 18}},
-                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 92}},
-                    {new () {itemId = "7385fd06-8df4-4354-964d-2806daff3e33", amount = 64}},
-                    {new () {itemId = "", amount = 28}},
-                    
-                }
-            };
-            
-            Refresh(test);
+            Refresh(newvalue);
+        }
+        
+        [ServerRpc]
+        public void SetSlotItemServerRpc(int slotIndex, ItemSlotData data)
+        {
+            this.data.Value.items[slotIndex] = data;
         }
 
         private void Update()
         {
-            if (Cursor.lockState != CursorLockMode.None) Cursor.lockState = CursorLockMode.None;
-            if (Cursor.visible != true) Cursor.visible = true;
+            if (false) return;
         }
+
+        #endregion
     }
 }
