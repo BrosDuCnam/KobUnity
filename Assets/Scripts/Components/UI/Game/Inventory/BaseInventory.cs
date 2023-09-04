@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Network.Data;
 using Unity.Netcode;
 using UnityEngine;
 using Utils;
@@ -8,18 +8,16 @@ using Random = UnityEngine.Random;
 namespace Components.UI.Game.Inventory
 {
     
-    public class BaseInventory : NetworkBehaviour
+    public class BaseInventory : MonoBehaviour
     {
-        [Header("Prefabs")] 
         [SerializeField] private GameObject slotPrefab;
+        [SerializeField] private InventoryData inventoryData;
         
-        private NetworkVariable<InventoryData> data = new ();
-        
-        public void Refresh(InventoryData items)
+        public void Refresh(Data.Inventory items)
         {
             int index = 0;
 
-            var result = UIPooling.Pool<InventorySlot, ItemSlotData>(items.items, slotPrefab, transform);
+            var result = UIPooling.Pool<InventorySlot, Data.ItemSlot>(items.items, slotPrefab, transform);
             
             result.activeItems.ForEach(x =>
             {
@@ -29,49 +27,67 @@ namespace Components.UI.Game.Inventory
         }
         
         #region Network
-
-        public override void OnNetworkSpawn()
-        {
-            base.OnNetworkSpawn();
-            
-            data.OnValueChanged += OnServerValueChanged;
-
-            if (IsHost)
-            {
-                List<ItemSlotData> dataList = new List<ItemSlotData>();
-                for (int i = 0; i < 89; i++)
-                {
-                    if (Random.Range(0, 2) == 0)
-                    {
-                        dataList.Add(new ItemSlotData()
-                        {
-                            amount = Random.Range(1, 100),
-                            id = 7385
-                        });
-                    }
-                    else dataList.Add(ItemSlotData.Void);
-                }
-
-                data.Value = new InventoryData() { items = dataList };
-            }
-        }
-
-        private void OnServerValueChanged(InventoryData previousvalue, InventoryData newvalue)
-        {
-            Refresh(newvalue);
-        }
         
-        [ServerRpc]
-        public void SetSlotItemServerRpc(int slotIndex, ItemSlotData data)
+        private void OnEnable()
         {
-            this.data.Value.items[slotIndex] = data;
+            inventoryData.OnNetworkSpawned.AddListener(() =>
+            {
+                if (NetworkManager.Singleton.IsServer)
+                {
+                    inventoryData.OnValueChanged.AddListener(OnValueChanged);
+
+                    List<Data.ItemSlot> test = new();
+                    for (int i = 0; i < 64; i++)
+                    {
+                        if (Random.Range(0, 2) == 0)
+                        {
+                            test.Add(Data.ItemSlot.Void);
+                        }
+                        else
+                        {
+                            test.Add(new Data.ItemSlot()
+                            {
+                                id = 7385,
+                                amount = Random.Range(0, 99)
+                            });
+                        }
+                    }
+                    
+                    inventoryData.SetInventory(test.ToArray());
+                }
+                
+                Refresh(inventoryData.Value);
+            });
         }
 
-        private void Update()
+        private void OnValueChanged(Data.Inventory data)
         {
-            if (false) return;
+            Refresh(data);
         }
 
         #endregion
+        
+        public void SetItem(int index, Data.ItemSlot item)
+        {
+            if (index < 0 || index >= inventoryData.Value.items.Count)
+            {
+                Debug.LogError($"Index {index} is out of range");
+                return;
+            }
+            
+            inventoryData.SetItem(index, item);
+        }
+        
+        public bool AddItem(Data.ItemSlot item)
+        {
+            int index = inventoryData.Value.items.FindIndex(x => x.IsVoid);
+            if (index == -1)
+            {
+                return false;
+            }
+            
+            SetItem(index, item);
+            return true;
+        }
     }
 }

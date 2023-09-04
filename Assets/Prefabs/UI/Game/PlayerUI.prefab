@@ -72,7 +72,7 @@ RectTransform:
   m_Children:
   - {fileID: 3634429194188448869}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -153,6 +153,8 @@ GameObject:
   - component: {fileID: 2355995555546958504}
   - component: {fileID: 3428234332691112764}
   - component: {fileID: 6065905893148568}
+  - component: {fileID: 3029023867816061492}
+  - component: {fileID: 2175217148909939812}
   m_Layer: 0
   m_Name: Inventory_slots
   m_TagString: Untagged
@@ -216,11 +218,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d3118e149914e429bff03d5d75207a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  contentRect: {fileID: 2355995555546958504}
   slotPrefab: {fileID: 6684272103490858529, guid: 8ad2d1a2da9789f4995da57c35536bcb,
     type: 3}
-  itemPrefab: {fileID: 1155018861503104296, guid: b990562110d68ab4ab0e203d766da197,
-    type: 3}
+  inventoryData: {fileID: 3029023867816061492}
+--- !u!114 &3029023867816061492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 642422292257833218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7590382d3a074166ac30765dfbbe8a6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnNetworkSpawned:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &2175217148909939812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 642422292257833218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 951099334
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &1603547455020263288
 GameObject:
   m_ObjectHideFlags: 0

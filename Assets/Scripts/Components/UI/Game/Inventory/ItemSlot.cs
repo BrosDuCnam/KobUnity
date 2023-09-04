@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Components.Data;
 using Managers;
 using Scriptable;
 using TMPro;
@@ -9,7 +10,7 @@ using Utils;
 
 namespace Components.UI.Game.Inventory
 {
-    public class ItemSlot : MonoBehaviour, UIBehaviour<ItemSlotData>
+    public class ItemSlot : MonoBehaviour, UIBehaviour<Data.ItemSlot>
     {
 
         private RectTransform _rectTransform; public RectTransform RectTransform
@@ -29,19 +30,18 @@ namespace Components.UI.Game.Inventory
         [SerializeField] private CanvasGroup canvasGroup;
         [SerializeField] private Image iconImg;
         [SerializeField] private TextMeshProUGUI amountTmp;
-        [SerializeField] public InventorySlot currentSlot;
-
+        
         public bool isGrabbed { get; private set; }
         
-        public ItemSlotData Data { get; private set; }
+        public Data.ItemSlot Data { get; private set; }
 
-        public void Refresh(ItemSlotData newData)
+        public void Refresh(Data.ItemSlot newData)
         {
             if (newData.IsVoid)
             {
                 iconImg.sprite = null;
                 amountTmp.text = "";
-                Data = ItemSlotData.Void;
+                Data = Components.Data.ItemSlot.Void;
                 
                 gameObject.SetActive(false);
                 return;
