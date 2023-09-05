@@ -26,8 +26,6 @@ namespace Network.Data
         {
             if (change.Index < 0 || change.Index >= _items.Count) return;
             
-            Debug.Log("[DEBUG/OnServerValueChanged]");
-            
             List<ItemSlot> items = new List<ItemSlot>();
             foreach (var item in _items)
             {

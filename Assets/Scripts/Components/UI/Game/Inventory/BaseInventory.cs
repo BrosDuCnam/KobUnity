@@ -30,12 +30,12 @@ namespace Components.UI.Game.Inventory
         
         private void OnEnable()
         {
+            inventoryData.OnValueChanged.AddListener(OnValueChanged);
+            
             inventoryData.OnNetworkSpawned.AddListener(() =>
             {
                 if (NetworkManager.Singleton.IsServer)
                 {
-                    inventoryData.OnValueChanged.AddListener(OnValueChanged);
-
                     List<Data.ItemSlot> test = new();
                     for (int i = 0; i < 64; i++)
                     {

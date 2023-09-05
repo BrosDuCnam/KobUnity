@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Unity.Netcode;
 using Utils;
@@ -24,6 +25,15 @@ namespace Components.Data
         public override int GetHashCode()
         {
             return (items != null ? items.GetHashCode() : 0);
+        }
+
+        public override string ToString()
+        {
+            return new StringBuilder()
+                .AppendLine($"Inventory: {items.Count} items")
+                .AppendLine("Items:")
+                .AppendLine(items.Select(item => item.ToString()).Aggregate((a, b) => a + "\n" + b))
+                .ToString();
         }
     }
 }
