@@ -30,14 +30,15 @@ namespace Components.UI.Game.Inventory
         [SerializeField] private CanvasGroup canvasGroup;
         [SerializeField] private Image iconImg;
         [SerializeField] private TextMeshProUGUI amountTmp;
+        [SerializeField] private TextMeshProUGUI nameTmp;
         
         public bool isGrabbed { get; private set; }
         
         public Data.ItemSlot Data { get; private set; }
 
-        public void Refresh(Data.ItemSlot newData)
+        public void Refresh(Data.ItemSlot newItem)
         {
-            if (newData.IsVoid)
+            if (newItem.IsVoid)
             {
                 iconImg.sprite = null;
                 amountTmp.text = "";
@@ -48,12 +49,12 @@ namespace Components.UI.Game.Inventory
             }
             gameObject.SetActive(true);
             
-            Data = newData;
+            Data = newItem;
 
-            ScriptableItem item = UResources.GetScriptableItemById(newData.id);
+            ScriptableItem item = UResources.GetScriptableItemById(newItem.id);
             
             iconImg.sprite = item.icon;
-            amountTmp.text = newData.amount.ToString();
+            amountTmp.text = newItem.amount.ToString();
         }
         
         #region Dragging

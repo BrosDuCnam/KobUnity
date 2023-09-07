@@ -76,9 +76,9 @@ namespace Components.UI.Lobby
             _fadeSequence.Play();
         }
         
-        public void Refresh(JoinButtonData newData)
+        public void Refresh(JoinButtonData newItem)
         {
-            _text.text = newData.text;
+            _text.text = newItem.text;
         }
 
         public override void OnSelect()

@@ -10,11 +10,14 @@ using Utils;
 
 namespace Components.UI.Game.Inventory
 {
-    public class InventorySlot : MonoBehaviour, UIBehaviour<Data.ItemSlot>, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+    public class InventorySlot : MonoBehaviour, UIBehaviour<Data.ItemSlot>, IPointerClickHandler
     {
         [Header("References")]
-        [SerializeField] private CanvasGroup borders;
+        [SerializeField] private CanvasGroup background;
         [SerializeField] public ItemSlot currentItem;
+        
+        [Space]
+        
         [SerializeField] public BaseInventory currentInventory;
 
         public int slotIndex;
@@ -87,27 +90,20 @@ namespace Components.UI.Game.Inventory
             }
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            _sequence?.Kill();
-            _sequence = DOTween.Sequence();
-            
-            _sequence.Append(borders.DOFade(1, 0.15f));
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            _sequence?.Kill();
-            _sequence = DOTween.Sequence();
-            
-            _sequence.Append(borders.DOFade(0, 0.15f));
-        }
-
         #endregion
         
-        public void Refresh(Data.ItemSlot @new)
+        public void Refresh(Data.ItemSlot newItem)
         {
-            SetItem(@new, false);
+            SetItem(newItem, false);
+            
+            if (HasItem())
+            {
+                background.alpha = 0;
+            }
+            else
+            {
+                background.alpha = 1;
+            }
         }
         
         public bool HasItem()

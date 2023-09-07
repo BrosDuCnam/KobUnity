@@ -7,7 +7,7 @@ namespace Utils
 {
     public interface UIBehaviour<in T> where T : struct
     {
-        public void Refresh(T newData);
+        public void Refresh(T newItem);
         
         public MonoBehaviour GetMonoBehaviour()
         {

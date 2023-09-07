@@ -12,18 +12,41 @@ namespace Components.UI.Game.Inventory
     {
         [SerializeField] private GameObject slotPrefab;
         [SerializeField] private InventoryData inventoryData;
+        [SerializeField] private List<InventorySlot> prefabSlots; // if null or empty - will be generated
         
         public void Refresh(Data.Inventory items)
         {
-            int index = 0;
-
-            var result = UIPooling.Pool<InventorySlot, Data.ItemSlot>(items.items, slotPrefab, transform);
-            
-            result.activeItems.ForEach(x =>
+            if (prefabSlots != null && prefabSlots.Count > 0)
             {
-                x.slotIndex = index++;
-                x.currentInventory = this;
-            });
+                prefabSlots.ForEach(x => x.gameObject.SetActive(true));
+                
+                for (int i = 0; i < prefabSlots.Count; i++)
+                {
+                    prefabSlots[i].slotIndex = i;
+                    prefabSlots[i].currentInventory = this;
+                    
+                    if (i < items.items.Count)
+                    {
+                        prefabSlots[i].Refresh(items.items[i]);
+                    }
+                    else
+                    {
+                        prefabSlots[i].Refresh(Data.ItemSlot.Void);
+                    }
+                }
+            }
+            else
+            {
+                int index = 0;
+
+                var result = UIPooling.Pool<InventorySlot, Data.ItemSlot>(items.items, slotPrefab, transform);
+
+                result.activeItems.ForEach(x =>
+                {
+                    x.slotIndex = index++;
+                    x.currentInventory = this;
+                });
+            }
         }
         
         #region Network
