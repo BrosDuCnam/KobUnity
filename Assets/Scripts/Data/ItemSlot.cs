@@ -1,9 +1,11 @@
 ﻿using System;
+using Interfaces;
+using SimpleJSON;
 using Unity.Netcode;
 
 namespace Components.Data
 {
-    public struct ItemSlot : IEquatable<ItemSlot>, INetworkSerializable
+    public struct ItemSlot : IEquatable<ItemSlot>, INetworkSerializable, ISavable
     {
         #region IEquatable Implementation
         
@@ -49,6 +51,34 @@ namespace Components.Data
         }
         
         #endregion
+
+        #region ISavable Implementation
+        
+        public JSONObject Save()
+        {
+            JSONObject json = new JSONObject();
+            json.Add("amount", amount);
+            json.Add("id", id);
+            
+            return json;
+        }
+
+        public JSONObject GetDefaultSave()
+        {
+            JSONObject json = new JSONObject();
+            json.Add("amount", 0);
+            json.Add("id", 0);
+            
+            return json;
+        }
+
+        public void Load(JSONObject json)
+        {
+            amount = json["amount"].AsInt;
+            id = json["id"].AsInt;
+        }
+
+        #endregion
         
         public int amount;
         public int id;
@@ -77,7 +107,7 @@ namespace Components.Data
             });
         }
 
-        public bool IsVoid => amount == 0 || string.IsNullOrEmpty(id.ToString());
+        public bool IsVoid => amount == 0 || id == 0;
         public static ItemSlot Void => new ItemSlot()
         {
             amount = 0,

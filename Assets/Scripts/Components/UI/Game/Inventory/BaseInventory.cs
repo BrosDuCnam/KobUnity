@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using Interfaces;
 using Network.Data;
+using SimpleJSON;
 using Unity.Netcode;
 using UnityEngine;
 using Utils;
@@ -8,7 +10,7 @@ using Random = UnityEngine.Random;
 namespace Components.UI.Game.Inventory
 {
     
-    public class BaseInventory : MonoBehaviour
+    public class BaseInventory : MonoBehaviour, ISavable
     {
         [SerializeField] private GameObject slotPrefab;
         [SerializeField] private InventoryData inventoryData;
@@ -90,6 +92,51 @@ namespace Components.UI.Game.Inventory
 
         #endregion
         
+        #region ISavable
+        
+        public JSONObject Save()
+        {
+            JSONObject json = new JSONObject();
+            JSONArray items = new JSONArray();
+            
+            foreach (var item in inventoryData.Value.items)
+            {
+                items.Add(item.Save());
+            }
+            
+            json.Add("items", items);
+            
+            return json;
+        }
+
+        
+        public JSONObject GetDefaultSave()
+        {
+            JSONObject json = new JSONObject();
+            json.Add("items", new JSONArray());
+            
+            return json;
+        }
+        
+        public void Load(JSONObject json)
+        {
+            JSONArray items = json["items"].AsArray;
+            
+            List<Data.ItemSlot> slots = new List<Data.ItemSlot>();
+            foreach (var item in items)
+            {
+                JSONNode node = item.Value;
+                Data.ItemSlot slot = new Data.ItemSlot();
+                
+                slot.Load(node.AsObject);
+                slots.Add(slot);
+            }
+            
+            inventoryData.SetInventory(slots.ToArray());
+        }
+        
+        #endregion
+        
         public void SetItem(int index, Data.ItemSlot item)
         {
             if (index < 0 || index >= inventoryData.Value.items.Count)
@@ -103,6 +150,8 @@ namespace Components.UI.Game.Inventory
         
         public bool AddItem(Data.ItemSlot item)
         {
+            // TODO: check if item can be stacked with existing item
+            
             int index = inventoryData.Value.items.FindIndex(x => x.IsVoid);
             if (index == -1)
             {
