@@ -1,18 +1,28 @@
 ﻿using Components.Controller;
 using Components.UI.Game.Inventory;
+using Interfaces;
+using Managers;
+using SimpleJSON;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Utils;
 
 namespace Network
 {
-    public class NetworkPlayer : NetworkBehaviour
+    public class NetworkPlayer : NetworkBehaviour, ISavable
     {
         #region EDITOR EXPOSED FIELDS
 
+        public NetworkVariable<string> uuid = new NetworkVariable<string>("", 
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Owner);
+        
         [Header("References")]
         [SerializeField] private GameObject _localOnlyObjects;
         [SerializeField] private GameObject _remoteOnlyObjects;
+        [SerializeField] private BaseInventory _inventory;
+        [SerializeField] private CanvasGroup _inventoryCg;
         
         #endregion
         
@@ -84,6 +94,17 @@ namespace Network
             }
         }
         
+        public void Call_Inventory(InputAction.CallbackContext ctx)
+        {
+            if (!IsOwner) return;
+            
+            if (ctx.performed) // Every frame while the button is held down
+            {
+                bool isInventoryOpen = _inventoryCg.IsVisible();
+                _inventoryCg.SetVisibility(!isInventoryOpen);
+            }
+        }
+        
         #endregion
         
         #region MONOBEHAVIOUR
@@ -121,8 +142,42 @@ namespace Network
                 _localOnlyObjects.SetActive(false);
                 _remoteOnlyObjects.SetActive(true);
             }
+
+            MSave.Instance.players.Add(this);
+            if (IsOwner)
+            {
+                uuid.Value = ClientPref.GetUUID();
+            }
         }
         
+        #endregion
+        
+        #region SAVE SYSTEM
+
+        public JSONObject Save()
+        {
+            JSONObject json = new JSONObject();
+            
+            json.Add("id", uuid.Value);
+            json.Add("inventory", _inventory.Save());
+            
+            return json;
+        }
+
+        public JSONObject GetDefaultSave()
+        {
+            JSONObject json = new JSONObject();
+            json.Add("id", "");
+            json.Add("inventory", _inventory.GetDefaultSave());
+            
+            return json;
+        }
+
+        public void Load(JSONObject json)
+        {
+            _inventory.Load(json["inventory"].AsObject);
+        }
+
         #endregion
     }
 }

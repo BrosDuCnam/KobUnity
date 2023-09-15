@@ -4,6 +4,8 @@ using IngameDebugConsole;
 using Interfaces;
 using SimpleJSON;
 using UnityEngine;
+using UnityEngine.Serialization;
+using NetworkPlayer = Network.NetworkPlayer;
 
 namespace Managers
 {
@@ -32,19 +34,14 @@ namespace Managers
         #endregion
         
         [Header("References")]
-        [SerializeField] private BaseInventory inventory;
+        [SerializeField] public List<NetworkPlayer> players; // fill by NetworkPlayer itself
+        
+        private JSONObject _save;
 
         #region ISavable
         
         public JSONObject Save()
         {
-            /* Example
-             * foreach (var child in Children)
-             * {
-             *     child.Save();
-             * }
-             */
-            
             /* TODO: to save when implemented :
              * - Players
              * - Islands
@@ -53,26 +50,51 @@ namespace Managers
              */
             
             JSONObject json = new JSONObject();
-            json.Add("inventory", inventory.Save());
             
+            JSONArray players = new JSONArray();
+            foreach (var player in this.players)
+            {
+                players.Add(player.Save());
+            }
+            
+            json.Add("players", players);
             return json;
         }
 
         public JSONObject GetDefaultSave()
         {
-            return new JSONObject();
+            JSONObject json = new JSONObject();
+            json.Add("players", new JSONArray());
+            
+            return json;
         }
 
         public void Load(JSONObject json)
         {
-            /* Example
-             * foreach (var child in Children)
-             * {
-             *     child.Load();
-             * }
-             */
+            Load(json, false);
+        }
+
+        public void Load(JSONObject json, bool dirty)
+        {
+            if (!dirty) _save = json;
             
-            inventory.Load(json["inventory"].AsObject);
+            foreach (var player in players)
+            {
+                LoadPlayer(player.NetworkObjectId.ToString(), json);
+            }
+        }
+        
+        public void LoadPlayer(string id, JSONObject json = null)
+        {
+            JSONObject tempSave = json ?? _save;
+            
+            foreach (var player in players)
+            {
+                if (player.NetworkObjectId.ToString() == id)
+                {
+                    player.Load(tempSave["players"][id].AsObject);
+                }
+            }
         }
 
         #endregion
@@ -92,7 +114,7 @@ namespace Managers
             {
                 json = "{" + json;
             }
-            
+
             Load(JSON.Parse(json).AsObject);
         }
 
