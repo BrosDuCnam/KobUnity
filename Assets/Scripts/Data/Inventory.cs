@@ -29,6 +29,8 @@ namespace Components.Data
 
         public override string ToString()
         {
+            if (items == null || items.Count == 0) return "Empty inventory";
+            
             return new StringBuilder()
                 .AppendLine($"Inventory: {items.Count} items")
                 .AppendLine("Items:")

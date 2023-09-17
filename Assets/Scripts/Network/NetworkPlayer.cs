@@ -3,6 +3,7 @@ using Components.UI.Game.Inventory;
 using Interfaces;
 using Managers;
 using SimpleJSON;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,9 +15,11 @@ namespace Network
     {
         #region EDITOR EXPOSED FIELDS
 
-        public NetworkVariable<string> uuid = new NetworkVariable<string>("", 
+        private NetworkVariable<FixedString64Bytes> uuid = new NetworkVariable<FixedString64Bytes>("", 
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Owner);
+        
+        public string UUID => uuid.Value.Value;
         
         [Header("References")]
         [SerializeField] private GameObject _localOnlyObjects;
@@ -47,9 +50,10 @@ namespace Network
         public void Call_Look(InputAction.CallbackContext ctx)
         {
             if (!IsOwner) return;
+            if (!mouseLook.enabled) return;
             
             Vector2 input = ctx.ReadValue<Vector2>();
-            // mouseLook.Call_Look(input);
+            mouseLook.Call_Look(input);
         }
         
         public void Call_Jump(InputAction.CallbackContext ctx)
@@ -101,7 +105,7 @@ namespace Network
             if (ctx.performed) // Every frame while the button is held down
             {
                 bool isInventoryOpen = _inventoryCg.IsVisible();
-                _inventoryCg.SetVisibility(!isInventoryOpen);
+                DisplayInventory(!isInventoryOpen);
             }
         }
         
@@ -111,9 +115,21 @@ namespace Network
         
         private void Awake()
         {
+            uuid.OnValueChanged += (previousValue, newValue) =>
+            {
+                if (!IsServer) return;
+                
+                if (previousValue.Value == "" && newValue.Value != "")
+                {
+                    MSave.Instance.LoadPlayer(newValue.Value);
+                }
+            };
+            
             controller = GetComponent<FirstPersonController>();
             mouseLook = GetComponentInChildren<MouseLook>();
             characterMovement = GetComponent<CharacterMovement>();
+            
+            DisplayInventory(false, true);
         }
         
         #endregion
@@ -149,6 +165,13 @@ namespace Network
                 uuid.Value = ClientPref.GetUUID();
             }
         }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            
+            MSave.Instance.players.Remove(this);
+        }
         
         #endregion
         
@@ -158,7 +181,7 @@ namespace Network
         {
             JSONObject json = new JSONObject();
             
-            json.Add("id", uuid.Value);
+            json.Add("id", UUID);
             json.Add("inventory", _inventory.Save());
             
             return json;
@@ -179,5 +202,13 @@ namespace Network
         }
 
         #endregion
+        
+        private void DisplayInventory(bool display, bool instant = false)
+        {
+            _inventoryCg.SetVisibility(display, instant ? 0 : 0.15f);
+            
+            mouseLook.SetCursorLock(!display);
+            mouseLook.enabled = !display;
+        }
     }
 }

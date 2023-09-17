@@ -70,8 +70,6 @@ namespace Network.Data
         
         private void _SetItem(int index, ItemSlot item)
         {
-            Debug.Log("[DEBUG/SetItem]: " + index + " " + item);
-            
             _items[index] = item;
         }
         
@@ -99,10 +97,20 @@ namespace Network.Data
         
         private void _SetInventory(ItemSlot[] items)
         {
-            _items.Clear();
-            foreach (var item in items)
+            for (int i = 0; i < _items.Count || i < items.Length; i++)
             {
-                _items.Add(item);
+                if (i >= _items.Count)
+                {
+                    _items.Add(items[i]);
+                }
+                else if (i >= items.Length)
+                {
+                    _items.RemoveAt(i);
+                }
+                else
+                {
+                    _items[i] = items[i];
+                }
             }
         }
         

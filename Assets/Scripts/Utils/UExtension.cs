@@ -5,7 +5,7 @@ namespace Utils
 {
     public static class UExtension
     {
-        public static Tween SetVisibility(this CanvasGroup canvasGroup, bool value, float duration = 0.25f)
+        public static Tween SetVisibility(this CanvasGroup canvasGroup, bool value, float duration = 0.15f)
         {
             return canvasGroup.DOFade(value ? 1 : 0, duration);
         }

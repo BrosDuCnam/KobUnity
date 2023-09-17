@@ -22,6 +22,7 @@ namespace Managers
             {
                 Instance = this;
                 DebugLogConsole.AddCommand("get_save", "Get the save", GetSave);
+                DebugLogConsole.AddCommand<int>("get_random_inventory", "Get a random inventory", GetRandomInventory);
                 DebugLogConsole.AddCommand<string>("load_save", "Load the save", LoadSave);
             }
             else
@@ -54,6 +55,7 @@ namespace Managers
             JSONArray players = new JSONArray();
             foreach (var player in this.players)
             {
+                if (player == null) continue;
                 players.Add(player.Save());
             }
             
@@ -80,19 +82,27 @@ namespace Managers
             
             foreach (var player in players)
             {
-                LoadPlayer(player.NetworkObjectId.ToString(), json);
+                LoadPlayer(player.UUID, json);
             }
         }
         
         public void LoadPlayer(string id, JSONObject json = null)
         {
-            JSONObject tempSave = json ?? _save;
+            JSONObject tempSave = json ?? _save ?? GetDefaultSave();
             
-            foreach (var player in players)
+            NetworkPlayer player = players.Find(p => p.UUID == id);
+            if (player == null)
             {
-                if (player.NetworkObjectId.ToString() == id)
+                Debug.LogError($"Player with id {id} not found.");
+                return;
+            }
+            
+            foreach (var jsonPlayer in tempSave["players"].AsArray)
+            {
+                if (jsonPlayer.Value["id"].Value == id)
                 {
-                    player.Load(tempSave["players"][id].AsObject);
+                    player.Load(jsonPlayer.Value.AsObject);
+                    return;
                 }
             }
         }
@@ -105,6 +115,7 @@ namespace Managers
         {
             JSONObject json = Save();
             Debug.Log(json.ToString());
+            GUIUtility.systemCopyBuffer = json.ToString(4);
         }
         
         public void LoadSave(string json)
@@ -118,6 +129,25 @@ namespace Managers
             Load(JSON.Parse(json).AsObject);
         }
 
+        public void GetRandomInventory(int size)
+        {
+            JSONObject json = new JSONObject();
+            JSONArray items = new JSONArray();
+            
+            for (int i = 0; i < size; i++)
+            {
+                JSONObject item = new JSONObject();
+                item.Add("id", Random.Range(0, 2) == 0 ? 0 : 7385);
+                item.Add("amount", Random.Range(1, 100));
+                items.Add(item);
+            }
+            
+            json.Add("items", items);
+            
+            Debug.Log(json.ToString());
+            GUIUtility.systemCopyBuffer = json.ToString(4);
+        }
+        
         #endregion
     }
 }

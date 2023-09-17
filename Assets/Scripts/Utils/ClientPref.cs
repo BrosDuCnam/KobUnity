@@ -43,7 +43,8 @@ namespace Utils
             
             if (ClonesManager.IsClone())
             {
-                result = PlayerPrefs.GetString("uuid_" + ClonesManager.CloneFileName, defaultUuid);
+                string cloneId = "clone_" + ClonesManager.GetCurrentProject().name[^1];
+                result = PlayerPrefs.GetString("uuid_" + cloneId, cloneId + "_" + defaultUuid);
             }
             else
             {

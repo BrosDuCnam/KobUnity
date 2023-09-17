@@ -59,6 +59,7 @@ namespace Components.UI.Game.Inventory
             
             inventoryData.OnNetworkSpawned.AddListener(() =>
             {
+                /*
                 if (NetworkManager.Singleton.IsServer)
                 {
                     List<Data.ItemSlot> test = new();
@@ -79,7 +80,7 @@ namespace Components.UI.Game.Inventory
                     }
                     
                     inventoryData.SetInventory(test.ToArray());
-                }
+                }*/
                 
                 Refresh(inventoryData.Value);
             });
@@ -98,17 +99,19 @@ namespace Components.UI.Game.Inventory
         {
             JSONObject json = new JSONObject();
             JSONArray items = new JSONArray();
-            
-            foreach (var item in inventoryData.Value.items)
+
+            if (inventoryData.Value.items is { Count: > 0 })
             {
-                items.Add(item.Save());
+                foreach (var item in inventoryData.Value.items)
+                {
+                    items.Add(item.Save());
+                }
             }
-            
+
             json.Add("items", items);
             
             return json;
         }
-
         
         public JSONObject GetDefaultSave()
         {
