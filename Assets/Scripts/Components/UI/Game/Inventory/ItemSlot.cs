@@ -42,6 +42,7 @@ namespace Components.UI.Game.Inventory
             {
                 iconImg.sprite = null;
                 amountTmp.text = "";
+                nameTmp.text = "";
                 Data = Components.Data.ItemSlot.Void;
                 
                 gameObject.SetActive(false);
@@ -55,6 +56,7 @@ namespace Components.UI.Game.Inventory
             
             iconImg.sprite = item.icon;
             amountTmp.text = newItem.amount.ToString();
+            nameTmp.text = item.name;
         }
         
         #region Dragging
