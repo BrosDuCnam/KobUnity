@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ParrelSync;
 using UnityEngine;
 
 namespace Utils
@@ -17,7 +18,6 @@ namespace Utils
             "You",
             "Me",
             "Myself",
-            "I",
             "Unknown",
             "Anonymous",
             "Anon",
@@ -34,6 +34,24 @@ namespace Utils
                 PlayerPrefs.SetString(NicknameKey, DefaultNicknames[Random.Range(0, DefaultNicknames.Count)]);
             }
             return PlayerPrefs.GetString(NicknameKey);
+        }
+        
+        public static string GetUUID()
+        {
+            string defaultUuid = SystemInfo.deviceUniqueIdentifier;
+            string result;
+            
+            if (ClonesManager.IsClone())
+            {
+                string cloneId = "clone_" + ClonesManager.GetCurrentProject().name[^1];
+                result = PlayerPrefs.GetString("uuid_" + cloneId, cloneId + "_" + defaultUuid);
+            }
+            else
+            {
+                result = PlayerPrefs.GetString("uuid", defaultUuid);
+            }
+            
+            return result;
         }
         
         #endregion

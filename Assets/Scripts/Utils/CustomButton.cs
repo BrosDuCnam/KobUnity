@@ -16,10 +16,17 @@ namespace Utils
         [SerializeField] public UnityEngine.Events.UnityEvent onSelected = new (); 
         [SerializeField] public UnityEngine.Events.UnityEvent onDeselected = new ();
 
+        private bool _skipNextStateChange;
         private bool _isSelected;
         
         protected override void DoStateTransition(SelectionState state, bool instant)
         {
+            if (_skipNextStateChange)
+            {
+                _skipNextStateChange = false;
+                return;
+            }
+            
             base.DoStateTransition(state, instant);
 
             switch (state)
@@ -78,6 +85,7 @@ namespace Utils
         
         public override void OnPointerEnter(PointerEventData eventData)
         {
+            _skipNextStateChange = true; // Prevents the button from re-apply last state
             base.OnPointerEnter(eventData);
             
             DoStateTransition(SelectionState.Highlighted, false);
@@ -85,6 +93,7 @@ namespace Utils
         
         public override void OnPointerExit(PointerEventData eventData)
         {
+            _skipNextStateChange = true; // Prevents the button from re-apply last state
             base.OnPointerExit(eventData);
             
             DoStateTransition(SelectionState.Normal, false);
@@ -98,6 +107,6 @@ namespace Utils
             UISystemProfilerApi.AddMarker("UIBehaviour.OnSubmit", this);
             DoStateTransition(SelectionState.Pressed, false);
         }
-
+        
     }
 }

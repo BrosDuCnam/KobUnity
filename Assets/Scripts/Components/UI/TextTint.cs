@@ -26,7 +26,7 @@ namespace Components.UI
         private void Start()
         {
             _button.onClick.AddListener(OnClick);
-            MLobby.Instance.onHoverButton.AddListener((obj) =>
+            MUI.Instance.onHoverButton.AddListener((obj) =>
             {
                 if (obj == _button.gameObject)
                 {
@@ -75,7 +75,7 @@ namespace Components.UI
             _sequence.Kill();
             
             _button.onClick.RemoveListener(OnClick);
-            MLobby.Instance.onHoverButton.RemoveListener((obj) =>
+            MUI.Instance.onHoverButton.RemoveListener((obj) =>
             {
                 if (obj == _button.gameObject)
                 {

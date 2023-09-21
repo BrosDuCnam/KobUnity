@@ -4,12 +4,12 @@ using UnityEngine.EventSystems;
 
 namespace Managers
 {
-    public class MLobby : MonoBehaviour
+    public class MUI : MonoBehaviour
     {
         
         #region Singleton
         
-        public static MLobby Instance { get; private set; }
+        public static MUI Instance { get; private set; }
         
         private void Awake()
         {
