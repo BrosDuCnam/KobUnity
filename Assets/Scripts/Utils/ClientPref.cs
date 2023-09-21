@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+#if UNITY_EDITOR
 using ParrelSync;
+#endif
 using UnityEngine;
 
 namespace Utils
@@ -41,15 +43,23 @@ namespace Utils
             string defaultUuid = SystemInfo.deviceUniqueIdentifier;
             string result;
             
+#if UNITY_EDITOR
             if (ClonesManager.IsClone())
             {
                 string cloneId = "clone_" + ClonesManager.GetCurrentProject().name[^1];
                 result = PlayerPrefs.GetString("uuid_" + cloneId, cloneId + "_" + defaultUuid);
             }
+            else if (Application.isEditor)
+            {
+                result = PlayerPrefs.GetString("uuid_editor", "editor_" + defaultUuid);
+            }
             else
             {
+#endif
                 result = PlayerPrefs.GetString("uuid", defaultUuid);
+#if UNITY_EDITOR
             }
+#endif
             
             return result;
         }
