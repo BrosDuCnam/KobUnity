@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Scriptable;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -11,7 +12,15 @@ public class Grid : MonoBehaviour
     public Boat boat;
     private float scale = 3;
     private Vector3Int negativeOffset = Vector3Int.one; // Always > 0
-    
+
+    public void Refresh(Components.Data.Boat boatData)
+    {
+        foreach (var block in boatData.GetBlockList())
+        {
+            
+        }
+    }
+
     public void InitGrid(BlockObject _basePlatform, Boat _boat)
     {
         boat = _boat;

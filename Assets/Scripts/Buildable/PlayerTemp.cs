@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Scriptable;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ public class PlayerTemp : NetworkBehaviour
     public GameObject boatPrefab;
     private Boat boat;
     private bool buildMode = false;
+
     
 
     [SerializeField] private float rayLength = 7;
@@ -49,10 +51,9 @@ public class PlayerTemp : NetworkBehaviour
         
         if (Input.GetKeyDown(KeyCode.P))
         {
-            GameObject go = new GameObject();
+            GameObject go = Instantiate(boatPrefab);
             go.transform.position = transform.position + playerCamera.transform.forward * 2;
-            boat = go.AddComponent<Boat>();
-            boat.basePlatform = basePlatform;
+            // boat.basePlatform = basePlatform; // remove this to prevent error
             go.name = "Boat";
             // Rigidbody rb = go.AddComponent<Rigidbody>();
             // rb.useGravity = false;
