@@ -26,11 +26,12 @@ namespace Network
         [SerializeField] private GameObject _remoteOnlyObjects;
         [SerializeField] private BaseInventory _inventory;
         [SerializeField] private CanvasGroup _inventoryCg;
-        
+        [SerializeField] private CanvasGroup _craftCg;
+
         #endregion
-        
+
         #region PROPERTIES
-        
+
         public FirstPersonController controller { get; private set; }
         public MouseLook mouseLook { get; private set; }
         public CharacterMovement characterMovement { get; private set; }
@@ -105,7 +106,9 @@ namespace Network
             if (ctx.performed) // Every frame while the button is held down
             {
                 bool isInventoryOpen = _inventoryCg.IsVisible();
-                DisplayInventory(!isInventoryOpen);
+                //TEST
+                DisplayCraft(!isInventoryOpen);
+                //DisplayInventory(!isInventoryOpen);
             }
         }
         
@@ -130,6 +133,7 @@ namespace Network
             characterMovement = GetComponent<CharacterMovement>();
             
             DisplayInventory(false, true);
+            DisplayCraft(false, true);
         }
         
         #endregion
@@ -207,6 +211,15 @@ namespace Network
         {
             _inventoryCg.SetVisibility(display, instant ? 0 : 0.15f);
             
+            mouseLook.SetCursorLock(!display);
+            mouseLook.enabled = !display;
+        }
+
+        private void DisplayCraft(bool display, bool instant = false)
+        {
+            _inventoryCg.SetVisibility(display, instant ? 0 : 0.15f);
+            _craftCg.SetVisibility(display, instant ? 0 : 0.15f);
+
             mouseLook.SetCursorLock(!display);
             mouseLook.enabled = !display;
         }

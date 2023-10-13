@@ -24,6 +24,7 @@ namespace Network.Data
 
         private void OnServerValueChanged(NetworkListEvent<ItemSlot> change)
         {
+            Debug.Log("UPDATE INVENTORY");
             if (change.Index < 0 || change.Index >= _items.Count) return;
             
             List<ItemSlot> items = new List<ItemSlot>();
@@ -70,6 +71,12 @@ namespace Network.Data
         
         private void _SetItem(int index, ItemSlot item)
         {
+            //TEST
+            while (_items.Count <= index)
+            {
+                _items.Add(ItemSlot.Void);
+            }
+
             _items[index] = item;
         }
         

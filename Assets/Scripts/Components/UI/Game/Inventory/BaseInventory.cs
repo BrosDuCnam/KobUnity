@@ -18,8 +18,12 @@ namespace Components.UI.Game.Inventory
         
         public void Refresh(Data.Inventory items)
         {
+            Debug.Log("REFRESH TRIGGER TEST");
+
             if (prefabSlots != null && prefabSlots.Count > 0)
             {
+                Debug.Log("REFRESH EXISTS");
+
                 prefabSlots.ForEach(x => x.gameObject.SetActive(true));
                 
                 for (int i = 0; i < prefabSlots.Count; i++)
@@ -29,16 +33,19 @@ namespace Components.UI.Game.Inventory
                     
                     if (i < items.items.Count)
                     {
+                        Debug.Log("SET THING");
                         prefabSlots[i].Refresh(items.items[i]);
                     }
                     else
                     {
+                        Debug.Log("SET VOID");
                         prefabSlots[i].Refresh(Data.ItemSlot.Void);
                     }
                 }
             }
             else
             {
+                Debug.Log("REFRESH NON EXISTS");
                 int index = 0;
 
                 var result = UIPooling.Pool<InventorySlot, Data.ItemSlot>(items.items, slotPrefab, transform);
@@ -154,13 +161,14 @@ namespace Components.UI.Game.Inventory
         public bool AddItem(Data.ItemSlot item)
         {
             // TODO: check if item can be stacked with existing item
-            
             int index = inventoryData.Value.items.FindIndex(x => x.IsVoid);
+            Debug.Log("TEST: " + inventoryData.Value.items.Count.ToString() + " - " + index.ToString());
+
             if (index == -1)
             {
                 return false;
             }
-            
+            Debug.Log("ITEM ADDED");
             SetItem(index, item);
             return true;
         }

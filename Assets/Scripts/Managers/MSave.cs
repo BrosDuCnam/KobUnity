@@ -24,6 +24,7 @@ namespace Managers
                 DebugLogConsole.AddCommand("get_save", "Get the save", GetSave);
                 DebugLogConsole.AddCommand<int>("get_random_inventory", "Get a random inventory", GetRandomInventory);
                 DebugLogConsole.AddCommand<string>("load_save", "Load the save", LoadSave);
+                DebugLogConsole.AddCommand<int, int>("get_item", "get an item", GetItem);
             }
             else
             {
@@ -147,7 +148,17 @@ namespace Managers
             Debug.Log(json.ToString());
             GUIUtility.systemCopyBuffer = json.ToString(4);
         }
-        
+
+        public void GetItem(int id, int amount)
+        {
+            Components.Data.ItemSlot item = new Components.Data.ItemSlot()
+            {
+                id = id,
+                amount = amount
+            };
+            Object.FindObjectsOfType<Network.Data.InventoryData>()[0].SetItem(0, item);
+            Debug.Log("ADD THING");
+        }
         #endregion
     }
 }
