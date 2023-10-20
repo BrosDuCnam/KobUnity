@@ -29,6 +29,8 @@ namespace Components.Building
 
         private void Start()
         {
+            childrenAnchor.AddRange(GetComponentsInChildren<Anchor>());
+            
             foreach (Anchor anchor in ChildAnchors)
             {
                 anchor.SetParentBlock(this);
@@ -93,12 +95,6 @@ namespace Components.Building
             
             if (hits.Count > 0)
             {
-                // Debug
-                foreach (var hit in hits)
-                {
-                    Debug.Log("[Block] Hit " + hit.name, hit);
-                }
-                
                 return false;
             }
             
