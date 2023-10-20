@@ -21,5 +21,15 @@ namespace Utils
 
             return ScriptableItems.Find(x => x.id == id);
         }
+
+        public static List<Scriptable.ScriptableItem> GetAllScriptableItems()
+        {
+            if (ScriptableItems.Count == 0)
+            {
+                ScriptableItems.AddRange(Resources.LoadAll<Scriptable.ScriptableItem>(ITEM_SCRIPTABLE_PATH));
+            }
+
+            return ScriptableItems;
+        }
     }
 }

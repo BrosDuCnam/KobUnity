@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEditor;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Scriptable
 {
@@ -27,7 +28,8 @@ namespace Scriptable
         [Serializable]
         public struct CraftData
         {
-            public int[] ids;
+            public List<int> ids;
+            public bool ordered;
             public int number;
         }
         
@@ -42,6 +44,28 @@ namespace Scriptable
             {
                 craftData.number = 1;
             }
+
+            if (!craftData.ordered)
+            {
+                craftData.ids.Sort();
+                while (craftData.ids.Count > 0 && craftData.ids[0] == -1)
+                {
+                    craftData.ids.RemoveAt(0);
+                }
+            }
+        }
+
+        public string GetCraftRecipe()
+        {
+            string recipe = "";
+            foreach (int id in craftData.ids) { recipe += id.ToString() + ";"; }
+
+            return recipe;
+        }
+
+        public int[] GetCraftResult()
+        {
+            return new int[2] { id, craftData.number };
         }
     }
 }

@@ -21,3 +21,6 @@ MonoBehaviour:
     health: 0
     thirst: 0
     hunger: 0
+  craftData:
+    ids: d91c0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    number: 1
