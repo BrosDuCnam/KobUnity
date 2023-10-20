@@ -81,6 +81,24 @@ namespace Components.Building
             
             return null;
         }
+
+        public void Place()
+        {
+            if (selectedBlock == null) return;
+            
+            Anchor targetAnchor = GetTargetAnchor();
+            if (targetAnchor == null) return;
+            
+            if (!selectedBlock.TryToPlaceOn(targetAnchor)) return;
+            
+            selectedBlock.transform.parent = null;
+            selectedBlock.EnableColliders(true);
+            
+            int selectedBlockIndex = dbg_blocks.FindIndex(b => b.id == selectedBlock.id);
+            selectedBlock = null;
+            
+            SelectBlock(selectedBlockIndex);
+        }
         
         
         public void SelectBlock(int index)

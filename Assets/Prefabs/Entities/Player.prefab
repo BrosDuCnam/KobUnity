@@ -313,6 +313,7 @@ MonoBehaviour:
   _remoteOnlyObjects: {fileID: 6606259333358568959}
   _inventory: {fileID: 6911490297884178176}
   _inventoryCg: {fileID: 3666568731397229440}
+  _playerBuilder: {fileID: 5327338184244040893}
 --- !u!114 &3104805478466711360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -535,6 +536,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 793de67c-8bb8-4631-8af4-5818dca479d9
     m_ActionName: Game/ToggleInventory[/Keyboard/e]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8988517689234740281}
+        m_TargetAssemblyTypeName: Network.NetworkPlayer, Assembly-CSharp
+        m_MethodName: Call_MainAction
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 4125219b-f98a-4b55-93ce-b3ee5d11d6b0
+    m_ActionName: Game/MainAction[/Mouse/leftButton]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Game

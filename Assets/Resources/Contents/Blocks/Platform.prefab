@@ -1061,16 +1061,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6792039110748624729, guid: 0760fd8105ba1f844834d70b1f3d6a0f,
         type: 3}
-      propertyPath: colliders.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6792039110748624729, guid: 0760fd8105ba1f844834d70b1f3d6a0f,
-        type: 3}
-      propertyPath: colliders.Array.data[0]
-      value: 
-      objectReference: {fileID: 5472945627450237821}
-    - target: {fileID: 6792039110748624729, guid: 0760fd8105ba1f844834d70b1f3d6a0f,
-        type: 3}
       propertyPath: childrenAnchor.Array.size
       value: 12
       objectReference: {fileID: 0}
@@ -1200,12 +1190,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac6e2da9817049f2889024b4688ee713, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!65 &5472945627450237821 stripped
-BoxCollider:
-  m_CorrespondingSourceObject: {fileID: 1253044471534355994, guid: 0760fd8105ba1f844834d70b1f3d6a0f,
-    type: 3}
-  m_PrefabInstance: {fileID: 6525850291640755559}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7095577317484130467 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4100799839599957444, guid: 0760fd8105ba1f844834d70b1f3d6a0f,

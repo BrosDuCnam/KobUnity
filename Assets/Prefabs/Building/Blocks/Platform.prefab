@@ -78,17 +78,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <id>k__BackingField: -439459207
+  anchors: []
   childrenAnchor:
-    values:
-    - key: {fileID: 0}
-      value: []
-    - key: {fileID: 0}
-      value: []
-    - key: {fileID: 0}
-      value: []
-    - key: {fileID: 0}
-      value: []
-  colliders: []
+  - {fileID: 0}
+  colliders:
+  - {fileID: 1253044471534355994}
 --- !u!1 &7982066246584811491
 GameObject:
   m_ObjectHideFlags: 0

@@ -121,34 +121,64 @@ namespace Components.Building
         {
             if (!CanBeSnapOn(this, anchor)) return false;
             
+            Block posBlock = anchor.PossibleBlocks.Find(b => b.id == id);
             // Move block
-            transform.position = anchor.transform.position;
-            transform.rotation = anchor.transform.rotation;
+            transform.position = posBlock.transform.position;
+            transform.rotation = posBlock.transform.rotation;
             
-            // List anchors attached to this block
-            List<Anchor> anchors = new ();
-            anchors.Add(anchor);
-            
-            var hits = Physics.RaycastAll(transform.position, transform.up, 1f,
-                LayerMask.GetMask("Anchor"));
-
-            foreach (var hit in hits)
+            UpdateAnchors();
+            foreach (Anchor parent in anchors)
             {
-                if (!hit.collider.TryGetComponent(out Anchor a)) continue;
-                if (!CanBeSnapOn(this, a)) continue;
-                
-                if (a.transform.position != anchor.transform.position) continue; // Not the same anchor
-                
-                anchors.Add(a);
-            }
-            
-            // Attach block
-            foreach (var a in anchors)
-            {
-                a.SetChildBlock(this);
+                parent.ParentBlock.UpdateAnchors();
             }
             
             return true;
+        }
+
+        private void UpdateAnchors()
+        {
+             // List anchors attached to this block
+            List<Collider> hits = new ();
+            
+            foreach (Collider selfCollider in colliders)
+            {
+                if (selfCollider is BoxCollider boxCollider)
+                {
+                    Vector3 size = boxCollider.size - Vector3.one * 0.01f;
+                    hits.AddRange(Physics.OverlapBox(boxCollider.transform.position, size / 2f, boxCollider.transform.rotation,
+                        LayerMask.GetMask("Anchor")));
+                }
+                else if (selfCollider is SphereCollider sphereCollider)
+                {
+                    hits.AddRange(Physics.OverlapSphere(selfCollider.transform.position, sphereCollider.radius,
+                        LayerMask.GetMask("Anchor")));
+                }
+            }
+            
+            // Filter hits
+            List<Anchor> foundAnchors = new ();
+            foreach (var hit in hits)
+            {
+                if (!hit.TryGetComponent(out Anchor a)) continue;
+                if (!CanBeSnapOn(this, a)) continue;
+                if (foundAnchors.Contains(a)) continue; // Already found
+
+                foreach (Block possibleBlock in a.PossibleBlocks)
+                {
+                    if (possibleBlock.id == id && 
+                        possibleBlock.transform.position == transform.position)
+                    {
+                        foundAnchors.Add(a);
+                    }
+                }
+            }
+            
+            // Attach block
+            foreach (var a in foundAnchors)
+            {
+                a.SetChildBlock(this);
+                anchors.Add(a);
+            }
         }
     }
 }
