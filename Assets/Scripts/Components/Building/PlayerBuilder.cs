@@ -73,7 +73,7 @@ namespace Components.Building
                 if (!anchor.IsAvailable) continue;
                 if (selectedBlock.ChildAnchors.Contains(anchor)) continue;
                 
-                if (Block.CanBeSnapOn(selectedBlock, anchor))
+                if (Block.CanBeSnapOn(selectedBlock, anchor, true))
                 {
                     return anchor;
                 }

@@ -55,47 +55,44 @@ namespace Components.Building
             return !anchor.IsOccupied;
         }
 
-        public static bool CanBeSnapOn(Block block, Anchor anchor)
+        public static bool CanBeSnapOn(Block block, Anchor anchor, bool checkCollision)
         {
             if (anchor.IsOccupied) return false;
             if (!anchor.IsAvailable) return false;
             if (anchor.PossibleBlocks.All(b => b.id != block.id)) return false; // Block not in possible blocks
             
-            Block posBlock = anchor.PossibleBlocks.Find(b => b.id == block.id);
-            
-            List<Collider> hits = new ();
-            foreach (Collider collider in posBlock.colliders)
+            if (checkCollision)
             {
-                if (collider is BoxCollider boxCollider)
-                {
-                    Vector3 size = boxCollider.size - Vector3.one * 0.01f;
-                    var tempHits = Physics.OverlapBox(collider.transform.position, size / 2f, collider.transform.rotation,
-                        LayerMask.GetMask("Build"));
+                Block posBlock = anchor.PossibleBlocks.Find(b => b.id == block.id);
 
-                    hits.AddRange(tempHits.Where(hit => hit.transform.gameObject != block.gameObject)); // Remove self
-                    
-                    // Draw box
-                    Debug.DrawRay(collider.transform.position, collider.transform.forward * size.z / 2f, Color.red);
-                    Debug.DrawRay(collider.transform.position, collider.transform.forward * -size.z / 2f, Color.red);
-                    Debug.DrawRay(collider.transform.position, collider.transform.right * size.x / 2f, Color.red);
-                    Debug.DrawRay(collider.transform.position, collider.transform.right * -size.x / 2f, Color.red);
-                    Debug.DrawRay(collider.transform.position, collider.transform.up * size.y / 2f, Color.red);
-                    Debug.DrawRay(collider.transform.position, collider.transform.up * -size.y / 2f, Color.red);
-                
-                }
-                else if (collider is SphereCollider sphereCollider)
+                List<Collider> hits = new();
+                foreach (Collider collider in posBlock.colliders)
                 {
-                    var tempHits = Physics.OverlapSphere(collider.transform.position, sphereCollider.radius,
-                        LayerMask.GetMask("Build"));
-                    
-                    hits.AddRange(tempHits.Where(hit => hit.transform.gameObject != block.gameObject)); // Remove self
+                    if (collider is BoxCollider boxCollider)
+                    {
+                        Vector3 size = boxCollider.size - Vector3.one * 0.01f;
+                        var tempHits = Physics.OverlapBox(collider.transform.position, size / 2f,
+                            collider.transform.rotation,
+                            LayerMask.GetMask("Build"));
 
+                        hits.AddRange(tempHits.Where(hit =>
+                            hit.transform.gameObject != block.gameObject)); // Remove self
+                    }
+                    else if (collider is SphereCollider sphereCollider)
+                    {
+                        var tempHits = Physics.OverlapSphere(collider.transform.position, sphereCollider.radius,
+                            LayerMask.GetMask("Build"));
+
+                        hits.AddRange(tempHits.Where(hit =>
+                            hit.transform.gameObject != block.gameObject)); // Remove self
+
+                    }
                 }
-            }
-            
-            if (hits.Count > 0)
-            {
-                return false;
+
+                if (hits.Count > 0)
+                {
+                    return false;
+                }
             }
             
             return true;
@@ -103,7 +100,7 @@ namespace Components.Building
         
         public bool TryToSnapOn(Anchor anchor)
         {
-            if (!CanBeSnapOn(this, anchor)) return false;
+            if (!CanBeSnapOn(this, anchor, true)) return false;
             
             // Move block
             Block posBlock = anchor.PossibleBlocks.Find(b => b.id == id);
@@ -115,7 +112,7 @@ namespace Components.Building
         
         public bool TryToPlaceOn(Anchor anchor)
         {
-            if (!CanBeSnapOn(this, anchor)) return false;
+            if (!CanBeSnapOn(this, anchor, true)) return false;
             
             Block posBlock = anchor.PossibleBlocks.Find(b => b.id == id);
             // Move block
@@ -133,7 +130,7 @@ namespace Components.Building
 
         private void UpdateAnchors()
         {
-             // List anchors attached to this block
+            // List anchors attached to this block
             List<Collider> hits = new ();
             
             foreach (Collider selfCollider in colliders)
@@ -156,7 +153,7 @@ namespace Components.Building
             foreach (var hit in hits)
             {
                 if (!hit.TryGetComponent(out Anchor a)) continue;
-                if (!CanBeSnapOn(this, a)) continue;
+                if (!CanBeSnapOn(this, a, false)) continue;
                 if (foundAnchors.Contains(a)) continue; // Already found
 
                 foreach (Block possibleBlock in a.PossibleBlocks)
