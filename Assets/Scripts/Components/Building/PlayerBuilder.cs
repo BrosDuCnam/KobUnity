@@ -62,12 +62,14 @@ namespace Components.Building
         {
             Vector2 screenCenter = new Vector2(Screen.width / 2f, Screen.height / 2f);
 
-            var anchors = Physics.RaycastAll(cam.ScreenPointToRay(Input.mousePosition), raycastDistance,
+            List<Anchor> anchors = new List<Anchor>();
+            
+            var hits = Physics.RaycastAll(cam.ScreenPointToRay(Input.mousePosition), raycastDistance,
                 LayerMask.GetMask("Anchor"));
             
             Debug.DrawRay(cam.ScreenPointToRay(screenCenter).origin, cam.ScreenPointToRay(Input.mousePosition).direction * raycastDistance, Color.red);
             
-            foreach (var hit in anchors)
+            foreach (var hit in hits)
             {
                 if (!hit.collider.TryGetComponent(out Anchor anchor)) continue;
                 if (!anchor.IsAvailable) continue;
@@ -75,9 +77,18 @@ namespace Components.Building
                 
                 if (Block.CanBeSnapOn(selectedBlock, anchor, true))
                 {
-                    return anchor;
+                    anchors.Add(anchor);
                 }
             }
+            
+            // Order by distance
+            anchors.Sort((a, b) =>
+            {
+                float aDistance = Vector3.Distance(a.transform.position, cam.transform.position);
+                float bDistance = Vector3.Distance(b.transform.position, cam.transform.position);
+                return aDistance.CompareTo(bDistance);
+            });
+            if (anchors.Count > 0) return anchors[0];
             
             return null;
         }
@@ -88,12 +99,10 @@ namespace Components.Building
             
             Anchor targetAnchor = GetTargetAnchor();
             if (targetAnchor == null) return;
-            
-            if (!selectedBlock.TryToPlaceOn(targetAnchor)) return;
-            
+
             selectedBlock.transform.parent = null;
-            selectedBlock.EnableColliders(true);
-            
+            if (!selectedBlock.TryToPlaceOn(targetAnchor)) return;
+
             int selectedBlockIndex = dbg_blocks.FindIndex(b => b.id == selectedBlock.id);
             selectedBlock = null;
             

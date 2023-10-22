@@ -2,22 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Utils;
 
 namespace Components.Building
 {
+    public enum BlockType
+    {
+        None,
+        HalfPlatform,
+        Platform,
+    }
+    
     public class Block : MonoBehaviour
     {
         [field: SerializeField] public int id { get; private set; }
+        [field: SerializeField] public BlockType type { get; private set; }
 
         [Space] 
         
         [SerializeField] private List<Anchor> anchors = new (); // fallback attach points
         
         [Header("References")]
-        [SerializeField] private List<Anchor> childrenAnchor = new (); // anchor, constraints
+        [SerializeField] private SerializedDictionary<string, Anchor> childrenAnchor = new (); // anchor, name
         [SerializeField] private List<Collider> colliders = new ();
+
+        public List<Anchor> Anchors => anchors;
         
-        public List<Anchor> ChildAnchors => childrenAnchor;
+        public List<Anchor> ChildAnchors => childrenAnchor.Values.ToList();
+        public SerializedDictionary<string, Anchor> ChildrenDictionary => childrenAnchor;
+        
         
         public void OnValidate()
         {
@@ -29,11 +42,16 @@ namespace Components.Building
 
         private void Start()
         {
-            childrenAnchor.AddRange(GetComponentsInChildren<Anchor>());
-            
-            foreach (Anchor anchor in ChildAnchors)
+            var temp = GetComponentsInChildren<Anchor>();
+            foreach (Anchor anchor in temp)
             {
                 anchor.SetParentBlock(this);
+            }
+
+            // Setup anchors dictionary
+            foreach (Anchor a in temp)
+            {
+                childrenAnchor.Add(a.GetSelfPath(), a);
             }
         }
 
@@ -47,10 +65,10 @@ namespace Components.Building
         
         public bool IsAnchorAvailable(Anchor anchor)
         {
-            int index = childrenAnchor.FindIndex(a => a == anchor);
+            int index = ChildAnchors.FindIndex(a => a == anchor);
             
             if (index == -1) return false;
-            if (childrenAnchor[index].IsOccupied) return false;
+            if (ChildAnchors[index].IsOccupied) return false;
             
             return !anchor.IsOccupied;
         }
@@ -105,7 +123,7 @@ namespace Components.Building
             // Move block
             Block posBlock = anchor.PossibleBlocks.Find(b => b.id == id);
             transform.position = posBlock.transform.position;
-            transform.rotation = posBlock.transform.rotation;
+            transform.rotation = Quaternion.identity; // TODO: Rotation
             
             return true;
         }
@@ -117,7 +135,9 @@ namespace Components.Building
             Block posBlock = anchor.PossibleBlocks.Find(b => b.id == id);
             // Move block
             transform.position = posBlock.transform.position;
-            transform.rotation = posBlock.transform.rotation;
+            transform.rotation = Quaternion.identity; // TODO: Rotation
+            
+            EnableColliders(true);
             
             UpdateAnchors();
             foreach (Anchor parent in anchors)

@@ -36,5 +36,18 @@ namespace Components.Building
         {
             conditions.AddRange(GetComponents<AnchorCondition>());
         }
+        
+        public string GetSelfPath()
+        {
+            string path = transform.GetSiblingIndex().ToString();
+            Transform parent = transform.parent;
+            while (parent != parentBlock.transform && parent.transform.name != "Anchors")
+            {
+                path = parent.name + "_" + path;
+                parent = parent.parent;
+            }
+
+            return path;
+        }
     }
 }
