@@ -15,30 +15,22 @@ namespace Components.Building
     
     public class Block : MonoBehaviour
     {
-        [field: SerializeField] public int id { get; private set; }
         [field: SerializeField] public BlockType type { get; private set; }
+        public BuildController buildController;
 
         [Space] 
         
         [SerializeField] private List<Anchor> anchors = new (); // fallback attach points
+        [SerializeField] public int id;
         
         [Header("References")]
-        [SerializeField] private SerializedDictionary<string, Anchor> childrenAnchor = new (); // anchor, name
+        [SerializeField] public SerializedDictionary<string, Anchor> childrenAnchor = new (); // anchor, name
         [SerializeField] private List<Collider> colliders = new ();
 
         public List<Anchor> Anchors => anchors;
         
         public List<Anchor> ChildAnchors => childrenAnchor.Values.ToList();
         public SerializedDictionary<string, Anchor> ChildrenDictionary => childrenAnchor;
-        
-        
-        public void OnValidate()
-        {
-            if (id == 0)
-            {
-                id = Guid.NewGuid().GetHashCode();
-            }
-        }
 
         private void Start()
         {
@@ -77,11 +69,11 @@ namespace Components.Building
         {
             if (anchor.IsOccupied) return false;
             if (!anchor.IsAvailable) return false;
-            if (anchor.PossibleBlocks.All(b => b.id != block.id)) return false; // Block not in possible blocks
+            if (anchor.PossibleBlocks.All(b => b.type != block.type)) return false; // Block not in possible blocks
             
             if (checkCollision)
             {
-                Block posBlock = anchor.PossibleBlocks.Find(b => b.id == block.id);
+                Block posBlock = anchor.PossibleBlocks.Find(b => b.type == block.type);
 
                 List<Collider> hits = new();
                 foreach (Collider collider in posBlock.colliders)
@@ -121,18 +113,18 @@ namespace Components.Building
             if (!CanBeSnapOn(this, anchor, true)) return false;
             
             // Move block
-            Block posBlock = anchor.PossibleBlocks.Find(b => b.id == id);
+            Block posBlock = anchor.PossibleBlocks.Find(b => b.type == type);
             transform.position = posBlock.transform.position;
             transform.rotation = Quaternion.identity; // TODO: Rotation
             
             return true;
         }
         
-        public bool TryToPlaceOn(Anchor anchor)
+        public bool TryToPlaceOn(Anchor anchor, bool notify)
         {
             if (!CanBeSnapOn(this, anchor, true)) return false;
             
-            Block posBlock = anchor.PossibleBlocks.Find(b => b.id == id);
+            Block posBlock = anchor.PossibleBlocks.Find(b => b.type == type);
             // Move block
             transform.position = posBlock.transform.position;
             transform.rotation = Quaternion.identity; // TODO: Rotation
@@ -140,10 +132,15 @@ namespace Components.Building
             EnableColliders(true);
             
             UpdateAnchors();
-            foreach (Anchor parent in anchors)
+            if (notify)
             {
-                parent.ParentBlock.UpdateAnchors();
+                foreach (Anchor parent in anchors)
+                {
+                    parent.parentBlock.UpdateAnchors();
+                }
             }
+            
+            if (id == 0) id = UnityEngine.Random.Range(1, int.MaxValue);
             
             return true;
         }
@@ -178,7 +175,7 @@ namespace Components.Building
 
                 foreach (Block possibleBlock in a.PossibleBlocks)
                 {
-                    if (possibleBlock.id == id && 
+                    if (possibleBlock.type == type && 
                         possibleBlock.transform.position == transform.position)
                     {
                         foundAnchors.Add(a);

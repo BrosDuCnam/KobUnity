@@ -11,13 +11,10 @@ namespace Components.Building
     {
         [SerializeField] private List<AnchorCondition> conditions = new();
         [SerializeField] private List<Block> possibleBlocks = new();
-        [SerializeField] private Block parentBlock;
-        [SerializeField] private Block childBlock;
+        [SerializeField] public Block parentBlock;
+        [SerializeField] public Block childBlock;
 
         public List<Block> PossibleBlocks => possibleBlocks;
-
-        public Block ParentBlock => parentBlock;
-        public Block ChildBlock => childBlock;
 
         public bool IsOccupied => childBlock != null;
         public bool IsAvailable => parentBlock.IsAnchorAvailable(this) && conditions.TrueForAll(c => c.IsSatisfied(this));

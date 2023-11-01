@@ -101,9 +101,9 @@ namespace Components.Building
             if (targetAnchor == null) return;
 
             selectedBlock.transform.parent = null;
-            if (!selectedBlock.TryToPlaceOn(targetAnchor)) return;
+            if (!selectedBlock.TryToPlaceOn(targetAnchor, true)) return;
 
-            int selectedBlockIndex = dbg_blocks.FindIndex(b => b.id == selectedBlock.id);
+            int selectedBlockIndex = dbg_blocks.FindIndex(b => b.type == selectedBlock.type);
             selectedBlock = null;
             
             SelectBlock(selectedBlockIndex);
@@ -114,11 +114,11 @@ namespace Components.Building
         {
             if (index < 0 || index >= dbg_blocks.Count) return;
             
-            int id = dbg_blocks[index].id;
-            if (selectedBlock != null && selectedBlock.id == id) return;
+            var type = dbg_blocks[index].type;
+            if (selectedBlock != null && selectedBlock.type == type) return;
             if (selectedBlock != null) Destroy(selectedBlock.gameObject);
             
-            selectedBlock = Instantiate(UResources.GetBlockById(id), transform);
+            selectedBlock = Instantiate(UResources.GetBlockByType(type), transform);
             selectedBlock.EnableColliders(false);
         }
     }

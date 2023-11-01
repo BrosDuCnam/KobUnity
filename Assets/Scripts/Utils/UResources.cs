@@ -25,14 +25,14 @@ namespace Utils
             return ScriptableItems.Find(x => x.id == id);
         }
         
-        public static Block GetBlockById(int id)
+        public static Block GetBlockByType(BlockType type)
         {
             if (Blocks.Count == 0)
             {
                 Blocks.AddRange(Resources.LoadAll<Block>(BLOCK_PREFAB_PATH));
             }
 
-            return Blocks.Find(x => x.id == id);
+            return Blocks.Find(x => x.type == type);
         }
     }
 }
