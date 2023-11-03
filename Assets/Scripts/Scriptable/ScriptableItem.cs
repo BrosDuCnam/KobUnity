@@ -45,18 +45,24 @@ namespace Scriptable
                 craftData.number = 1;
             }
 
+            while (craftData.ids.Count > 9) { craftData.ids.RemoveAt(0); }
+
             if (!craftData.ordered)
             {
                 craftData.ids.Sort();
-                while (craftData.ids.Count > 0 && craftData.ids[0] == -1)
-                {
-                    craftData.ids.RemoveAt(0);
-                }
             }
         }
 
         public string GetCraftRecipe()
         {
+            if (!craftData.ordered)
+            {
+                while (craftData.ids.Count > 0 && craftData.ids[0] <= 0)
+                {
+                    craftData.ids.RemoveAt(0);
+                }
+            }
+
             string recipe = "";
             foreach (int id in craftData.ids) { recipe += id.ToString() + ";"; }
 
