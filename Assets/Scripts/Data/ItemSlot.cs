@@ -114,13 +114,6 @@ namespace Components.Data
             id = 0
         };
 
-        //TEST
-        public static ItemSlot Planks => new ItemSlot()
-        {
-            id = 7385,
-            amount = 1
-        };
-
         public static bool operator ==(ItemSlot a, ItemSlot b)
         {
             return a.Equals(b);

@@ -106,9 +106,9 @@ namespace Network
             if (ctx.performed) // Every frame while the button is held down
             {
                 bool isInventoryOpen = _inventoryCg.IsVisible();
-                //TEST
-                DisplayCraft(!isInventoryOpen);
-                //DisplayInventory(!isInventoryOpen);
+                //TEST @Mathias - open if click on object
+                //DisplayCraft(!isInventoryOpen);
+                DisplayInventory(!isInventoryOpen);
             }
         }
         

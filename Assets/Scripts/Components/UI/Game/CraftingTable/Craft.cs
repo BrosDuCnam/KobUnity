@@ -12,7 +12,8 @@ namespace Components.UI.Game.Inventory
     public class Craft : BaseInventory
     {
         [SerializeField] private InventorySlot prefabCraftSlot;
-        //TEST [SerializeField] private List<InventorySlot> prefabSlots;
+        private bool canGetCraft = false;
+        //[SerializeField] private List<InventorySlot> prefabSlots; // already exist in BaseInventory
         private int prefabSlotsLength = -1;
 
         /* craft data, [id, amount] */
@@ -20,8 +21,8 @@ namespace Components.UI.Game.Inventory
         private List<int[]> craftResult = new List<int[]>();
         private int craftLength = -1;
         
-        // all legal zone to craft in (all rect with any dimension in 3x3 area) (need to be squares)
-        private static List<List<int[]>> min_rect = new List<List<int[]>>
+        // all legal zone to craft in (all possible squares with index + 1 square unit ==> 1x1, 2x2, 3x3)
+        private static List<List<int[]>> squaresCraft = new List<List<int[]>>
         {
             new List<int[]> { // 1
                    new int[] { 0 },
@@ -71,14 +72,15 @@ namespace Components.UI.Game.Inventory
              */
 
             List<int> unorderedIds = new List<int>(); // only item ordered by ids
-            List<int> orderedIds = new List<int>(); // order in item with minimal rectangle form
+            List<int> orderedIds = new List<int>(); // order in item with minimal square form
             int count = 0; // count number of item in crafting ; use for ordered Ids
-            bool canCraft = false;
+            canGetCraft = false;
 
+            // count number of slot occupied with items
+            // set all id in orderedIds and only non void id in unorderedIds
             for (int i = 0; i < prefabSlotsLength; i++)
             {
                 int id = prefabSlots[i].currentItem.Data.id;
-                Debug.Log("TEST CRAFT: " + id.ToString());
                 if (id > 0)
                 {
                     unorderedIds.Add(id);
@@ -86,8 +88,6 @@ namespace Components.UI.Game.Inventory
                 }
                 orderedIds.Add(id);
             }
-
-            Debug.Log("Craft Refresh: " + count.ToString());
 
             unorderedIds.Sort();
             // remove unuseful things in orderedIds to get minimal rectangle
@@ -97,16 +97,16 @@ namespace Components.UI.Game.Inventory
                 bool rect_found = false;
 
                 int i = count - 1;
-                while (i < min_rect.Count && !rect_found)
+                while (i < squaresCraft.Count && !rect_found)
                 {
                     int j = 0;
-                    while (j < min_rect[i].Count && !rect_found)
+                    while (j < squaresCraft[i].Count && !rect_found)
                     {
                         // count items inside of current rect
                         count_in_rect = 0;
-                        foreach (int index in min_rect[i][j])
+                        foreach (int index in squaresCraft[i][j])
                         {
-                            if (orderedIds[index] != -1)
+                            if (orderedIds[index] > 0)
                             {
                                 count_in_rect += 1;
                             }
@@ -115,7 +115,7 @@ namespace Components.UI.Game.Inventory
                         if (count == count_in_rect)
                         {
                             List<int> new_orderedIds = new List<int>();
-                            foreach (int index in min_rect[i][j])
+                            foreach (int index in squaresCraft[i][j])
                             {
                                 new_orderedIds.Add(orderedIds[index]);
                             }
@@ -130,41 +130,36 @@ namespace Components.UI.Game.Inventory
                     i++;
                 }
 
-                /* need to remove from orderedIds all things not useful */
-                string unorderedData = "";
-                string orderedData = "";
+                // Make item List into String for comparison
+                string unorderedData = "U;";
+                string orderedData = "O;";
 
                 foreach (int id in unorderedIds) { unorderedData += id.ToString() + ";"; }
                 foreach (int id in orderedIds) { orderedData += id.ToString() + ";"; }
 
-                //TEST
-                Debug.Log("Unordered: " + unorderedData);
-                Debug.Log("Ordered: " + orderedData);
-
-                // check existing crafting recipes
+                // check if match with an existing crafting recipes
                 for (int k = 0; k < craftLength; k++)
                 {
                     string recipe = craftRecipes[k];
-                    Debug.Log("TEST Recipe: " + recipe);
                     if (recipe == unorderedData || recipe == orderedData)
                     {
+                        // create result item
                         int[] result = craftResult[k];
-
-                        Debug.Log("CAN CRAFT: " + result.ToString());
                         Components.Data.ItemSlot item = new Components.Data.ItemSlot()
                         {
                             id = result[0],
                             amount = result[1]
                         };
 
+                        // set in slot
                         prefabCraftSlot.Refresh(item);
-                        canCraft = true;
+                        canGetCraft = true;
                         break;
                     }
                 }
             }
 
-            if (!canCraft) // if no crafting recipe match, empty crafting slot
+            if (!canGetCraft) // if no crafting recipe match, empty crafting slot
             {
                 prefabCraftSlot.Refresh(Data.ItemSlot.Void);
             }
@@ -177,25 +172,47 @@ namespace Components.UI.Game.Inventory
             Refresh();
         }
 
+        public override void SetItem(int index, Data.ItemSlot item)
+        {
+            // if item tale from prefabCraftSlot (index = -1); must decrement all items in craft by 1; then refresh for check
+            if (index == -1) // index for prefab Slot
+            {
+                // canGetCraft used to detect if not tried to put item in craft slot when empty (should not arrived anymore but not test yet)
+                if (item.id == 0 && canGetCraft) // if slot is empty
+                {
+                    foreach(InventorySlot slot in prefabSlots)
+                    {
+                        slot.DecrementItem(true);
+                    }
+
+                    Refresh();
+                }
+            }
+            else if (index < 0 || index >= prefabSlotsLength)
+            {
+                Debug.LogError($"Index {index} is out of range");
+                return;
+            }
+
+            inventoryData.SetItem(index, item);
+        }
+
         //TEST @Mathias - ask when load is appropriate
+        //TEST @Mathias - ? if all operation done on server, maybe only load on server ?
         private void Start()
         {
             Load();
         }
-        //TEST @Mathias - ask if can detect change from an InventorySlot
-        //private void Update()
-        //{
-        //    Refresh();
-        //}
 
         public void Load()
         {
-            /* load all crafting recipes */
+            // load all crafting recipes
+            // all craftRecipes have equals in craftResult
+            
             List<Scriptable.ScriptableItem> ressources = UResources.GetAllScriptableItems();
             foreach (Scriptable.ScriptableItem item in ressources)
             {
                 string recipe = item.GetCraftRecipe();
-                Debug.Log("RECIPE: " + recipe);
                 if (recipe != "")
                 {
                     craftRecipes.Add(recipe);
@@ -204,7 +221,6 @@ namespace Components.UI.Game.Inventory
             }
 
             craftLength = craftRecipes.Count;
-            Debug.Log("LOAD IN: " + craftLength.ToString());
         }
     }
 }

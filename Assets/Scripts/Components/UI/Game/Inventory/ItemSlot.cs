@@ -31,7 +31,7 @@ namespace Components.UI.Game.Inventory
         [SerializeField] private Image iconImg;
         [SerializeField] private TextMeshProUGUI amountTmp;
         [SerializeField] private TextMeshProUGUI nameTmp;
-        
+
         public bool isGrabbed { get; private set; }
         
         public Data.ItemSlot Data { get; private set; }

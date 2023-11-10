@@ -55,15 +55,26 @@ namespace Scriptable
 
         public string GetCraftRecipe()
         {
+            /* Example:
+             * [0, 850, 0, 750] + ordered       >> in a 2x2 square      >> O;0;850;0;750
+             * [0, 850, 0, 750] + unordered     >> contain 2 items      >> U;750;850
+             */
+
+            string recipe = "";
+
             if (!craftData.ordered)
             {
+                recipe += "U;";
                 while (craftData.ids.Count > 0 && craftData.ids[0] <= 0)
                 {
                     craftData.ids.RemoveAt(0);
                 }
             }
+            else
+            {
+                recipe += "O;"; // first char make diff between ordered and unordered recipe
+            }
 
-            string recipe = "";
             foreach (int id in craftData.ids) { recipe += id.ToString() + ";"; }
 
             return recipe;

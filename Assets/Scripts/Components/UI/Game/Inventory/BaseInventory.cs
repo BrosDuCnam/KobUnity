@@ -13,7 +13,7 @@ namespace Components.UI.Game.Inventory
     public class BaseInventory : MonoBehaviour, ISavable
     {
         [SerializeField] private GameObject slotPrefab;
-        [SerializeField] private InventoryData inventoryData;
+        [SerializeField] public InventoryData inventoryData;
         [SerializeField] public List<InventorySlot> prefabSlots; // if null or empty - will be generated
         
         public virtual void Refresh(Data.Inventory items)
@@ -140,7 +140,7 @@ namespace Components.UI.Game.Inventory
         
         #endregion
         
-        public void SetItem(int index, Data.ItemSlot item)
+        public virtual void SetItem(int index, Data.ItemSlot item)
         {
             if (index < 0 || index >= inventoryData.Value.items.Count)
             {

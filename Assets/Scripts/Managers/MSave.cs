@@ -145,19 +145,20 @@ namespace Managers
             
             json.Add("items", items);
             
-            Debug.Log(json.ToString());
             GUIUtility.systemCopyBuffer = json.ToString(4);
         }
 
         public void GetItem(int id, int amount)
         {
+            // create item
             Components.Data.ItemSlot item = new Components.Data.ItemSlot()
             {
                 id = id,
                 amount = amount
             };
+
+            // add it to player inventory
             Object.FindObjectsOfType<Network.Data.InventoryData>()[0].SetItem(0, item);
-            Debug.Log("ADD THING");
         }
         #endregion
     }

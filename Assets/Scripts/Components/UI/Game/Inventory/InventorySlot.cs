@@ -116,6 +116,20 @@ namespace Components.UI.Game.Inventory
             if (HasItem()) return currentItem.Data;
             return Data.ItemSlot.Void;
         }
+
+        public void DecrementItem(bool notify = true)
+        {
+            Data.ItemSlot item = currentItem.Data;
+            item.amount--;
+
+            if (item.amount <= 0)
+            {
+                item = Data.ItemSlot.Void;
+            }
+
+            currentItem.Refresh(item);
+            if (notify) currentInventory.SetItem(slotIndex, item);
+        }
         
         public void SetItem(Data.ItemSlot item, bool notify = true)
         {
@@ -134,6 +148,7 @@ namespace Components.UI.Game.Inventory
             if (!HasItem()) return item.amount;
 
             if (GetData().id != item.id) return 0;
+            if (slotIndex < 0) return 0;
 
             int maxAmount = UResources.GetScriptableItemById(item.id).maxStack;
             int sum = GetData().amount + item.amount;
@@ -148,7 +163,12 @@ namespace Components.UI.Game.Inventory
                 SetItem(Data.ItemSlot.Void);
                 return Data.ItemSlot.Void;
             }
-            
+
+            if (slotIndex < 0)
+            {
+                return item;
+            }
+
             int howMuchCanFit = HowMuchCanFit(item);
             if (howMuchCanFit == 0) return item;
             
