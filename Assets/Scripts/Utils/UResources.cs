@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Components.Building;
 using UnityEngine;
 
 namespace Utils
@@ -7,9 +8,11 @@ namespace Utils
     {
         // Resources paths
         public const string ITEM_SCRIPTABLE_PATH = "Contents/Items/";
+        public const string BLOCK_PREFAB_PATH = "Contents/Blocks/";
         
         // Cached resources
         private static readonly List<Scriptable.ScriptableItem> ScriptableItems = new();
+        private static readonly List<Block> Blocks = new();
         
         // Getters
         public static Scriptable.ScriptableItem GetScriptableItemById(int id)
@@ -20,6 +23,16 @@ namespace Utils
             }
 
             return ScriptableItems.Find(x => x.id == id);
+        }
+        
+        public static Block GetBlockByType(BlockType type)
+        {
+            if (Blocks.Count == 0)
+            {
+                Blocks.AddRange(Resources.LoadAll<Block>(BLOCK_PREFAB_PATH));
+            }
+
+            return Blocks.Find(x => x.type == type);
         }
     }
 }
