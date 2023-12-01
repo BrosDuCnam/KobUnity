@@ -106,9 +106,38 @@ namespace Network
             if (ctx.performed) // Every frame while the button is held down
             {
                 bool isInventoryOpen = _inventoryCg.IsVisible();
-                //TEST @Mathias - open if click on object
-                //DisplayCraft(!isInventoryOpen);
                 DisplayInventory(!isInventoryOpen);
+
+                if (isInventoryOpen)
+                {
+                    DisplayCraft(false);
+                }
+            }
+        }
+
+        public void Call_Interact(InputAction.CallbackContext ctx)
+        {
+            if (!IsOwner || !ctx.performed) return;
+            if (!mouseLook.enabled) return;
+
+            //TEST @Mathias - make check if click on prefab crafting table
+            //TEST make raycast from player, check if Interactable present, check if type = Interactable.Type.Crafting_table
+            RaycastHit hit;
+            if (Physics.Raycast(controller.cameraTransform.position, controller.cameraTransform.forward, out hit, 10)) //TEST @Mathias - set reach
+            {
+                Interactable interaction = hit.transform.GetComponent<Interactable>();
+                if (interaction != null)
+                {
+                    switch (interaction.type)
+                    {
+                        case Interactable.Type.Crafting_table:
+                            if (!_inventoryCg.IsVisible())
+                            {
+                                DisplayCraft(true);
+                            }
+                            break;
+                    }
+                }
             }
         }
         

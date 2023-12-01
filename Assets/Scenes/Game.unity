@@ -337,6 +337,7 @@ GameObject:
   - component: {fileID: 80669218}
   - component: {fileID: 80669217}
   - component: {fileID: 80669216}
+  - component: {fileID: 80669219}
   m_Layer: 0
   m_Name: CraftingTable
   m_TagString: Untagged
@@ -430,6 +431,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 80669214}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &80669219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80669214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88c7c7ea30fe8094f9365c8e9385854e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 1
 --- !u!1 &109872438
 GameObject:
   m_ObjectHideFlags: 0

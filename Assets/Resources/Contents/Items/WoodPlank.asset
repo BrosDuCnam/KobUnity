@@ -22,6 +22,6 @@ MonoBehaviour:
     thirst: 0
     hunger: 0
   craftData:
-    ids: d91c0000
+    ids: da1c0000
     ordered: 0
-    number: 1
+    number: 4

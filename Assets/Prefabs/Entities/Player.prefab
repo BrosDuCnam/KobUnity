@@ -535,6 +535,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 793de67c-8bb8-4631-8af4-5818dca479d9
     m_ActionName: Game/ToggleInventory[/Keyboard/e]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8988517689234740281}
+        m_TargetAssemblyTypeName: Network.NetworkPlayer, Assembly-CSharp
+        m_MethodName: Call_Interact
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 084722d0-afbf-4090-a9a4-54c38df40733
+    m_ActionName: Game/Interact[/Mouse/rightButton]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Game

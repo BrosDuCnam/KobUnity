@@ -197,8 +197,8 @@ namespace Components.UI.Game.Inventory
             inventoryData.SetItem(index, item);
         }
 
-        //TEST @Mathias - ask when load is appropriate
-        //TEST @Mathias - ? if all operation done on server, maybe only load on server ?
+        //TEST @Mathias - ask - where to place Load()
+        //TEST @Mathias - ask - load done only on Server side if all make here
         private void Start()
         {
             Load();
