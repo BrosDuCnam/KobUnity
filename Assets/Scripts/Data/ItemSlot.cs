@@ -3,7 +3,7 @@ using Interfaces;
 using SimpleJSON;
 using Unity.Netcode;
 
-namespace Components.Data
+namespace Data
 {
     public struct ItemSlot : IEquatable<ItemSlot>, INetworkSerializable, ISavable
     {

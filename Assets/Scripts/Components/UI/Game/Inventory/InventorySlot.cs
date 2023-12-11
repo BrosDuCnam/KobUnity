@@ -1,5 +1,4 @@
 ﻿using System;
-using Components.Data;
 using DG.Tweening;
 using Managers;
 using Scriptable;
@@ -10,7 +9,7 @@ using Utils;
 
 namespace Components.UI.Game.Inventory
 {
-    public class InventorySlot : MonoBehaviour, UIBehaviour<Data.ItemSlot>, IPointerClickHandler
+    public class InventorySlot : MonoBehaviour, UIBehaviour<global::Data.ItemSlot>, IPointerClickHandler
     {
         [Header("References")]
         [SerializeField] private CanvasGroup background;
@@ -42,10 +41,10 @@ namespace Components.UI.Game.Inventory
             
             if (MReferenceUI.Instance.grabbedItem.isGrabbed)
             {
-                Data.ItemSlot rest = TryPutItem(MReferenceUI.Instance.grabbedItem.Data);
+                global::Data.ItemSlot rest = TryPutItem(MReferenceUI.Instance.grabbedItem.Data);
                 if (rest.IsVoid)
                 {
-                    MReferenceUI.Instance.grabbedItem.Refresh(Data.ItemSlot.Void);
+                    MReferenceUI.Instance.grabbedItem.Refresh(global::Data.ItemSlot.Void);
                     MReferenceUI.Instance.grabbedItem.SetGrabbed(false);
                 }
                 else MReferenceUI.Instance.grabbedItem.Refresh(rest);
@@ -56,7 +55,7 @@ namespace Components.UI.Game.Inventory
                 {
                     MReferenceUI.Instance.grabbedItem.Refresh(GetData());
                     MReferenceUI.Instance.grabbedItem.SetGrabbed(true);
-                    SetItem(Data.ItemSlot.Void);
+                    SetItem(global::Data.ItemSlot.Void);
                 }
             }
         }
@@ -65,9 +64,9 @@ namespace Components.UI.Game.Inventory
         {
             if (MReferenceUI.Instance.grabbedItem.isGrabbed)
             {
-                (Data.ItemSlot left, Data.ItemSlot right) = MReferenceUI.Instance.grabbedItem.Data.Split(1);
+                (global::Data.ItemSlot left, global::Data.ItemSlot right) = MReferenceUI.Instance.grabbedItem.Data.Split(1);
                 
-                Data.ItemSlot rest = TryPutItem(left);
+                global::Data.ItemSlot rest = TryPutItem(left);
                 if (rest.IsVoid) // If all of the item was put in the slot
                 {
                     MReferenceUI.Instance.grabbedItem.Refresh(right);
@@ -81,7 +80,7 @@ namespace Components.UI.Game.Inventory
             {
                 if (HasItem())
                 {
-                    (Data.ItemSlot left, Data.ItemSlot right) = GetData().Split(); // Split in half
+                    (global::Data.ItemSlot left, global::Data.ItemSlot right) = GetData().Split(); // Split in half
                     SetItem(left);
                     
                     MReferenceUI.Instance.grabbedItem.Refresh(right);
@@ -92,7 +91,7 @@ namespace Components.UI.Game.Inventory
 
         #endregion
         
-        public void Refresh(Data.ItemSlot newItem)
+        public void Refresh(global::Data.ItemSlot newItem)
         {
             SetItem(newItem, false);
             
@@ -111,13 +110,13 @@ namespace Components.UI.Game.Inventory
             return currentItem.gameObject.activeSelf;
         }
 
-        public Data.ItemSlot GetData()
+        public global::Data.ItemSlot GetData()
         {
             if (HasItem()) return currentItem.Data;
-            return Data.ItemSlot.Void;
+            return global::Data.ItemSlot.Void;
         }
         
-        public void SetItem(Data.ItemSlot item, bool notify = true)
+        public void SetItem(global::Data.ItemSlot item, bool notify = true)
         {
             if (!HasItem() && item.IsVoid) {
                 return;
@@ -129,7 +128,7 @@ namespace Components.UI.Game.Inventory
         }
         
 
-        public int HowMuchCanFit(Data.ItemSlot item)
+        public int HowMuchCanFit(global::Data.ItemSlot item)
         {
             if (!HasItem()) return item.amount;
 
@@ -141,23 +140,23 @@ namespace Components.UI.Game.Inventory
             return sum > maxAmount ? maxAmount - GetData().amount : item.amount;
         }
         
-        public Data.ItemSlot TryPutItem(Data.ItemSlot item)
+        public global::Data.ItemSlot TryPutItem(global::Data.ItemSlot item)
         {
             if (item.IsVoid)
             {
-                SetItem(Data.ItemSlot.Void);
-                return Data.ItemSlot.Void;
+                SetItem(global::Data.ItemSlot.Void);
+                return global::Data.ItemSlot.Void;
             }
             
             int howMuchCanFit = HowMuchCanFit(item);
             if (howMuchCanFit == 0) return item;
             
-            Data.ItemSlot @new = new Data.ItemSlot()
+            global::Data.ItemSlot @new = new global::Data.ItemSlot()
             {
                 id = item.id,
                 amount = GetData().amount + howMuchCanFit
             };
-            Data.ItemSlot rest = item.Add(-howMuchCanFit);
+            global::Data.ItemSlot rest = item.Add(-howMuchCanFit);
 
             SetItem(@new);
             return rest;

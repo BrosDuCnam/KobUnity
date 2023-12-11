@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Components.Data;
+using Data;
 using Unity.Netcode;
 using UnityEngine;
 

@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Unity.Netcode;
-using Utils;
 
-namespace Components.Data
+namespace Data
 {
     public struct Inventory : IEquatable<Inventory>
     {

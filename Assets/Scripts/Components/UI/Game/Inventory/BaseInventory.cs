@@ -33,7 +33,7 @@ namespace Components.UI.Game.Inventory
                     }
                     else
                     {
-                        prefabSlots[i].Refresh(Data.ItemSlot.Void);
+                        prefabSlots[i].Refresh(global::Data.ItemSlot.Void);
                     }
                 }
             }
@@ -41,7 +41,7 @@ namespace Components.UI.Game.Inventory
             {
                 int index = 0;
 
-                var result = UIPooling.Pool<InventorySlot, Data.ItemSlot>(items.items, slotPrefab, transform);
+                var result = UIPooling.Pool<InventorySlot, global::Data.ItemSlot>(items.items, slotPrefab, transform);
 
                 result.activeItems.ForEach(x =>
                 {
@@ -125,11 +125,11 @@ namespace Components.UI.Game.Inventory
         {
             JSONArray items = json["items"].AsArray;
             
-            List<Data.ItemSlot> slots = new List<Data.ItemSlot>();
+            List<global::Data.ItemSlot> slots = new List<global::Data.ItemSlot>();
             foreach (var item in items)
             {
                 JSONNode node = item.Value;
-                Data.ItemSlot slot = new Data.ItemSlot();
+                global::Data.ItemSlot slot = new global::Data.ItemSlot();
                 
                 slot.Load(node.AsObject);
                 slots.Add(slot);
@@ -140,7 +140,7 @@ namespace Components.UI.Game.Inventory
         
         #endregion
         
-        public void SetItem(int index, Data.ItemSlot item)
+        public void SetItem(int index, global::Data.ItemSlot item)
         {
             if (index < 0 || index >= inventoryData.Value.items.Count)
             {
@@ -151,7 +151,7 @@ namespace Components.UI.Game.Inventory
             inventoryData.SetItem(index, item);
         }
         
-        public bool AddItem(Data.ItemSlot item)
+        public bool AddItem(global::Data.ItemSlot item)
         {
             // TODO: check if item can be stacked with existing item
             
