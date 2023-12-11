@@ -3,14 +3,28 @@ using System.Linq;
 using Data.Building;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Network.Data
 {
     public class BuildingData : NetworkData<Build>
     {
+        public UnityEvent<List<BuildChange>> OnBuildChanged = new ();
+        
         private NetworkList<NodeData> _nodes = null;
         private NetworkList<NodeAnchor> _anchors = null;
 
+        public override Build Value
+        {
+            protected set
+            {
+                if (this.value.Equals(value)) return;
+                base.Value = value;
+                
+                OnBuildChanged.Invoke(Build.Compare(value, GetValue()));
+            }
+        }
+        
         private void Awake()
         {
             _anchors = new NetworkList<NodeAnchor>();

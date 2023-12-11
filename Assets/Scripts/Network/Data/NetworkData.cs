@@ -8,8 +8,8 @@ namespace Network.Data
         public UnityEvent<T> OnValueChanged = new ();
         public UnityEvent OnNetworkSpawned = new ();
         
-        private T value;
-        public T Value
+        protected T value;
+        public virtual T Value
         {
             get => value;
             protected set

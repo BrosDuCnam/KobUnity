@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Components.Building;
 using UnityEngine;
 
 namespace Utils
@@ -20,6 +21,11 @@ namespace Utils
             }
 
             return ScriptableItems.Find(x => x.id == id);
+        }
+        
+        public static BuildNode GetBuildNodePrefab(BuildNode.BuildType type)
+        {
+            return Resources.Load<BuildNode>("Prefabs/Building/BuildNode" + type);
         }
     }
 }
