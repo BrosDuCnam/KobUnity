@@ -1,4 +1,5 @@
-﻿using Components.Controller;
+﻿using Components;
+using Components.Controller;
 using Components.UI.Game.Inventory;
 using Interfaces;
 using Managers;
@@ -26,6 +27,7 @@ namespace Network
         [SerializeField] private GameObject _remoteOnlyObjects;
         [SerializeField] private BaseInventory _inventory;
         [SerializeField] private CanvasGroup _inventoryCg;
+        [SerializeField] private PlayerBuilder _builder;
         
         #endregion
         
@@ -106,6 +108,16 @@ namespace Network
             {
                 bool isInventoryOpen = _inventoryCg.IsVisible();
                 DisplayInventory(!isInventoryOpen);
+            }
+        }
+        
+        public void Call_MainAction(InputAction.CallbackContext ctx)
+        {
+            if (!IsOwner) return;
+            
+            if (ctx.performed) // Every frame while the button is held down
+            {
+                _builder.Place();
             }
         }
         

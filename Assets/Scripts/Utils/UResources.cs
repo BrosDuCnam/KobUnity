@@ -25,7 +25,8 @@ namespace Utils
         
         public static BuildNode GetBuildNodePrefab(BuildNode.BuildType type)
         {
-            return Resources.Load<BuildNode>("Prefabs/Building/BuildNode" + type);
+            Debug.Log("BuildingNode/" + type);
+            return Resources.Load<BuildNode>("BuildingNode/" + type);
         }
     }
 }

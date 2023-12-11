@@ -27,6 +27,7 @@ namespace Network.Data
         
         private void Awake()
         {
+            _nodes = new NetworkList<NodeData>();
             _anchors = new NetworkList<NodeAnchor>();
         }
 
