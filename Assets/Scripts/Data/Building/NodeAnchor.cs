@@ -1,9 +1,11 @@
 ﻿using System;
+using Interfaces;
+using SimpleJSON;
 using Unity.Netcode;
 
 namespace Data.Building
 {
-    public struct NodeAnchor : IEquatable<NodeAnchor>, INetworkSerializable
+    public struct NodeAnchor : IEquatable<NodeAnchor>, INetworkSerializable, ISavable
     {
         public int nodeId;
         public int anchorId;
@@ -45,6 +47,33 @@ namespace Data.Building
                 writer.WriteValueSafe(anchorId);
                 writer.WriteValueSafe(childId);
             }
+        }
+
+        public JSONObject Save()
+        {
+            JSONObject json = new JSONObject();
+            json.Add("nodeId", nodeId);
+            json.Add("anchorId", anchorId);
+            json.Add("childId", childId);
+            
+            return json;
+        }
+
+        public JSONObject GetDefaultSave()
+        {
+            JSONObject json = new JSONObject();
+            json.Add("nodeId", 0);
+            json.Add("anchorId", 0);
+            json.Add("childId", 0);
+            
+            return json;
+        }
+
+        public void Load(JSONObject json)
+        {
+            nodeId = json["nodeId"].AsInt;
+            anchorId = json["anchorId"].AsInt;
+            childId = json["childId"].AsInt;
         }
     }
 }

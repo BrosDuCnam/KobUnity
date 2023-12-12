@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Components.Building;
 using Components.UI.Game.Inventory;
 using IngameDebugConsole;
 using Interfaces;
@@ -24,6 +25,8 @@ namespace Managers
                 DebugLogConsole.AddCommand("get_save", "Get the save", GetSave);
                 DebugLogConsole.AddCommand<int>("get_random_inventory", "Get a random inventory", GetRandomInventory);
                 DebugLogConsole.AddCommand<string>("load_save", "Load the save", LoadSave);
+                DebugLogConsole.AddCommand("get_boat", "Get the boat", GetBoat);
+                DebugLogConsole.AddCommand("get_boat_mermaid", "Get the boat mermaid", GetBoatMermaid);
             }
             else
             {
@@ -36,6 +39,7 @@ namespace Managers
         
         [Header("References")]
         [SerializeField] public List<NetworkPlayer> players; // fill by NetworkPlayer itself
+        [SerializeField] public BaseBuild boat;
         
         private JSONObject _save;
 
@@ -146,6 +150,23 @@ namespace Managers
             
             Debug.Log(json.ToString());
             GUIUtility.systemCopyBuffer = json.ToString(4);
+        }
+        
+        public void GetBoat()
+        {
+            JSONObject json = new JSONObject();
+            json.Add("boat", boat.Save());
+            
+            Debug.Log(json.ToString());
+            GUIUtility.systemCopyBuffer = json.ToString(4);
+        }
+        
+        public void GetBoatMermaid()
+        {
+            string mermaidId = Utils.MermaidGenerator.GenerateBuild(boat.buildingData.Value);
+            
+            Debug.Log(mermaidId);
+            GUIUtility.systemCopyBuffer = mermaidId;
         }
         
         #endregion

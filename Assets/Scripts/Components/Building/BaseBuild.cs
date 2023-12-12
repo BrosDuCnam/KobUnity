@@ -187,7 +187,7 @@ namespace Components.Building
 
         public JSONObject Save()
         {
-            throw new System.NotImplementedException();
+            return buildingData.Value.Save();
         }
 
         public JSONObject GetDefaultSave()

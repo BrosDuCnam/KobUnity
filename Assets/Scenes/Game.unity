@@ -1362,6 +1362,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   players: []
+  boat: {fileID: 1922132197}
 --- !u!4 &856014712
 Transform:
   m_ObjectHideFlags: 0
