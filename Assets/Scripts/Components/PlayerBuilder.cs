@@ -104,11 +104,11 @@ namespace Components
             BuildAnchor targetAnchor = GetTargetAnchor();
             if (targetAnchor == null) return;
 
-            targetAnchor.parent.build.BuildNode(targetAnchor);
-            
-            selectedBlock.transform.parent = null;
+            targetAnchor.parent.build.Build(targetAnchor);
+
 
             int selectedBlockIndex = dbg_blocks.FindIndex(b => b.type == selectedBlock.type);
+            Destroy(selectedBlock.gameObject);
             selectedBlock = null;
             
             SelectBlock(selectedBlockIndex);

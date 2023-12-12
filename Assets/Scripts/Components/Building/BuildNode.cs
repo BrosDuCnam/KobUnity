@@ -28,7 +28,7 @@ namespace Components.Building
         public static BuildNode Instantiate(BuildType type, Transform parent, Vector3 position, BaseBuild build, int id)
         {
             var node = Instantiate(UResources.GetBuildNodePrefab(type), parent);
-            node.transform.position = position;
+            node.transform.localPosition = position;
             
             node.nodeId = id;
             node.build = build;
@@ -39,8 +39,8 @@ namespace Components.Building
                 BuildAnchor anchor = node.anchors.Values.ToList()[i];
                 int anchorId = node.anchors.Keys.ToList()[i];
                 
-                BuildNode.BuildType anchorType = anchor.child.type;
-                List<BuildNode> others = build.nodes.FindAll(x => x.type == anchorType);
+                BuildType anchorType = anchor.child.type;
+                List<BuildNode> others = build.nodes.FindAll(x => x!= null && x.type == anchorType);
 
                 foreach (BuildNode other in others)
                 {
@@ -54,6 +54,8 @@ namespace Components.Building
             // Link this node to other
             foreach (BuildNode other in build.nodes)
             {
+                if (other == null) continue;
+                
                 for (int i = 0; i < other.anchors.Count; i++)
                 {
                     BuildAnchor anchor = other.anchors.Values.ToList()[i];
@@ -66,7 +68,7 @@ namespace Components.Building
                 }
             }
 
-            
+            build.nodes.Add(node);            
             return node;
         }
         

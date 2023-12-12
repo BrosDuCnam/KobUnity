@@ -18,10 +18,12 @@ namespace Network.Data
         {
             protected set
             {
+                Build oldValue = this.value;
+                
                 if (this.value.Equals(value)) return;
                 base.Value = value;
                 
-                OnBuildChanged.Invoke(Build.Compare(value, GetValue()));
+                OnBuildChanged.Invoke(Build.Compare(oldValue, value));
             }
         }
         
@@ -29,6 +31,8 @@ namespace Network.Data
         {
             _nodes = new NetworkList<NodeData>();
             _anchors = new NetworkList<NodeAnchor>();
+            
+            value = new Build() { nodes = new List<Node>() }; // Initialize empty build
         }
 
         public override void OnNetworkSpawn()
@@ -43,6 +47,8 @@ namespace Network.Data
 
         private void OnServerAnchorValueChanged(NetworkListEvent<NodeAnchor> change)
         {
+            return;
+            
             if (change.Index < 0 || change.Index >= _anchors.Count) return;
 
             Node node = GetNode(change.Value.nodeId, true);
@@ -53,6 +59,8 @@ namespace Network.Data
                 node.anchors[i] = change.Value;
                 break;
             }
+            node.id = change.Value.nodeId;
+            node.data.nodeId = change.Value.nodeId;
 
             Build build = GetValue();
             if (build.nodes.Any(n => n.id == node.id))
@@ -138,6 +146,7 @@ namespace Network.Data
                 {
                     nodeMap.Add(anchor.nodeId, new Node()
                     {
+                        id = anchor.nodeId,
                         anchors = new List<NodeAnchor>() { anchor }
                     });
                 }
@@ -156,6 +165,7 @@ namespace Network.Data
                 {
                     nodeMap.Add(data.nodeId, new Node()
                     {
+                        id = data.nodeId,
                         data = data,
                         anchors = new List<NodeAnchor>()
                     });
@@ -188,11 +198,11 @@ namespace Network.Data
         
         private void _AddNode(NodeData data, List<NodeAnchor> anchors)
         {
-            _nodes.Add(data);
             foreach (var anchor in anchors)
             {
                 _anchors.Add(anchor);
             }
+            _nodes.Add(data);
         }
 
         #endregion

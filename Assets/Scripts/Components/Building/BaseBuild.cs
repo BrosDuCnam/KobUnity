@@ -12,7 +12,6 @@ namespace Components.Building
 {
     public class BaseBuild : MonoBehaviour, ISavable
     {
-        public Build build;
         public List<BuildNode> nodes = new List<BuildNode>();
         
         public BuildingData buildingData;
@@ -29,6 +28,14 @@ namespace Components.Building
         {
             if (change.added)
             {
+                if (buildingData.Value.nodes.Count == 1)
+                {
+                    // First node
+                    BuildNode.Instantiate(BuildNode.BuildType.platform, transform, Vector3.zero, this, change.data.nodeId);
+                }
+                
+                bool found = false;
+                
                 // Find anchor
                 foreach (Node node in buildingData.Value.nodes)
                 {
@@ -38,7 +45,7 @@ namespace Components.Building
 
                         foreach (BuildNode buildNode in nodes)
                         {
-                            if (buildNode.nodeId != node.id) continue;
+                            if (buildNode != null && buildNode.nodeId != node.id) continue;
                             
                             foreach (var buildAnchor in buildNode.anchors)
                             {
@@ -48,10 +55,17 @@ namespace Components.Building
                                 
                                 // TODO: Apply other modifiers (orientation, etc.)
                                 
+                                found = true;
                                 break;
                             }
+                            
+                            if (found) break;
                         }
+                        
+                        if (found) break;
                     }
+                    
+                    if (found) break;
                 }
             }
             else
@@ -68,7 +82,7 @@ namespace Components.Building
 
         private void Refresh(Build newBuild)
         {
-            build = newBuild;
+            // TODO
         }
 
         private void OnEnable()
@@ -77,11 +91,15 @@ namespace Components.Building
             
             buildingData.OnNetworkSpawned.AddListener(() =>
             {
+                // Add first node
+                buildingData.AddNode(new NodeData() { nodeId = GetRandomId() }, new List<NodeAnchor>());
+                
+                
                 Refresh(buildingData.Value);
             });
         }
 
-        public Node BuildNode(BuildAnchor anchorParent)
+        public Node Build(BuildAnchor anchorParent)
         {
             BuildNode.BuildType type = anchorParent.child.type;
             var node = Instantiate(UResources.GetBuildNodePrefab(type), transform);
@@ -90,8 +108,12 @@ namespace Components.Building
             Node nodeData = new Node
             {
                 id = GetRandomId(),
-                anchors = new List<NodeAnchor>(),
-                data = new NodeData() { nodeId = node.nodeId } // TODO : store data (orientation, type, etc.)
+                anchors = new List<NodeAnchor>()
+            };
+            nodeData.data = new NodeData
+            {
+                nodeId = nodeData.id,
+                // TODO: Add other data
             };
             
             List<NodeAnchor> anchors = new List<NodeAnchor>();
@@ -103,16 +125,17 @@ namespace Components.Building
                 int anchorId = node.anchors.Keys.ToList()[i];
                 
                 BuildNode.BuildType anchorType = anchor.child.type;
-                List<BuildNode> others = nodes.FindAll(x => x.type == anchorType);
+                List<BuildNode> others = nodes.FindAll(x => x != null && x.type == anchorType);
 
                 foreach (BuildNode other in others)
                 {
                     if (other.transform.position == anchor.child.transform.position && node.CheckPermissionToBuild(anchorId))
                     {
-                        node.children.Add(anchorId, other);
                         NodeAnchor nodeAnchor = new NodeAnchor
                         {
-                            anchorId = anchor.child.nodeId,
+                            nodeId = nodeData.id,
+                            anchorId = anchor.AnchorId,
+                            childId = other.nodeId,
                         };
                         
                         anchors.Add(nodeAnchor);
@@ -124,6 +147,8 @@ namespace Components.Building
             // Link this node to other
             foreach (BuildNode other in nodes)
             {
+                if (other == null) continue;
+                
                 for (int i = 0; i < other.anchors.Count; i++)
                 {
                     BuildAnchor anchor = other.anchors.Values.ToList()[i];
@@ -131,10 +156,11 @@ namespace Components.Building
                     
                     if (anchor.child.transform.position == node.transform.position && other.CheckPermissionToBuild(anchorId))
                     {
-                        other.children.Add(anchorId, node);
                         anchors.Add(new NodeAnchor
                         {
-                            anchorId = anchor.child.nodeId,
+                            nodeId = other.nodeId,
+                            anchorId = anchor.AnchorId,
+                            childId = nodeData.id,
                         });
                     }
                 }
@@ -152,7 +178,7 @@ namespace Components.Building
             do
             {
                 id = Random.Range(0, 100000);
-            } while (build.nodes.Exists(x => x.id == id));
+            } while (buildingData.Value.nodes.Exists(x => x.id == id));
             
             return id;
         }

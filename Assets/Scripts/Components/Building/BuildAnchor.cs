@@ -13,7 +13,8 @@ namespace Components.Building
 
         public void Build(int id)
         {
-            BuildNode.Instantiate(child.type, parent.transform.parent, child.transform.position, parent.build, id);
+            Vector3 localPosition = parent.build.transform.InverseTransformPoint(child.transform.position);
+            BuildNode.Instantiate(child.type, parent.transform.parent, localPosition, parent.build, id);
         }
     }
 }
