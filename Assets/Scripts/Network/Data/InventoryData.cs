@@ -70,6 +70,11 @@ namespace Network.Data
         
         private void _SetItem(int index, ItemSlot item)
         {
+            if (index < 0) // kill duplicate glitches
+            {
+                return;
+            }
+
             _items[index] = item;
         }
         

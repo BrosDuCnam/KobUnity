@@ -26,11 +26,12 @@ namespace Network
         [SerializeField] private GameObject _remoteOnlyObjects;
         [SerializeField] private BaseInventory _inventory;
         [SerializeField] private CanvasGroup _inventoryCg;
-        
+        [SerializeField] private CanvasGroup _craftCg;
+
         #endregion
-        
+
         #region PROPERTIES
-        
+
         public FirstPersonController controller { get; private set; }
         public MouseLook mouseLook { get; private set; }
         public CharacterMovement characterMovement { get; private set; }
@@ -106,6 +107,37 @@ namespace Network
             {
                 bool isInventoryOpen = _inventoryCg.IsVisible();
                 DisplayInventory(!isInventoryOpen);
+
+                if (isInventoryOpen)
+                {
+                    DisplayCraft(false);
+                }
+            }
+        }
+
+        public void Call_Interact(InputAction.CallbackContext ctx)
+        {
+            if (!IsOwner || !ctx.performed) return;
+            if (!mouseLook.enabled) return;
+
+            //TEST @Mathias - make check if click on prefab crafting table
+            //TEST make raycast from player, check if Interactable present, check if type = Interactable.Type.Crafting_table
+            RaycastHit hit;
+            if (Physics.Raycast(controller.cameraTransform.position, controller.cameraTransform.forward, out hit, 10)) //TEST @Mathias - set reach
+            {
+                Interactable interaction = hit.transform.GetComponent<Interactable>();
+                if (interaction != null)
+                {
+                    switch (interaction.type)
+                    {
+                        case Interactable.Type.Crafting_table:
+                            if (!_inventoryCg.IsVisible())
+                            {
+                                DisplayCraft(true);
+                            }
+                            break;
+                    }
+                }
             }
         }
         
@@ -130,6 +162,7 @@ namespace Network
             characterMovement = GetComponent<CharacterMovement>();
             
             DisplayInventory(false, true);
+            DisplayCraft(false, true);
         }
         
         #endregion
@@ -207,6 +240,15 @@ namespace Network
         {
             _inventoryCg.SetVisibility(display, instant ? 0 : 0.15f);
             
+            mouseLook.SetCursorLock(!display);
+            mouseLook.enabled = !display;
+        }
+
+        private void DisplayCraft(bool display, bool instant = false)
+        {
+            _inventoryCg.SetVisibility(display, instant ? 0 : 0.15f);
+            _craftCg.SetVisibility(display, instant ? 0 : 0.15f);
+
             mouseLook.SetCursorLock(!display);
             mouseLook.enabled = !display;
         }

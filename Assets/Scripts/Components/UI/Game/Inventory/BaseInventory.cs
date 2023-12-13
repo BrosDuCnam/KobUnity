@@ -13,10 +13,10 @@ namespace Components.UI.Game.Inventory
     public class BaseInventory : MonoBehaviour, ISavable
     {
         [SerializeField] private GameObject slotPrefab;
-        [SerializeField] private InventoryData inventoryData;
-        [SerializeField] private List<InventorySlot> prefabSlots; // if null or empty - will be generated
+        [SerializeField] public InventoryData inventoryData;
+        [SerializeField] public List<InventorySlot> prefabSlots; // if null or empty - will be generated
         
-        public void Refresh(Data.Inventory items)
+        public virtual void Refresh(Data.Inventory items)
         {
             if (prefabSlots != null && prefabSlots.Count > 0)
             {
@@ -140,7 +140,7 @@ namespace Components.UI.Game.Inventory
         
         #endregion
         
-        public void SetItem(int index, Data.ItemSlot item)
+        public virtual void SetItem(int index, Data.ItemSlot item)
         {
             if (index < 0 || index >= inventoryData.Value.items.Count)
             {
@@ -154,13 +154,12 @@ namespace Components.UI.Game.Inventory
         public bool AddItem(Data.ItemSlot item)
         {
             // TODO: check if item can be stacked with existing item
-            
             int index = inventoryData.Value.items.FindIndex(x => x.IsVoid);
+
             if (index == -1)
             {
                 return false;
             }
-            
             SetItem(index, item);
             return true;
         }

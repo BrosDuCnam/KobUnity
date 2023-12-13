@@ -113,7 +113,7 @@ namespace Components.Data
             amount = 0,
             id = 0
         };
-            
+
         public static bool operator ==(ItemSlot a, ItemSlot b)
         {
             return a.Equals(b);

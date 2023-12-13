@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: af6a433f4a7541c3997a773c06050716, type: 3}
-  m_Name: WoodPlank
+  m_Name: WoodBlock
   m_EditorClassIdentifier: 
   parent: {fileID: 0}
-  id: 7385
-  itemName: Wood Plank
-  icon: {fileID: 21300000, guid: adf5d4e0258b8f24182bed75343c1d22, type: 3}
+  id: 7386
+  itemName: Wood Block
+  icon: {fileID: 21300000, guid: 485938cd3a4786c4bb3f00231ce44c3f, type: 3}
   maxStack: 99
   consumablesData:
     health: 0
     thirst: 0
     hunger: 0
   craftData:
-    ids: da1c0000
-    ordered: 0
-    number: 4
+    ids: d91c0000d91c0000d91c0000d91c0000
+    ordered: 1
+    number: 1
