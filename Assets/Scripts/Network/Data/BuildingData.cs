@@ -13,7 +13,8 @@ namespace Network.Data
         
         private NetworkList<NodeData> _nodes = null;
         private NetworkList<NodeAnchor> _anchors = null;
-
+        private NetworkVariable<int> _updateIndex = new NetworkVariable<int>(0);
+        
         public override Build Value
         {
             protected set
@@ -37,17 +38,23 @@ namespace Network.Data
 
         public override void OnNetworkSpawn()
         {
-            _nodes.OnListChanged += OnServerNodeValueChanged;
-            _anchors.OnListChanged += OnServerAnchorValueChanged;
-
+            // _nodes.OnListChanged += OnServerNodeValueChanged;
+            // _anchors.OnListChanged += OnServerAnchorValueChanged;
+            _updateIndex.OnValueChanged += OnServerUpdateIndexChanged;
+            
             base.OnNetworkSpawn();
         }
 
         #region Events
 
+        private void OnServerUpdateIndexChanged(int oldIndex, int newIndex)
+        {
+            Value = GetValue();
+        }
+        
         private void OnServerAnchorValueChanged(NetworkListEvent<NodeAnchor> change)
         {
-            return;
+            Debug.Log("On server anchor value changed");
             
             if (change.Index < 0 || change.Index >= _anchors.Count) return;
 
@@ -60,7 +67,7 @@ namespace Network.Data
                 break;
             }
             node.id = change.Value.nodeId;
-            node.data.nodeId = change.Value.nodeId;
+            if (node.data == null) return; // Can't do anything if node data is null
 
             Build build = GetValue();
             if (build.nodes.Any(n => n.id == node.id))
@@ -77,6 +84,8 @@ namespace Network.Data
 
         private void OnServerNodeValueChanged(NetworkListEvent<NodeData> change)
         {
+            Debug.Log("On server node value changed");
+            
             if (change.Index < 0 || change.Index >= _nodes.Count) return;
 
             Node node = GetNode(change.Value.nodeId, true);
@@ -107,7 +116,7 @@ namespace Network.Data
             {
                 id = id,
                 anchors = new List<NodeAnchor>(),
-                data = new NodeData()
+                data = null
             };
 
             foreach (var anchor in _anchors)
@@ -203,6 +212,8 @@ namespace Network.Data
                 _anchors.Add(anchor);
             }
             _nodes.Add(data);
+            
+            _updateIndex.Value += 1;
         }
 
         #endregion
@@ -245,6 +256,8 @@ namespace Network.Data
                     _anchors.RemoveAt(i);
                 }
             }
+            
+            _updateIndex.Value += 1;
         }
 
         #endregion

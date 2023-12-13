@@ -91,10 +91,13 @@ namespace Components.Building
             
             buildingData.OnNetworkSpawned.AddListener(() =>
             {
-                // Add first node
-                buildingData.AddNode(new NodeData() { nodeId = GetRandomId() }, new List<NodeAnchor>());
-                
-                
+                // if is server
+                if (buildingData.IsServer)
+                {
+                    // Add first node
+                    buildingData.AddNode(new NodeData() { nodeId = GetRandomId() }, new List<NodeAnchor>());
+                }
+
                 Refresh(buildingData.Value);
             });
         }
@@ -168,7 +171,7 @@ namespace Components.Building
 
             Destroy(node.gameObject);
          
-            buildingData.AddNode(nodeData.data, anchors);
+            buildingData.AddNode(nodeData.data.Value, anchors);
             return nodeData;
         }
         
