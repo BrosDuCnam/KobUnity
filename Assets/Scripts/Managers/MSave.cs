@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Components.Building;
 using Components.UI.Game.Inventory;
 using IngameDebugConsole;
@@ -27,6 +28,7 @@ namespace Managers
                 DebugLogConsole.AddCommand<string>("load_save", "Load the save", LoadSave);
                 DebugLogConsole.AddCommand("get_boat", "Get the boat", GetBoat);
                 DebugLogConsole.AddCommand("get_boat_mermaid", "Get the boat mermaid", GetBoatMermaid);
+                DebugLogConsole.AddCommand<string>("load_boat", "Load the boat", LoadBoat);
             }
             else
             {
@@ -64,6 +66,9 @@ namespace Managers
             }
             
             json.Add("players", players);
+            
+            json.Add("boat", boat.Save());
+            
             return json;
         }
 
@@ -88,6 +93,8 @@ namespace Managers
             {
                 LoadPlayer(player.UUID, json);
             }
+            
+            boat.Load(json["boat"].AsObject);
         }
         
         public void LoadPlayer(string id, JSONObject json = null)
@@ -131,6 +138,17 @@ namespace Managers
             }
 
             Load(JSON.Parse(json).AsObject);
+        }
+        
+        public void LoadBoat(string json)
+        {
+            // Sometimes DebugLogConsole remove the first { of the json string
+            if (!json.StartsWith("{"))
+            {
+                json = "{" + json;
+            }
+
+            boat.Load(JSON.Parse(json).AsObject);
         }
 
         public void GetRandomInventory(int size)

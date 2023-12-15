@@ -1,4 +1,5 @@
 ﻿using System;
+using Components.Building;
 using Interfaces;
 using SimpleJSON;
 using Unity.Netcode;
@@ -8,7 +9,10 @@ namespace Data.Building
     public struct NodeData : IEquatable<NodeData>, INetworkSerializable, ISavable
     {
         public int nodeId;
-
+        
+        public bool isRoot;
+        public BuildNode.BuildType type;
+        
         // Some data like orientation, color, etc.
 
 
@@ -37,6 +41,8 @@ namespace Data.Building
         {
             JSONObject json = new JSONObject();
             json.Add("nodeId", nodeId);
+            json.Add("isRoot", isRoot);
+            json.Add("type", (int) type);
             // Some data like orientation, color, etc.
             
             return json;
@@ -46,6 +52,8 @@ namespace Data.Building
         {
             JSONObject json = new JSONObject();
             json.Add("nodeId", 0);
+            json.Add("isRoot", false);
+            json.Add("type", (int) BuildNode.BuildType.Platform);
             
             return json;
         }
@@ -53,6 +61,9 @@ namespace Data.Building
         public void Load(JSONObject json)
         {
             nodeId = json["nodeId"].AsInt;
+            
+            isRoot = json["isRoot"].AsBool;
+            type = (BuildNode.BuildType) json["type"].AsInt;
         }
 
         #endregion
@@ -64,12 +75,18 @@ namespace Data.Building
                 var reader = serializer.GetFastBufferReader();
 
                 reader.ReadValueSafe(out nodeId);
+                
+                reader.ReadValueSafe(out isRoot);
+                reader.ReadValueSafe(out type);
             }
             else
             {
                 var writer = serializer.GetFastBufferWriter();
 
                 writer.WriteValueSafe(nodeId);
+                
+                writer.WriteValueSafe(isRoot);
+                writer.WriteValueSafe(type);
             }
         }
     }

@@ -15,26 +15,24 @@ namespace Data.Building
             // Check for removed nodes
             foreach (var oldNode in oldBuild.nodes)
             {
-                if (newBuild.nodes.FindIndex(n => n.id == oldNode.id && n.data != null) >= 0) continue;
-                if (oldNode.data == null) continue;
+                if (newBuild.nodes.FindIndex(n => n.id == oldNode.id) >= 0) continue;
                 
                 changes.Add(new BuildChange()
                 {
                     added = false,
-                    data = oldNode.data.Value
+                    data = oldNode.data
                 });
             }
             
             // Check for added nodes
             foreach (var newNode in newBuild.nodes)
             {
-                if (oldBuild.nodes.FindIndex(n => n.id == newNode.id && n.data != null) >= 0) continue;
-                if (newNode.data == null) continue;
+                if (oldBuild.nodes.FindIndex(n => n.id == newNode.id) >= 0) continue;
                 
                 changes.Add(new BuildChange()
                 {
                     added = true,
-                    data = newNode.data.Value
+                    data = newNode.data
                 });
             }
 

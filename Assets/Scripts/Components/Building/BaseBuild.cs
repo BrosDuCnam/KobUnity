@@ -18,23 +18,73 @@ namespace Components.Building
 
         private void OnBuildChange(List<BuildChange> changes)
         {
-            foreach (var change in changes)
-            {
-                ApplyChange(change);
-            }
+            ApplyChangeList(changes);
         }
         
-        private void ApplyChange(BuildChange change)
+        private void ApplyChangeList(List<BuildChange> changes)
+        {
+            changes = changes.OrderBy(x => x.added).ToList(); // Removed first, added last
+            
+            List<BuildChange> failedChanges = new List<BuildChange>(changes);
+            int rotationCount = 0;
+            int totalChanges = changes.Count;
+
+            while (rotationCount < totalChanges)
+            {
+                List<BuildChange> previousChanges = new List<BuildChange>(failedChanges);
+                failedChanges.Clear();
+                bool hasChanged = false;
+                totalChanges = previousChanges.Count;
+
+                foreach (var change in previousChanges)
+                {
+                    if (!ApplyChange(change))
+                    {
+                        failedChanges.Add(change);
+                    }
+                    else
+                    {
+                        hasChanged = true;
+                        rotationCount = 0; // Réinitialiser le compteur car une modification a réussi
+                    }
+                }
+
+                if (failedChanges.Count > 0 && !hasChanged)
+                {
+                    // Décaler la première modification à la fin de la liste
+                    var firstChange = failedChanges[0];
+                    failedChanges.RemoveAt(0);
+                    failedChanges.Add(firstChange);
+                    rotationCount++; // Incrémenter le compteur de rotation
+                }
+                else if (hasChanged)
+                {
+                    rotationCount = 0; // Réinitialiser si des modifications ont réussi
+                }
+
+                if ((!hasChanged || previousChanges.Count == 0) && rotationCount >= totalChanges)
+                {
+                    break; // Arrêter la boucle si une rotation complète est effectuée sans succès ou s'il n'y a plus de modifications
+                }
+            }
+        }
+
+        
+        private bool ApplyChange(BuildChange change)
         {
             if (change.added)
             {
-                if (buildingData.Value.nodes.Count == 1)
+                if (change.data.isRoot && nodes.Count == 0)
                 {
-                    // First node
-                    BuildNode.Instantiate(BuildNode.BuildType.platform, transform, Vector3.zero, this, change.data.nodeId);
+                    if (nodes.Count == 0)
+                    {
+                        // First node
+                        BuildNode.Instantiate(BuildNode.BuildType.Platform, transform, Vector3.zero, this, change.data.nodeId);
+                        return true;   
+                    }
+                    
+                    return false;
                 }
-                
-                bool found = false;
                 
                 // Find anchor
                 foreach (Node node in buildingData.Value.nodes)
@@ -55,18 +105,12 @@ namespace Components.Building
                                 
                                 // TODO: Apply other modifiers (orientation, etc.)
                                 
-                                found = true;
-                                break;
+                                return true;
                             }
-                            
-                            if (found) break;
                         }
-                        
-                        if (found) break;
                     }
-                    
-                    if (found) break;
                 }
+                return false;
             }
             else
             {
@@ -76,8 +120,11 @@ namespace Components.Building
                     if (buildNode.nodeId != change.data.nodeId) continue;
                     
                     buildNode.Destroy();
+                    return true;
                 }
             }
+            
+            return false;
         }
 
         private void Refresh(Build newBuild)
@@ -95,7 +142,12 @@ namespace Components.Building
                 if (buildingData.IsServer)
                 {
                     // Add first node
-                    buildingData.AddNode(new NodeData() { nodeId = GetRandomId() }, new List<NodeAnchor>());
+                    buildingData.AddNode(new NodeData()
+                    {
+                        nodeId = GetRandomId(),
+                        isRoot = true,
+                        type = BuildNode.BuildType.Platform
+                    }, new List<NodeAnchor>());
                 }
 
                 Refresh(buildingData.Value);
@@ -171,7 +223,7 @@ namespace Components.Building
 
             Destroy(node.gameObject);
          
-            buildingData.AddNode(nodeData.data.Value, anchors);
+            buildingData.AddNode(nodeData.data, anchors);
             return nodeData;
         }
         
@@ -200,7 +252,10 @@ namespace Components.Building
 
         public void Load(JSONObject json)
         {
-            throw new System.NotImplementedException();
+            Build build = new Build();
+            build.Load(json);
+            
+            buildingData.SetBuild(build);
         }
         
         #endregion

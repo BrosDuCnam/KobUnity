@@ -12,7 +12,7 @@ namespace Components.Building
 
         public enum BuildType
         {
-            platform,
+            Platform,
         }
         
         [SerializeField] public BuildType type;
@@ -86,6 +86,9 @@ namespace Components.Building
                     }
                 }
             }
+            
+            // Remove this node from build
+            build.nodes.Remove(this);
             
             Destroy(gameObject);
         }

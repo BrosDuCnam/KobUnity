@@ -67,7 +67,6 @@ namespace Network.Data
                 break;
             }
             node.id = change.Value.nodeId;
-            if (node.data == null) return; // Can't do anything if node data is null
 
             Build build = GetValue();
             if (build.nodes.Any(n => n.id == node.id))
@@ -116,7 +115,7 @@ namespace Network.Data
             {
                 id = id,
                 anchors = new List<NodeAnchor>(),
-                data = null
+                data = new NodeData()
             };
 
             foreach (var anchor in _anchors)
@@ -254,6 +253,39 @@ namespace Network.Data
                 if (_anchors[i].nodeId == id)
                 {
                     _anchors.RemoveAt(i);
+                }
+            }
+            
+            _updateIndex.Value += 1;
+        }
+
+        #endregion
+
+        #region SetBuild
+        
+        public void SetBuild(Build build)
+        {
+            if (NetworkManager.Singleton.IsServer)
+            {
+                _SetBuild(build);
+            }
+            else
+            {
+                return; // A client can't set the build
+            }
+        }
+
+        private void _SetBuild(Build build)
+        {
+            _nodes.Clear();
+            _anchors.Clear();
+            
+            foreach (var node in build.nodes)
+            {
+                _nodes.Add(node.data);
+                foreach (var anchor in node.anchors)
+                {
+                    _anchors.Add(anchor);
                 }
             }
             

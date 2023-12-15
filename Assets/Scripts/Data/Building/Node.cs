@@ -7,13 +7,13 @@ namespace Data.Building
     public struct Node : ISavable
     {
         public int id;
-        public NodeData? data;
+        public NodeData data;
         public List<NodeAnchor> anchors;
         public JSONObject Save()
         {
             JSONObject json = new JSONObject();
             json.Add("id", id);
-            json.Add("data", data?.Save());
+            json.Add("data", data.Save());
             
             JSONArray anchorsJson = new JSONArray();
             foreach (var anchor in anchors)
@@ -30,7 +30,7 @@ namespace Data.Building
         {
             JSONObject json = new JSONObject();
             json.Add("id", 0);
-            json.Add("data", data?.GetDefaultSave());
+            json.Add("data", data.GetDefaultSave());
             
             JSONArray anchorsJson = new JSONArray();
             anchorsJson.Add(new NodeAnchor().GetDefaultSave());
@@ -44,7 +44,7 @@ namespace Data.Building
         {
             id = json["id"].AsInt;
             data = new NodeData();
-            data.Value.Load(json["data"].AsObject);
+            data.Load(json["data"].AsObject);
             
             anchors = new List<NodeAnchor>();
             foreach (var anchor in json["anchors"].AsArray)
